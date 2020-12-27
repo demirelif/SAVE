@@ -1,8 +1,10 @@
 package com.example.saveandroid;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,11 +21,19 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.amazonaws.amplify.generated.graphql.CreatePetMutation;
+import com.amazonaws.amplify.generated.graphql.ListPetsQuery;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.apollographql.apollo.GraphQLCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
+
+import java.io.File;
 
 import javax.annotation.Nonnull;
 
@@ -55,6 +65,14 @@ public class SendFaceData extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 choosePhoto(view);
+            }
+        });
+
+        btnAddItem.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                uploadAndSave();
             }
         });
     }
@@ -167,4 +185,80 @@ public class SendFaceData extends AppCompatActivity {
             photoPath = picturePath;
         }
     }
+
+    private String getS3Key(String localPath) {
+        //We have read and write ability under the public folder
+        return "public/" + new File(localPath).getName();
+    }
+
+    public void uploadWithTransferUtility(String localPath) {
+        String key = getS3Key(localPath);
+
+        Log.d(TAG, "Uploading file from " + localPath + " to " + key);
+
+        TransferObserver uploadObserver =
+                ClientFactory.transferUtility().upload(
+                        key,
+                        new File(localPath));
+
+        // Attach a listener to the observer to get state update and progress notifications
+        uploadObserver.setTransferListener(new TransferListener() {
+
+            @Override
+            public void onStateChanged(int id, TransferState state) {
+                if (TransferState.COMPLETED == state) {
+                    // Handle a completed upload.
+                    Log.d(TAG, "Upload is completed. ");
+
+                    // Upload is successful. Save the rest and send the mutation to server.
+                    save();
+                }
+            }
+
+            @Override
+            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+                float percentDonef = ((float) bytesCurrent / (float) bytesTotal) * 100;
+                int percentDone = (int)percentDonef;
+
+                Log.d(TAG, "ID:" + id + " bytesCurrent: " + bytesCurrent
+                        + " bytesTotal: " + bytesTotal + " " + percentDone + "%");
+            }
+
+            @Override
+            public void onError(int id, Exception ex) {
+                // Handle errors
+                Log.e(TAG, "Failed to upload photo. ", ex);
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(SendFaceData.this, "Failed to upload photo", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+
+        });
+    }
+
+
+    private void uploadAndSave(){
+
+        if (photoPath != null) {
+            // For higher Android levels, we need to check permission at runtime
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // Permission is not granted
+                Log.d(TAG, "READ_EXTERNAL_STORAGE permission not granted! Requesting...");
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        1);
+            }
+
+            // Upload a photo first. We will only call save on its successful callback.
+            uploadWithTransferUtility(photoPath);
+        } else {
+            save();
+        }
+    }
+
 }
