@@ -2,4 +2,5 @@ type Pet @model {
   id: ID!
   name: String!
   description: String
+  photo: String
 }
