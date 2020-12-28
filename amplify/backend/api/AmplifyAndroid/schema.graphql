@@ -1,4 +1,4 @@
-type Pet @model {
+type Pet{
   id: ID!
   name: String!
   description: String

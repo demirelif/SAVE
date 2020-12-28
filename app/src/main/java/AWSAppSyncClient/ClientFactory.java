@@ -31,6 +31,8 @@ public class ClientFactory {
     public static synchronized TransferUtility transferUtility() {
         return transferUtility;
     }
+
+
 /*
     public static synchronized void init(final Context context) {
         if (client == null) {
@@ -50,8 +52,10 @@ public class ClientFactory {
                         }
                     }).build();
         }
-    } */
+    }
 
+
+ */
     public static synchronized AWSAppSyncClient appSyncClient() {
         return client;
     }
