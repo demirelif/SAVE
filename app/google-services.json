@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "112497197444",
+    "project_id": "saveandroid-b3c5b",
+    "storage_bucket": "saveandroid-b3c5b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:112497197444:android:5c89c267164bd42ba99dd1",
+        "android_client_info": {
+          "package_name": "com.example.saveandroid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "112497197444-aolkr1tft3ijhftiabktv96ba48pvnsg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtMzX4nZe3KemMQuYdic7KVEzC-gCbWZg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "112497197444-aolkr1tft3ijhftiabktv96ba48pvnsg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
