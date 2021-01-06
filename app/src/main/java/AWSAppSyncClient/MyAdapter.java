@@ -16,7 +16,7 @@ import java.util.List;
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
-    private List<ListPetsQuery.Item> mData = new ArrayList<>();;
+    private List<ListPetsQuery.Item> mData = new ArrayList<>();
     private LayoutInflater mInflater;
 
 
