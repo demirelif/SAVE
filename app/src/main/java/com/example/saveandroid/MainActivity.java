@@ -3,10 +3,9 @@ package com.example.saveandroid;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-
+import FaceDetector.FaceDetectionActivity;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.amazonaws.mobile.auth.core.IdentityManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class MainActivity extends AppCompatActivity {
@@ -23,8 +22,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent addPetIntent = new Intent(MainActivity.this, SendFaceData.class);
                 MainActivity.this.startActivity(addPetIntent);
+
             }
         });
+    }
+
+    public void activateFaceTracking(View view){
+        Intent faceIntent = new Intent(MainActivity.this, FaceDetectionActivity.class);
+        MainActivity.this.startActivity(faceIntent);
     }
 }
 

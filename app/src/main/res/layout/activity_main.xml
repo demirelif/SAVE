@@ -17,4 +17,11 @@
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@android:drawable/ic_input_add" />
 
+    <Button
+        android:id="@+id/cameraButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="activateFaceTracking"
+        android:text="Face Tracking" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
