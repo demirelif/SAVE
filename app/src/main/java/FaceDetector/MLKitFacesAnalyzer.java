@@ -7,16 +7,19 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.media.MediaPlayer;
 import android.util.Log;
 import android.view.TextureView;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-
+import android.media.MediaPlayer;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageProxy;
 
+import com.example.saveandroid.R;
 import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata;
@@ -29,6 +32,7 @@ import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions;
 import java.util.List;
 
 public class MLKitFacesAnalyzer implements ImageAnalysis.Analyzer {
+    MediaPlayer player;
     private static final String TAG = "MLKitFacesAnalyzer";
     private FirebaseVisionFaceDetector faceDetector;
     private TextureView tv;
@@ -254,11 +258,10 @@ public class MLKitFacesAnalyzer implements ImageAnalysis.Analyzer {
             smilingProbability.setText(result);
             smilingProbability.invalidate();
             System.out.println("\n" + result);
-
-
         }
-
         //return result.toString();
     }
+
+
 }
 

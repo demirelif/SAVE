@@ -2,10 +2,12 @@ package FaceDetector;
 
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Size;
 import android.view.TextureView;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -27,6 +29,7 @@ import androidx.core.content.ContextCompat;
 import com.example.saveandroid.R;
 
 public class FaceDetectionActivity extends AppCompatActivity {
+
     public static final int REQUEST_CODE_PERMISSION = 101;
     //public static final String[] REQUIRED_PERMISSIONS = new String[]{"android.permission.CAMERA", "android.permission.WRITE_EXTERNAL_STORAGE"};
     public static final String[] REQUIRED_PERMISSIONS = new String[]{"android.permission.CAMERA"};
@@ -124,4 +127,5 @@ public class FaceDetectionActivity extends AppCompatActivity {
         }
         return true;
     }
+
 }
