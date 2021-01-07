@@ -114,7 +114,7 @@ public class MLKitFacesAnalyzer implements ImageAnalysis.Analyzer {
                 .addOnSuccessListener(firebaseVisionFaces -> {
                     if (!firebaseVisionFaces.isEmpty()) {
                         getInfoFromFaces(firebaseVisionFaces);
-                        //processFaces(firebaseVisionFaces);
+                        processFaces(firebaseVisionFaces);
                         System.out.println("meow");
                     } else {
                         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.MULTIPLY);
@@ -125,19 +125,19 @@ public class MLKitFacesAnalyzer implements ImageAnalysis.Analyzer {
 
     private void processFaces(List<FirebaseVisionFace> faces) {
         for (FirebaseVisionFace face : faces) {
-            drawContours(face.getContour(FirebaseVisionFaceContour.FACE).getPoints());
-            drawContours(face.getContour(FirebaseVisionFaceContour.LEFT_EYEBROW_BOTTOM).getPoints());
-            drawContours(face.getContour(FirebaseVisionFaceContour.RIGHT_EYEBROW_BOTTOM).getPoints());
-            drawContours(face.getContour(FirebaseVisionFaceContour.LEFT_EYE).getPoints());
-            drawContours(face.getContour(FirebaseVisionFaceContour.RIGHT_EYE).getPoints());
-            drawContours(face.getContour(FirebaseVisionFaceContour.LEFT_EYEBROW_TOP).getPoints());
-            drawContours(face.getContour(FirebaseVisionFaceContour.RIGHT_EYEBROW_TOP).getPoints());
-            drawContours(face.getContour(FirebaseVisionFaceContour.LOWER_LIP_BOTTOM).getPoints());
-            drawContours(face.getContour(FirebaseVisionFaceContour.LOWER_LIP_TOP).getPoints());
-            drawContours(face.getContour(FirebaseVisionFaceContour.UPPER_LIP_BOTTOM).getPoints());
-            drawContours(face.getContour(FirebaseVisionFaceContour.UPPER_LIP_TOP).getPoints());
-            drawContours(face.getContour(FirebaseVisionFaceContour.NOSE_BRIDGE).getPoints());
-            drawContours(face.getContour(FirebaseVisionFaceContour.NOSE_BOTTOM).getPoints());
+            //drawContours(face.getContour(FirebaseVisionFaceContour.FACE).getPoints());
+            //drawContours(face.getContour(FirebaseVisionFaceContour.LEFT_EYEBROW_BOTTOM).getPoints());
+            //drawContours(face.getContour(FirebaseVisionFaceContour.RIGHT_EYEBROW_BOTTOM).getPoints());
+            //drawContours(face.getContour(FirebaseVisionFaceContour.LEFT_EYE).getPoints());
+            //drawContours(face.getContour(FirebaseVisionFaceContour.RIGHT_EYE).getPoints());
+            //drawContours(face.getContour(FirebaseVisionFaceContour.LEFT_EYEBROW_TOP).getPoints());
+            //drawContours(face.getContour(FirebaseVisionFaceContour.RIGHT_EYEBROW_TOP).getPoints());
+            //drawContours(face.getContour(FirebaseVisionFaceContour.LOWER_LIP_BOTTOM).getPoints());
+            //drawContours(face.getContour(FirebaseVisionFaceContour.LOWER_LIP_TOP).getPoints());
+            //drawContours(face.getContour(FirebaseVisionFaceContour.UPPER_LIP_BOTTOM).getPoints());
+            //drawContours(face.getContour(FirebaseVisionFaceContour.UPPER_LIP_TOP).getPoints());
+            //drawContours(face.getContour(FirebaseVisionFaceContour.NOSE_BRIDGE).getPoints());
+            //drawContours(face.getContour(FirebaseVisionFaceContour.NOSE_BOTTOM).getPoints());
             Rect box = new Rect((int) translateX(face.getBoundingBox().left),
                     (int) translateY(face.getBoundingBox().top),
                     (int) translateX(face.getBoundingBox().right),
@@ -230,7 +230,7 @@ public class MLKitFacesAnalyzer implements ImageAnalysis.Analyzer {
             	3 frame for blink
             	20 frame for yawn */
 
-            if(leftEyeOpenProb <= 0.4 && rightEyeOpenProb <= 0.4){
+            if(leftEyeOpenProb <= 0.5 && rightEyeOpenProb <= 0.5){
 
                 fatigue_frame_counter++;
                 blink_frame_counter++;

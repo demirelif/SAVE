@@ -8,7 +8,7 @@
     android:weightSum="100">
 
     <ImageView
-        android:id="@+id/image_view"
+        android:id="@+id/save_header.png"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:maxHeight="200dp"
