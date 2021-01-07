@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
@@ -32,7 +33,6 @@ import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions;
 import java.util.List;
 
 public class MLKitFacesAnalyzer implements ImageAnalysis.Analyzer {
-    MediaPlayer player;
     private static final String TAG = "MLKitFacesAnalyzer";
     private FirebaseVisionFaceDetector faceDetector;
     private TextureView tv;
@@ -57,6 +57,7 @@ public class MLKitFacesAnalyzer implements ImageAnalysis.Analyzer {
     private final int FATIGUE_THRESHOLD = 15;
     private final int BLINK_THRESHOLD = 3;
     private final int YAWN_THRESHOLD = 20;
+
     MLKitFacesAnalyzer(TextureView tv, ImageView iv, CameraX.LensFacing lens, TextView smilingProbability) {
         this.tv = tv;
         this.iv = iv;
@@ -211,19 +212,19 @@ public class MLKitFacesAnalyzer implements ImageAnalysis.Analyzer {
             leftEyeOpenProb = face.getLeftEyeOpenProbability();
             rightEyeOpenProb = face.getRightEyeOpenProbability();
             result.append("Smile: ");
-            if (smileProb > 0.6) {
+            if (smileProb > 0.5) {
                 result.append("Yes");
             } else {
                 result.append("No");
             }
             result.append("\nLeft eye: ");
-            if (leftEyeOpenProb > 0.6) {
+            if (leftEyeOpenProb > 0.5) {
                 result.append("Open");
             } else {
                 result.append("Close");
             }
             result.append("\nRight eye: ");
-            if (rightEyeOpenProb > 0.6) {
+            if (rightEyeOpenProb > 0.5) {
                 result.append("Open");
             } else {
                 result.append("Close");
@@ -242,6 +243,8 @@ public class MLKitFacesAnalyzer implements ImageAnalysis.Analyzer {
                 if(fatigue_frame_counter >= FATIGUE_THRESHOLD){
                     result.append("FATIGUE ALERT");
                     System.out.println("FATIGUE ALERT");
+                    FaceDetectionActivity.getInstanceActivity().playAlarm();
+                    //faceDetectionActivity.playAudio();
                 }
 
                 if(blink_frame_counter >= BLINK_THRESHOLD){
@@ -261,6 +264,7 @@ public class MLKitFacesAnalyzer implements ImageAnalysis.Analyzer {
         }
         //return result.toString();
     }
+
 
 
 }

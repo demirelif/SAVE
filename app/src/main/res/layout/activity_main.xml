@@ -6,7 +6,6 @@
     android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/gradient_list"
     tools:context=".MainActivity">
 
     <com.flaviofaria.kenburnsview.KenBurnsView
@@ -40,18 +39,22 @@
         android:contentDescription="TODO"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/startRoad"
         app:srcCompat="@android:drawable/ic_input_add" />
 
-    <Button
+    <ImageButton
         android:id="@+id/startRoad"
-        android:layout_width="187dp"
-        android:layout_height="101dp"
+        android:layout_width="277dp"
+        android:layout_height="100dp"
+        android:layout_marginStart="62dp"
+        android:layout_marginTop="311dp"
+        android:layout_marginEnd="62dp"
+        android:layout_marginBottom="239dp"
         android:onClick="activateFaceTracking"
-        android:text="Start Road"
-        android:background="@drawable/save_header_small"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/addPhoto"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/save_header_small" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

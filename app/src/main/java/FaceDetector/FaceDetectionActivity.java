@@ -3,6 +3,7 @@ package FaceDetector;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Size;
@@ -28,8 +29,11 @@ import androidx.core.content.ContextCompat;
 
 import com.example.saveandroid.R;
 
-public class FaceDetectionActivity extends AppCompatActivity {
+import java.lang.ref.WeakReference;
 
+public class FaceDetectionActivity extends AppCompatActivity {
+    MediaPlayer player;
+    public static WeakReference<FaceDetectionActivity> weakActivity;
     public static final int REQUEST_CODE_PERMISSION = 101;
     //public static final String[] REQUIRED_PERMISSIONS = new String[]{"android.permission.CAMERA", "android.permission.WRITE_EXTERNAL_STORAGE"};
     public static final String[] REQUIRED_PERMISSIONS = new String[]{"android.permission.CAMERA"};
@@ -40,6 +44,10 @@ public class FaceDetectionActivity extends AppCompatActivity {
 
     public static CameraX.LensFacing lens = CameraX.LensFacing.FRONT;
 
+    public static FaceDetectionActivity getInstanceActivity() {
+        return weakActivity.get();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +55,8 @@ public class FaceDetectionActivity extends AppCompatActivity {
         tv = findViewById(R.id.face_texture_view);
         iv = findViewById(R.id.face_image_view);
         smilingProbability = findViewById(R.id.smilingProbability);
+
+        weakActivity = new WeakReference<>(FaceDetectionActivity.this);
 
         if (allPermissionsGranted()) {
             tv.post(this::startCamera);
@@ -126,6 +136,21 @@ public class FaceDetectionActivity extends AppCompatActivity {
             }
         }
         return true;
+    }
+
+    public void playAlarm(){
+        if(player == null){
+            player = MediaPlayer.create(this, R.raw.alarm);
+            player.setOnCompletionListener(mp -> stopPlayer());
+        }
+        player.start();
+    }
+
+    private void stopPlayer(){
+        if (player != null){
+            player.release();
+            player = null;
+        }
     }
 
 }
