@@ -1,21 +1,28 @@
 package com.example.saveandroid;
 
 import android.content.Intent;
-import android.graphics.drawable.AnimationDrawable;
+import android.graphics.Color;
 import android.os.Bundle;
-
+import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-//import android.support.constraint.ConstraintLayout;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
 import com.flaviofaria.kenburnsview.KenBurnsView;
 import com.flaviofaria.kenburnsview.RandomTransitionGenerator;
 import com.flaviofaria.kenburnsview.Transition;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 
 import FaceDetector.FaceDetectionActivity;
+
+//import android.support.constraint.ConstraintLayout;
 
 public class MainActivity extends AppCompatActivity {
     private KenBurnsView kbv;
@@ -25,7 +32,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         //IdentityManager.getDefaultIdentityManager().signOut();
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        int colorCodeDark = Color.parseColor("#FF9800");
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(colorCodeDark);
+        setContentView(R.layout.nav_activity_main);
 
         kbv = findViewById(R.id.kbv);
 
@@ -36,15 +47,37 @@ public class MainActivity extends AppCompatActivity {
         kbv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (moving){
+                if (moving) {
                     kbv.pause();
                     moving = false;
-                }else{
+                } else {
                     kbv.resume();
                     moving = true;
                 }
             }
         });
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                        if (item.getItemId() == R.id.nav_home) {
+                            //Toast.makeText(MainActivity.this,  "home", Toast.LENGTH_SHORT).show();
+                            Intent addPetIntent = new Intent(MainActivity.this, SettingsActivity.class);
+                            MainActivity.this.startActivity(addPetIntent);
+                        }
+                        else if (item.getItemId() == R.id.nav_gallery) {
+                            //Toast.makeText(MainActivity.this,  "home", Toast.LENGTH_SHORT).show();
+                            Intent addPetIntent = new Intent(MainActivity.this, SettingsActivity.class);
+                            MainActivity.this.startActivity(addPetIntent);
+                        }
+                        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+                        drawerLayout.closeDrawer(GravityCompat.START);
+                        return true;
+                    }
+                });
+
         kbv.setTransitionListener(new KenBurnsView.TransitionListener() {
             @Override
             public void onTransitionStart(Transition transition) {
@@ -56,6 +89,8 @@ public class MainActivity extends AppCompatActivity {
                 //Toast.makeText(MainActivity.this,"Finished", Toast.LENGTH_SHORT).show();
             }
         });
+
+
 
         FloatingActionButton btnAddPet = findViewById(R.id.addPhoto);
         btnAddPet.setOnClickListener(new View.OnClickListener() {
@@ -73,6 +108,8 @@ public class MainActivity extends AppCompatActivity {
         Intent faceIntent = new Intent(MainActivity.this, FaceDetectionActivity.class);
         MainActivity.this.startActivity(faceIntent);
     }
+
+
 }
 
 

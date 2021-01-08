@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.saveandroid">
+
     <uses-feature android:name="android.hardware.camera.any" />
+
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -16,8 +18,20 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+
         android:theme="@style/Theme.SAVEAndroid">
-        <activity android:name="FaceDetector.FaceDetectionActivity"></activity>
+
+        <activity
+            android:name=".PrefActivity"
+            android:label="PrefActivity"></activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings" />
+        <activity
+            android:name=".DrawerActivity"
+            android:label="@string/title_activity_drawer"
+            android:theme="@style/Theme.SAVEAndroid.NoActionBar" />
+        <activity android:name="FaceDetector.FaceDetectionActivity" />
         <activity android:name=".SendFaceData" />
         <activity
             android:name=".AuthenticationActivity"

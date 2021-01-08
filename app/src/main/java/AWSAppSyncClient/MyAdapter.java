@@ -1,3 +1,4 @@
+/*
 package AWSAppSyncClient;
 
 import android.content.Context;
@@ -66,3 +67,4 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         }
     }
 }
+*/
