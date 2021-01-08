@@ -30,6 +30,7 @@ import com.google.firebase.ml.vision.face.FirebaseVisionFaceContour;
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetector;
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 public class MLKitFacesAnalyzer implements ImageAnalysis.Analyzer {
@@ -211,9 +212,18 @@ public class MLKitFacesAnalyzer implements ImageAnalysis.Analyzer {
             smileProb = face.getSmilingProbability();
             leftEyeOpenProb = face.getLeftEyeOpenProbability();
             rightEyeOpenProb = face.getRightEyeOpenProbability();
+            DecimalFormat numberFormat = new DecimalFormat("#0.00");
             result.append("Smile: ");
+            result.append( numberFormat.format(smileProb) );
+            result.append("\nLeft Eye Open: ");
+            result.append(numberFormat.format(leftEyeOpenProb) );
+            result.append("\nRight Eye Open: ");
+            result.append(numberFormat.format(rightEyeOpenProb));
+
+/*            result.append("Smile: ");
             if (smileProb > 0.5) {
-                result.append("Yes");
+                //result.append("Yes");
+                result.append(smileProb);
             } else {
                 result.append("No");
             }
@@ -228,7 +238,8 @@ public class MLKitFacesAnalyzer implements ImageAnalysis.Analyzer {
                 result.append("Open");
             } else {
                 result.append("Close");
-            }
+            }*/
+
             result.append("\n");
 
             /*	30 frame for fatigue
@@ -242,7 +253,7 @@ public class MLKitFacesAnalyzer implements ImageAnalysis.Analyzer {
 
                 if(fatigue_frame_counter >= FATIGUE_THRESHOLD){
                     result.append("FATIGUE ALERT");
-                    System.out.println("FATIGUE ALERT");
+                    //System.out.println("FATIGUE ALERT");
                     FaceDetectionActivity.getInstanceActivity().playAlarm();
                     //faceDetectionActivity.playAudio();
                 }
@@ -253,7 +264,6 @@ public class MLKitFacesAnalyzer implements ImageAnalysis.Analyzer {
                 }
             }
             else{
-
                 fatigue_frame_counter = 0;
                 blink_frame_counter = 0;
             }
