@@ -7,6 +7,7 @@ import android.graphics.SurfaceTexture;
 import android.hardware.camera2.*;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.MediaRecorder;
+import android.os.HandlerThread;
 import android.util.Log;
 import android.view.TextureView;
 import android.widget.Toast;
@@ -23,6 +24,8 @@ public class CameraApp {
     private String cameraOn = CAMERA_BACK;
     private TextureView mTextureView;
 
+    private HandlerThread backCamThread = null;
+
     public void startCameras(Activity activity){
         CameraManager manager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
         try {
@@ -36,6 +39,24 @@ public class CameraApp {
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
+
+        // not sure about the code above
+
+        String frontID = getFrontFacingCameraId(manager);
+        String backID = getBackFacingCameraId(manager);
+
+
+
+    }
+
+    public void startBackCamera(){
+        backCamThread = new HandlerThread("BackCamThread");
+        backCamThread.start();
+    }
+    public void stopBackCamera() throws InterruptedException {
+        backCamThread.quitSafely();
+        backCamThread.join();
+        backCamThread = null;
     }
 
     private String getFrontFacingCameraId(CameraManager cManager) {
@@ -75,4 +96,6 @@ public class CameraApp {
         }
         return null;
     }
+
+
 }
