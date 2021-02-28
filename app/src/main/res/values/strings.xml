@@ -37,4 +37,5 @@
     </string>
     <string name="attachment_summary_off">Give Instructions With Your Voice</string>
     <string name="title_activity_pref">PrefActivity</string>
+    <string name="take_picture">Take picture</string>
 </resources>

@@ -40,6 +40,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 
+import com.example.saveandroid.R;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -52,13 +54,28 @@ import java.util.HashMap;
 public class CameraApp extends Context {
 
 
-    public void onStart() {
-        CameraManager cameraManager;
-    cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+    public void onStart() throws CameraAccessException {
+        CameraManager manager = (CameraManager) this.getSystemService(Context.CAMERA_SERVICE);
+        String[] cameraIds = null;
+        try {
+            cameraIds = manager.getCameraIdList();
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+        String msg = "";
+        if (cameraIds != null && cameraIds.length > 0) {
+            for (String s : cameraIds
+            ) {
+                if (msg != "")
+                    msg += ", ";
+                msg += s;
+            }
+        } else
+            msg = "No camera is found";
+        CameraCharacteristics camChar = manager.getCameraCharacteristics(msg);
+        int camCharacteristics = camChar.get(CameraCharacteristics.LENS_FACING); //front 0 back 1
     }
-
-
-    ///////
+    /*
     public static final String CAMERA_FRONT = "1";
     public static final String CAMERA_BACK = "0";
     private static final String TAG = "Camera";
@@ -201,7 +218,7 @@ public class CameraApp extends Context {
         return null;
     }
 
-
+*/
     @Override
     public AssetManager getAssets() {
         return null;
