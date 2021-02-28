@@ -51,8 +51,8 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class CameraC extends Context {
-
+public class CameraC {
+/*
     public static final String CAMERA_FRONT = "1";
     public static final String CAMERA_BACK = "0";
     private static final String TAG = "Camera";
@@ -130,8 +130,6 @@ public class CameraC extends Context {
             Toast.makeText(PusherSurface.this, "camera failed to open", Toast.LENGTH_SHORT).show();
         }
     };
-
-     */
 
     public void startCameras(Activity activity) throws CameraAccessException {
         CameraManager cameraManager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
@@ -720,4 +718,5 @@ public class CameraC extends Context {
     public boolean isDeviceProtectedStorage() {
         return false;
     }
+    */
 }
