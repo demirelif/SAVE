@@ -40,7 +40,7 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity {
     private KenBurnsView kbv;
     private boolean moving = true;
-    private String url = "http://" + "10.0.2.2" + ":" + 5000 + "/";
+    private String url = "http://" + "192.168.1.20" + ":" + 5000;
     private String postBodyString;
     private MediaType mediaType;
     private RequestBody requestBody;
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         //IdentityManager.getDefaultIdentityManager().signOut();
 
-        //postRequest("your message here", url);
+        postRequest("your message here", url);
 
         super.onCreate(savedInstanceState);
         int colorCodeDark = Color.parseColor("#FF9800");
@@ -132,12 +132,13 @@ public class MainActivity extends AppCompatActivity {
 
     // http request
 
-    private RequestBody buildRequestBody(String type) {
-        postBodyString = type;
-        mediaType = MediaType.parse("image/" + type);
+    private RequestBody buildRequestBody(String msg) {
+        postBodyString = msg;
+        mediaType = MediaType.parse("text/plain");
         requestBody = RequestBody.create(postBodyString, mediaType);
         return requestBody;
     }
+
 
 
     private void postRequest(String message, String URL) {
@@ -154,12 +155,8 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-
-
                         Toast.makeText(MainActivity.this, "Something went wrong:" + " " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         call.cancel();
-
-
                     }
                 });
 
