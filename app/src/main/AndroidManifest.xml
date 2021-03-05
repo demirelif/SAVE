@@ -16,7 +16,9 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.SAVEAndroid">
+        android:theme="@style/Theme.SAVEAndroid"
+        android:usesCleartextTraffic="true"
+        >
 
         <uses-library
             android:name="com.google.android.wearable"

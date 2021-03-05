@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,17 +22,35 @@ import com.flaviofaria.kenburnsview.Transition;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
-import FaceDetector.FaceDetectionActivity;
+import java.io.IOException;
 
+import FaceDetector.FaceDetectionActivity;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 //import android.support.constraint.ConstraintLayout;
 
 public class MainActivity extends AppCompatActivity {
     private KenBurnsView kbv;
     private boolean moving = true;
+    private String url = "http://" + "10.0.2.2" + ":" + 5000 + "/";
+    private String postBodyString;
+    private MediaType mediaType;
+    private RequestBody requestBody;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //IdentityManager.getDefaultIdentityManager().signOut();
+
+        //postRequest("your message here", url);
+
         super.onCreate(savedInstanceState);
         int colorCodeDark = Color.parseColor("#FF9800");
         Window window = getWindow();
@@ -107,9 +127,59 @@ public class MainActivity extends AppCompatActivity {
     public void activateFaceTracking(View view){
         Intent faceIntent = new Intent(MainActivity.this, FaceDetectionActivity.class);
         MainActivity.this.startActivity(faceIntent);
+
+    }
+
+    // http request
+
+    private RequestBody buildRequestBody(String type) {
+        postBodyString = type;
+        mediaType = MediaType.parse("image/" + type);
+        requestBody = RequestBody.create(postBodyString, mediaType);
+        return requestBody;
     }
 
 
+    private void postRequest(String message, String URL) {
+        RequestBody requestBody = buildRequestBody(message);
+        OkHttpClient okHttpClient = new OkHttpClient();
+        Request request = new Request
+                .Builder()
+                .post(requestBody)
+                .url(URL)
+                .build();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(final Call call, final IOException e) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+
+                        Toast.makeText(MainActivity.this, "Something went wrong:" + " " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        call.cancel();
+
+
+                    }
+                });
+
+            }
+
+            @Override
+            public void onResponse(Call call, final Response response) throws IOException {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Toast.makeText(MainActivity.this, response.body().string(), Toast.LENGTH_LONG).show();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        });
+    }
 }
 
 
