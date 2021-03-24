@@ -27,6 +27,15 @@ import androidx.camera.core.PreviewConfig;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CameraMetadata;
+import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.params.StreamConfigurationMap;
+
 import com.example.saveandroid.R;
 
 import java.lang.ref.WeakReference;
@@ -93,6 +102,7 @@ public class FaceDetectionActivity extends AppCompatActivity {
                 .build();
 
         Preview preview = new Preview(pc);
+
         preview.setOnPreviewOutputUpdateListener(output -> {
             ViewGroup vg = (ViewGroup) tv.getParent();
             vg.removeView(tv);
