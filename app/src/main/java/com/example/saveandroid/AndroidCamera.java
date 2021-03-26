@@ -69,6 +69,7 @@ class AndroidCamera extends AppCompatActivity {
     private HandlerThread mBackgroundThread;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        System.out.println("ONCREATE GIRIYOR MU");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_android_camera_api);
         textureView = (TextureView) findViewById(R.id.texture);

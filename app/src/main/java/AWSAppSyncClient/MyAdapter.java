@@ -1,6 +1,7 @@
 /*
 package AWSAppSyncClient;
 
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +18,7 @@ import java.util.List;
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
-    private List<ListPetsQuery.Item> mData = new ArrayList<>();
+    private List<ListPetsQuery.Item> mData = new ArrayList<ListPetsQuery.Item>();;
     private LayoutInflater mInflater;
 
 
@@ -66,5 +67,4 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             txt_description.setText(item.description());
         }
     }
-}
-*/
+} */
