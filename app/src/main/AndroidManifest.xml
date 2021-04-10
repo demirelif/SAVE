@@ -63,6 +63,11 @@
             android:label="DoubleCamera" />
 
         <service android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService" />
+        <service android:name="CameraApp.EmotionService" />
+        <service android:name="CameraApp.rPPGService" />
+        <service android:name="CameraApp.FatigueService" />
+        <service android:name="CameraApp.PedestrianService" />
+        <service android:name="CameraApp.CameraService" />
 
         <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"

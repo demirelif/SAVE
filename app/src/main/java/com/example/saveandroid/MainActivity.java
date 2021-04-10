@@ -1,5 +1,7 @@
 package com.example.saveandroid;
 
+import android.app.Service;
+import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.Manifest;
@@ -51,6 +53,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
 
+import CameraApp.CameraService;
+import CameraApp.EmotionService;
+import CameraApp.FatigueService;
+import CameraApp.PedestrianService;
+import CameraApp.rPPGService;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -62,9 +69,22 @@ import okhttp3.Response;
 
 
 public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback{
+    private static final String TAG = "MAIN ACTIVITY";
     private KenBurnsView kbv;
     private boolean moving = true;
     static Bitmap data;
+    boolean cameraBounded;
+    boolean emotionBounded;
+    boolean fatigueBounded;
+    boolean pedestrianBounded;
+    boolean rPPGBounded;
+    CameraService cameraServer;
+    EmotionService emotionServer;
+    FatigueService fatigueServer;
+    PedestrianService pedestrianServer;
+    rPPGService rPPGServer;
+
+
     public static double gazeAngle = 0;
     public static double headPose = 0;
     //String url = "http://" + "192.168.1.20" + "/" + "predict";
@@ -77,12 +97,84 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     File file;
     MediaType JSON;
 
+    ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            if(service.getClass().getName().equals(CameraService.LocalBinder.class.getName())){
+                onServiceConnected1(name, (CameraService.LocalBinder) service);
+            }
+            else if(service.getClass().getName().equals(EmotionService.LocalBinder.class.getName())){
+                onServiceConnected2(name, (EmotionService.LocalBinder) service);
+            }
+            else if(service.getClass().getName().equals(FatigueService.LocalBinder.class.getName())){
+                onServiceConnected3(name, (FatigueService.LocalBinder) service);
+            }
+            else if(service.getClass().getName().equals(PedestrianService.LocalBinder.class.getName())){
+                onServiceConnected4(name, (PedestrianService.LocalBinder) service);
+            }
+            else if (service.getClass().getName().equals(rPPGService.LocalBinder.class.getName())){
+                onServiceConnected5(name, (rPPGService.LocalBinder) service);
+            }
+        }
+        public void onServiceConnected1(ComponentName name, CameraService.LocalBinder service) {
+            System.out.println("CONNECTED");
+            cameraBounded = true;
+            CameraService.LocalBinder mLocalBinder = service;
+            cameraServer = mLocalBinder.getServerInstance();
+        }
+        public void onServiceConnected2(ComponentName name, EmotionService.LocalBinder service) {
+            System.out.println("CONNECTED");
+            emotionBounded = true;
+            EmotionService.LocalBinder mLocalBinder = service;
+            emotionServer = mLocalBinder.getServerInstance();
+        }
+        public void onServiceConnected3(ComponentName name, FatigueService.LocalBinder service) {
+            System.out.println("CONNECTED");
+            fatigueBounded = true;
+            FatigueService.LocalBinder mLocalBinder = service;
+            fatigueServer = mLocalBinder.getServerInstance();
+        }
+        public void onServiceConnected4(ComponentName name, PedestrianService.LocalBinder service){
+            System.out.println("CONNECTED");
+            pedestrianBounded = true;
+            PedestrianService.LocalBinder mLocalBinder = service;
+            pedestrianServer = mLocalBinder.getServerInstance();
+        }
+        public void onServiceConnected5(ComponentName name, rPPGService.LocalBinder service){
+            System.out.println("CONNECTED");
+            rPPGBounded = true;
+            rPPGService.LocalBinder mLocalBinder = service;
+            rPPGServer = mLocalBinder.getServerInstance();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.i(TAG, " onServicedDisconnected");
+            // set bounded booleans to false
+            cameraBounded = false;
+            emotionBounded = false;
+            fatigueBounded = false;
+            pedestrianBounded = false;
+            rPPGBounded = false;
+            // disconnect servers
+            cameraServer = null;
+            emotionServer = null;
+            fatigueServer = null;
+            pedestrianServer = null;
+            rPPGServer = null;
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //IdentityManager.getDefaultIdentityManager().signOut();
-
         super.onCreate(savedInstanceState);
         startKenBurnsView(); // start special ken burns view
+
+        //Intent intent = new Intent(MainActivity.this, CameraService.class);
+        //bindService(intent, serviceConnection, BIND_AUTO_CREATE);
+
+
+        // server connection
         try {
             postRequest("deneme");
         } catch (MalformedURLException e) {
@@ -90,9 +182,33 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
     }
 
-    public void activateFaceTracking(View view){
+    public void activateRoadTrip(View view){
         //Intent faceIntent = new Intent(MainActivity.this, FaceDetectionActivity.class);
         // MainActivity.this.startActivity(faceIntent);
+        //Intent cameraIntent = new Intent(MainActivity.this, DoubleCamera.class);
+        //MainActivity.this.startActivity(cameraIntent);
+        Log.i(TAG, " ACTIVATE ROAD");
+        Toast.makeText(getApplicationContext(), "activating road trip", Toast.LENGTH_LONG).show();
+
+        Intent cameraIntent = new Intent(MainActivity.this, CameraService.class);
+        bindService(cameraIntent, serviceConnection, BIND_AUTO_CREATE);
+        MainActivity.this.startService(cameraIntent);
+
+        Intent emotionIntent = new Intent(MainActivity.this, EmotionService.class);
+        bindService(emotionIntent, serviceConnection, BIND_AUTO_CREATE);
+        MainActivity.this.startService(emotionIntent);
+
+        Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
+        bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
+        MainActivity.this.startService(fatigueIntent);
+
+        Intent pedestrianIntent = new Intent(MainActivity.this, PedestrianService.class);
+        bindService(pedestrianIntent, serviceConnection, BIND_AUTO_CREATE);
+        MainActivity.this.startService(pedestrianIntent);
+
+        Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
+        bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
+        MainActivity.this.startService(rPPGIntent);
     }
 
     // http request
@@ -215,6 +331,41 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     }
 
+    public JSONObject get(String url) throws IOException {
+        try {
+            String img = "p2.jpeg";
+            postRequest("deneme");
+            JSONObject json = new JSONObject(response.body().string());
+            Log.i("Network", "json is ready");
+            Log.i("Network", json.toString());
+            return json;
+            //  return new JSONObject(response.body().string());
+
+        } catch (UnknownHostException | UnsupportedEncodingException e) {
+            System.out.println("Error: " + e.getLocalizedMessage());
+            Log.e("Network", e.getLocalizedMessage());
+        } catch (Exception e) {
+            System.out.println("Other Error: " + e.getLocalizedMessage());
+            Log.e("Network", e.getLocalizedMessage());
+        }
+
+        return null;
+    }
+
+    @Override
+    public void surfaceCreated(@NonNull SurfaceHolder holder) {
+
+    }
+
+    @Override
+    public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
+
+    }
+
+    @Override
+    public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
+
+    }
     public void startKenBurnsView(){
         int colorCodeDark = Color.parseColor("#FF9800");
         Window window = getWindow();
@@ -281,42 +432,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 MainActivity.this.startActivity(addPetIntent);
             }
         });
-    }
-
-    public JSONObject get(String url) throws IOException {
-        try {
-            String img = "p2.jpeg";
-            postRequest("deneme");
-            JSONObject json = new JSONObject(response.body().string());
-            Log.i("Network", "json is ready");
-            Log.i("Network", json.toString());
-            return json;
-            //  return new JSONObject(response.body().string());
-
-        } catch (UnknownHostException | UnsupportedEncodingException e) {
-            System.out.println("Error: " + e.getLocalizedMessage());
-            Log.e("Network", e.getLocalizedMessage());
-        } catch (Exception e) {
-            System.out.println("Other Error: " + e.getLocalizedMessage());
-            Log.e("Network", e.getLocalizedMessage());
-        }
-
-        return null;
-    }
-
-    @Override
-    public void surfaceCreated(@NonNull SurfaceHolder holder) {
-
-    }
-
-    @Override
-    public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
-
-    }
-
-    @Override
-    public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
-
     }
 }
 

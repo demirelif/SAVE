@@ -2,14 +2,219 @@ package CameraApp;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import com.example.saveandroid.MainActivity;
+
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.UnknownHostException;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 public class FatigueService extends Service {
+    public IBinder mBinder = new LocalBinder();
+    private static final String TAG = "FATIGUE SERVICE";
+
+    public static double gazeAngle = 0;
+    public static double headPose = 0;
+    //String url = "http://" + "192.168.1.20" + "/" + "predict";
+    private java.net.URL URL;
+    // private String url = "http://" + "10.0.0.2" + "/" + "predict"; // try 10.0.0.2
+    private String postBodyString;
+    private MediaType mediaType;
+    private RequestBody requestBody;
+    private Response response;
+    File file;
+    MediaType JSON;
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        return mBinder;
+    }
+
+    public class LocalBinder extends Binder {
+       public FatigueService getServerInstance() { return FatigueService.this; }
+    }
+
+    @Override
+    public void onCreate() {
+        Toast.makeText(getApplicationContext(),TAG + " onCreate", Toast.LENGTH_SHORT).show();
+        super.onCreate();
+        // server connection
+        try {
+            postRequest("deneme");
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.i(TAG, " onDestroy...");
+        super.onDestroy();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i(TAG, " onStartCommand");
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    //private void connectServer
+    private void postRequest(String message) throws MalformedURLException {
+        Thread thread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try  {
+                    RequestBody requestBody = buildRequestBody(message);
+                    OkHttpClient okHttpClient = new OkHttpClient();
+                    String protocol = "HTTP";
+                    String host = "10.0.2.2";
+                    // String host = "192.168.1.20";
+
+                    //int port = 8002;
+                    String endpoint = "/predict";
+                    JSON = MediaType.parse("application/json; charset=utf-8");
+                    //URL url = new URL(protocol, host, port, endpoint);
+                    java.net.URL url = new URL(protocol, host, endpoint);
+                    Request request = new Request.Builder()
+                            .url(url)
+                            .method("POST", requestBody)
+                            .build();
+                    //Response response = client.newCall(request).execute();
+                    /*
+                    okHttpClient.newCall(request).enqueue(new Callback() {
+                        @Override
+                        public void onFailure(final Call call, final IOException e) {
+                            Log.e("hi","calismadi");
+                        }
+
+                        @Override
+                        public void onResponse(Call call, final Response response) throws IOException {
+                            Log.i("hi","onresponse");
+                        }
+                    });
+
+                     */
+                    try{
+                        response = okHttpClient.newCall(request).execute();
+                    }
+                    catch (IOException e) {
+                        Log.e("hi", "calismadi yine");
+                    }
+
+                    String s = "?";
+                    if ( response!=null)
+                        s = response.body().string();
+                    //  JSONObject json = new JSONObject(response.body().string());
+                    //  String s= json.toString();
+                    Log.i("hi",s);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        thread.start();
+
+    }
+
+    // http request
+    private RequestBody buildRequestBody(String msg) {
+        postBodyString = msg;
+        final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/*");
+        //   ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        //  data.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        //   byte[] byteArray = stream.toByteArray();
+        //   data.recycle();
+
+        // MediaType mediaType = MediaType.parse("multipart/form-data; boundary=--------------------------205063402178265581033669");
+        RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                .addFormDataPart("image", "p2.jpeg",
+                        RequestBody.create("image",MediaType.parse("image/*jpg")))
+                .addFormDataPart("gaze_offset", "-0.018")
+                .addFormDataPart("pose_offset", "0.061")
+                .build();
+        // Response response = client.newCall(requestBody).execute();
+        // file = new File(Environment.getExternalStorageDirectory(),"p2.jpeg");
+        // mediaType = MediaType.parse("text/plain");
+        // mediaType = MediaType.parse("image/*");
+        // requestBody = RequestBody.create(file, mediaType);
+        return requestBody;
+    }
+
+    private void post2(){
+
+    }
+
+    protected void onPostExecute(JSONObject getResponse) {
+        if (getResponse != null) {
+            try {
+                String gazeString = getResponse.get("gaze_offset").toString();
+                String headString = getResponse.get("pose_offset").toString();
+                String confidentString = getResponse.get("is_confident").toString();
+                boolean isConfident = confidentString.equals("true") ? true : false;
+                System.out.println("gaze: " + gazeAngle + " headPose: " + headPose + " isConfident: " + isConfident);
+                if(!isConfident){
+                    Toast.makeText(
+                            getApplicationContext(),
+                            "Calibration Failed, Please Try Again.",
+                            Toast.LENGTH_LONG)
+                            .show();
+                }
+                else{
+                    gazeAngle = Double.parseDouble(gazeString);
+                    headPose = Double.parseDouble(headString);
+                    Toast.makeText(
+                            getApplicationContext(),
+                            "Calibration Successful, You can use attention tracking tool!",
+                            Toast.LENGTH_LONG)
+                            .show();
+                }
+
+            } catch (Exception e) {
+                Log.e("Error :(", "--" + e);
+            }
+        }
+
+    }
+
+    public JSONObject get(String url) throws IOException {
+        try {
+            String img = "p2.jpeg";
+            postRequest("deneme");
+            JSONObject json = new JSONObject(response.body().string());
+            Log.i("Network", "json is ready");
+            Log.i("Network", json.toString());
+            return json;
+            //  return new JSONObject(response.body().string());
+
+        } catch (UnknownHostException | UnsupportedEncodingException e) {
+            System.out.println("Error: " + e.getLocalizedMessage());
+            Log.e("Network", e.getLocalizedMessage());
+        } catch (Exception e) {
+            System.out.println("Other Error: " + e.getLocalizedMessage());
+            Log.e("Network", e.getLocalizedMessage());
+        }
+
         return null;
     }
 }
