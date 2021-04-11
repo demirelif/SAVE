@@ -234,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
         Intent emotionIntent = new Intent(MainActivity.this, EmotionService.class);
         bindService(emotionIntent, serviceConnection, BIND_AUTO_CREATE);
-        //MainActivity.this.startService(emotionIntent);
+        MainActivity.this.startService(emotionIntent);
 
         Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
         bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
@@ -246,7 +246,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
         Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
         bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
-        //MainActivity.this.startService(rPPGIntent);
+        MainActivity.this.startService(rPPGIntent);
     }
 
     // http request

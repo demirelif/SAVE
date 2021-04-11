@@ -161,7 +161,7 @@ public class EmotionService extends Service {
             //Thread.sleep(500);
             Integer value = queue.take();
             Log.i(TAG, "Taken value: " + value + "; Queue size is: " + queue.size());
-            try {
+/*            try {
                 postRequest(value.toString());
             } catch (MalformedURLException e) {
                 e.printStackTrace();
