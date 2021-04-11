@@ -58,6 +58,7 @@ import java.net.UnknownHostException;
 import CameraApp.CameraService;
 import CameraApp.EmotionService;
 import CameraApp.FatigueService;
+import CameraApp.FrontCameraService;
 import CameraApp.PedestrianService;
 import CameraApp.rPPGService;
 import okhttp3.MediaType;
@@ -78,16 +79,17 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private boolean moving = true;
     static Bitmap data;
     boolean cameraBounded;
+    boolean frontCameraBounded;
     boolean emotionBounded;
     boolean fatigueBounded;
     boolean pedestrianBounded;
     boolean rPPGBounded;
     CameraService cameraServer;
+    FrontCameraService frontCameraServer;
     EmotionService emotionServer;
     FatigueService fatigueServer;
     PedestrianService pedestrianServer;
     rPPGService rPPGServer;
-
 
     public static double gazeAngle = 0;
     public static double headPose = 0;
@@ -118,6 +120,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             }
             else if (service.getClass().getName().equals(rPPGService.LocalBinder.class.getName())){
                 onServiceConnected5(name, (rPPGService.LocalBinder) service);
+            }
+            else if(service.getClass().getName().equals(FrontCameraService.LocalBinder.class.getName())){
+                onServiceConnected6(name, (FrontCameraService.LocalBinder) service);
             }
         }
         public void onServiceConnected1(ComponentName name, CameraService.LocalBinder service) {
@@ -150,18 +155,26 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             rPPGService.LocalBinder mLocalBinder = service;
             rPPGServer = mLocalBinder.getServerInstance();
         }
+        public void onServiceConnected6(ComponentName name, FrontCameraService.LocalBinder service){
+            System.out.println("CONNECTED");
+            frontCameraBounded = true;
+            FrontCameraService.LocalBinder mLocalBinder = service;
+            frontCameraServer = mLocalBinder.getServerInstance();
+        }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.i(TAG, " onServicedDisconnected");
             // set bounded booleans to false
             cameraBounded = false;
+            frontCameraBounded = false;
             emotionBounded = false;
             fatigueBounded = false;
             pedestrianBounded = false;
             rPPGBounded = false;
             // disconnect servers
             cameraServer = null;
+            frontCameraServer = null;
             emotionServer = null;
             fatigueServer = null;
             pedestrianServer = null;
@@ -172,6 +185,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        startKenBurnsView(); // start special ken burns view
+
         // PERMISSION CHECK FOR CAMERA
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION);
@@ -187,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             return;
         }
 
-        startKenBurnsView(); // start special ken burns view
+
 
         //Intent intent = new Intent(MainActivity.this, CameraService.class);
         //bindService(intent, serviceConnection, BIND_AUTO_CREATE);
@@ -213,9 +228,13 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         bindService(cameraIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(cameraIntent);
 
+        Intent frontCameraIntent = new Intent(MainActivity.this, FrontCameraService.class);
+        bindService(frontCameraIntent, serviceConnection, BIND_AUTO_CREATE);
+        MainActivity.this.startService(frontCameraIntent);
+
         Intent emotionIntent = new Intent(MainActivity.this, EmotionService.class);
         bindService(emotionIntent, serviceConnection, BIND_AUTO_CREATE);
-        MainActivity.this.startService(emotionIntent);
+        //MainActivity.this.startService(emotionIntent);
 
         Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
         bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
@@ -223,11 +242,11 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
         Intent pedestrianIntent = new Intent(MainActivity.this, PedestrianService.class);
         bindService(pedestrianIntent, serviceConnection, BIND_AUTO_CREATE);
-        MainActivity.this.startService(pedestrianIntent);
+        //MainActivity.this.startService(pedestrianIntent);
 
         Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
         bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
-        MainActivity.this.startService(rPPGIntent);
+        //MainActivity.this.startService(rPPGIntent);
     }
 
     // http request
@@ -298,7 +317,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                         response = okHttpClient.newCall(request).execute();
                     }
                     catch (IOException e) {
-                        Log.e("hi", "calismadi yine");
+                        Log.e(TAG, "calismadi yine");
                     }
 
                     String s = "?";
@@ -306,7 +325,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                         s = response.body().string();
                   //  JSONObject json = new JSONObject(response.body().string());
                   //  String s= json.toString();
-                    Log.i("hi",s);
+                    Log.i(TAG,s);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

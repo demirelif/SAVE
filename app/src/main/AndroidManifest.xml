@@ -68,6 +68,8 @@
         <service android:name="CameraApp.FatigueService" />
         <service android:name="CameraApp.PedestrianService" />
         <service android:name="CameraApp.CameraService" />
+        <service android:name="CameraApp.FrontCameraService" />
+        <service android:name="CameraApp.BackCameraService" />
 
         <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"

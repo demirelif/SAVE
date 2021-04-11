@@ -16,6 +16,7 @@ import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
 import android.media.ImageReader;
+import android.os.Binder;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -24,6 +25,7 @@ import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.Surface;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,9 +40,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class FrontCameraService extends Service {
-    private static final String TAG = "AndroidCameraApi";
+    private static final String TAG = "FRONT-CAMERA SERVICE";
     private static final int REQUEST_CAMERA_PERMISSION = 200;
     private static final int REQUEST_PERMISSION = 200;
+    public IBinder mBinder = new FrontCameraService.LocalBinder();
 
     // by elif
     private String frontCameraID;
@@ -73,9 +76,29 @@ public class FrontCameraService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        return mBinder;
+    }
+    public class LocalBinder extends Binder {
+        public FrontCameraService getServerInstance(){return FrontCameraService.this;}
+    }
+    @Override
+    public void onCreate() {
+        Toast.makeText(getApplicationContext(),TAG + " onCreate", Toast.LENGTH_SHORT).show();
         setCamera();
+        super.onCreate();
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.i(TAG, " onDestroy...");
+        super.onDestroy();
+    }
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i(TAG, " onStartCommand...");
         openCamera();
-        return null;
+
+        return super.onStartCommand(intent, flags, startId);
     }
 
     private void setCamera() {

@@ -33,9 +33,7 @@ public class FatigueService extends Service {
 
     public static double gazeAngle = 0;
     public static double headPose = 0;
-    //String url = "http://" + "192.168.1.20" + "/" + "predict";
     private java.net.URL URL;
-    // private String url = "http://" + "10.0.0.2" + "/" + "predict"; // try 10.0.0.2
     private String postBodyString;
     private MediaType mediaType;
     private RequestBody requestBody;
@@ -118,7 +116,7 @@ public class FatigueService extends Service {
                         response = okHttpClient.newCall(request).execute();
                     }
                     catch (IOException e) {
-                        Log.e("hi", "calismadi yine");
+                        Log.e(TAG, "calismadi yine");
                     }
 
                     String s = "?";
@@ -126,7 +124,7 @@ public class FatigueService extends Service {
                         s = response.body().string();
                     //  JSONObject json = new JSONObject(response.body().string());
                     //  String s= json.toString();
-                    Log.i("hi",s);
+                    Log.i(TAG,s);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
