@@ -84,7 +84,7 @@ public class FrontCameraService extends Service {
     @Override
     public void onCreate() {
         Toast.makeText(getApplicationContext(),TAG + " onCreate", Toast.LENGTH_SHORT).show();
-        setCamera();
+
         super.onCreate();
     }
 
@@ -96,7 +96,8 @@ public class FrontCameraService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, " onStartCommand...");
-        //openCamera();
+        setCamera();
+        openCamera();
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -226,9 +227,10 @@ public class FrontCameraService extends Service {
             requestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
 
             // Orientation
-            int rotation = windowManager.getDefaultDisplay().getRotation();
+           // int rotation = windowManager.getDefaultDisplay().getRotation();
             //int rotation = getWindowManager().getDefaultDisplay().getRotation();
-            requestBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
+           // int rotation = 270;
+            requestBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(270));
 
             mFrontCaptureCallback.setState(PictureCaptureCallback.STATE_LOCKING);
             frontCameraCaptureSession.capture(requestBuilder.build(), mFrontCaptureCallback, null);

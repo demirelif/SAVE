@@ -67,9 +67,17 @@ public class BackCameraService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        //setCamera();
+        //openCamera();
+        return null;
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i(TAG, " onStartCommand - backcameraserive");
         setCamera();
         openCamera();
-        return null;
+        return super.onStartCommand(intent, flags, startId);
     }
 
     private void setCamera() {
