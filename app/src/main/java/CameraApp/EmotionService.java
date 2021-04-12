@@ -161,7 +161,7 @@ public class EmotionService extends Service {
         //Random random = new Random();
         while (true){
             //Thread.sleep(500);
-            Bitmap emotionPhoto = queue.take();
+            byte[] emotionPhoto = queue.take();
             Log.i(TAG, "Taken value: " + "emotion photo" + "; Queue size is: " + queue.size());
 /*            try {
                 postRequest(value.toString());

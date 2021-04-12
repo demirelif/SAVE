@@ -43,6 +43,7 @@ import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+
 public class FrontCameraService extends Service {
     private static final String TAG = "FRONT-CAMERA SERVICE";
     private static final int REQUEST_CAMERA_PERMISSION = 200;
@@ -68,8 +69,10 @@ public class FrontCameraService extends Service {
     private int backCounter = 0;
     CaptureRequest.Builder mPreviewRequestBuilder;
     static Bitmap picture;
+    public static byte[][] yuvBytes = new byte[3][];
 
-    public static BlockingQueue<Bitmap> queue = new ArrayBlockingQueue<Bitmap>(10);
+    //public static BlockingQueue<Bitmap> queue = new ArrayBlockingQueue<Bitmap>(10);
+    public static BlockingQueue<byte[]> queue = new ArrayBlockingQueue<byte[]>(10);
 
 
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
@@ -203,7 +206,17 @@ public class FrontCameraService extends Service {
             Image image = frontImageReader.acquireLatestImage();
             ByteBuffer buffer = image.getPlanes()[0].getBuffer();
             byte[] bytes = new byte[buffer.remaining()];
+            try {
+                queue.put(bytes);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            // yuvBytes[0] = bytes;
 
+
+
+
+            /*
            // ByteBuffer buffer2 = ByteBuffer.wrap(bytes);
             picture = Bitmap.createBitmap(1280, 960, Bitmap.Config.ARGB_8888);
             buffer.rewind();
@@ -309,8 +322,8 @@ public class FrontCameraService extends Service {
                     CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START);
             setState(STATE_PRECAPTURE);
             try {
-                // frontCameraCaptureSession.capture(mPreviewRequestBuilder.build(), this, frontHandler);
-                frontCameraCaptureSession.setRepeatingRequest(mPreviewRequestBuilder.build(), this, frontHandler);
+                frontCameraCaptureSession.capture(mPreviewRequestBuilder.build(), this, frontHandler);
+               // frontCameraCaptureSession.setRepeatingRequest(mPreviewRequestBuilder.build(), this, frontHandler);
                 mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
                         CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_IDLE);
             } catch (CameraAccessException e) {
