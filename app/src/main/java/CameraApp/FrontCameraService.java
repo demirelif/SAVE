@@ -59,7 +59,7 @@ public class FrontCameraService extends Service {
     private CameraDevice backCameraDevice;
     private CameraCaptureSession frontCameraCaptureSession;
     private CameraCaptureSession backCameraCaptureSession;
-
+    static byte[] picture = null;
     private WindowManager windowManager;
     private Handler backgroundHandler;
     private HandlerThread backgroundThread;
@@ -68,11 +68,11 @@ public class FrontCameraService extends Service {
     private int frontCounter = 0;
     private int backCounter = 0;
     CaptureRequest.Builder mPreviewRequestBuilder;
-    static Bitmap picture;
+   // static Bitmap picture;
     public static byte[][] yuvBytes = new byte[3][];
 
     //public static BlockingQueue<Bitmap> queue = new ArrayBlockingQueue<Bitmap>(10);
-    public static BlockingQueue<byte[]> queue = new ArrayBlockingQueue<byte[]>(10);
+    public static BlockingQueue<byte[]> queue = new ArrayBlockingQueue<>(10);
 
 
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
@@ -117,15 +117,16 @@ public class FrontCameraService extends Service {
             }
         });
 
-        frontThread.start();
         setCamera();
         openCamera();
+
+        frontThread.start();
 
         return super.onStartCommand(intent, flags, startId);
     }
 
     private void setCamera() {
-        Log.i("camera", "set camera icindeyiz");
+        Log.i("front", "SET CAMERA");
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         try {
             for (String cameraID : manager.getCameraIdList()) {
@@ -155,16 +156,19 @@ public class FrontCameraService extends Service {
     }
 
     private static void producer() throws InterruptedException {
+        Log.i("front", "PRODUCER");
         Random random = new Random();
         while (true){
             Thread.sleep(500);
            // queue.put(picture);
+            if ( picture != null ) queue.add(picture);
             Log.i(TAG, "Inserting value: " + "front picture" + "; Queue size is: " + queue.size());
         }
     }
 
 
     private void openCamera() {
+        Log.i("front", "OPEN CAMERA");
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         try {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -185,8 +189,10 @@ public class FrontCameraService extends Service {
     }
 
     private final CameraDevice.StateCallback frontCameraStateCallback = new CameraDevice.StateCallback() {
+       // Log.i("front", "SET CAMERA");
         @Override
         public void onOpened(CameraDevice device) {
+            Log.i("front", "FRONTCAMERASTATECALLBACK ON OPENED");
             frontCameraDevice = device;
             createCaptureSession();
         }
@@ -203,14 +209,11 @@ public class FrontCameraService extends Service {
     private final ImageReader.OnImageAvailableListener onImageAvailableListener = new ImageReader.OnImageAvailableListener() {
         @Override
         public void onImageAvailable(ImageReader reader) {
+            Log.i("front", "ON IMAGE AVAILABLE");
             Image image = frontImageReader.acquireLatestImage();
             ByteBuffer buffer = image.getPlanes()[0].getBuffer();
             byte[] bytes = new byte[buffer.remaining()];
-            try {
-                queue.put(bytes);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            picture = bytes;
             // yuvBytes[0] = bytes;
 
 
@@ -267,6 +270,7 @@ public class FrontCameraService extends Service {
     };
 
     private void createCaptureSession() {
+        Log.i("front", "CREATE CAPTURE SESSION");
         List<Surface> outputSurfaces = new LinkedList<>();
         outputSurfaces.add(frontImageReader.getSurface());
 
@@ -291,6 +295,7 @@ public class FrontCameraService extends Service {
 
 
     private void createCaptureRequest() {
+        Log.i("front", "CREATE CAPTURE REQUEST");
         try {
 
             CaptureRequest.Builder requestBuilder = frontCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
@@ -318,6 +323,7 @@ public class FrontCameraService extends Service {
 
         @Override
         public void onPrecaptureRequired() {
+            Log.i("front", "ON PRECAPTURE REQUIRED");
             mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
                     CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START);
             setState(STATE_PRECAPTURE);
