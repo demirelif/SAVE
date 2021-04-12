@@ -2,6 +2,7 @@ package CameraApp;
 
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
@@ -22,7 +23,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import static CameraApp.CameraService.queue;
+//import static CameraApp.CameraService.queue;
+import static CameraApp.FrontCameraService.queue;
 
 public class EmotionService extends Service {
     public IBinder mBinder = new EmotionService.LocalBinder();
@@ -159,8 +161,8 @@ public class EmotionService extends Service {
         //Random random = new Random();
         while (true){
             //Thread.sleep(500);
-            Integer value = queue.take();
-            Log.i(TAG, "Taken value: " + value + "; Queue size is: " + queue.size());
+            Bitmap emotionPhoto = queue.take();
+            Log.i(TAG, "Taken value: " + "emotion photo" + "; Queue size is: " + queue.size());
 /*            try {
                 postRequest(value.toString());
             } catch (MalformedURLException e) {

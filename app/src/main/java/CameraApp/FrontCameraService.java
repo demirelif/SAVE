@@ -5,6 +5,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -38,6 +39,9 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 public class FrontCameraService extends Service {
     private static final String TAG = "FRONT-CAMERA SERVICE";
@@ -63,6 +67,9 @@ public class FrontCameraService extends Service {
     private int frontCounter = 0;
     private int backCounter = 0;
     CaptureRequest.Builder mPreviewRequestBuilder;
+    static Bitmap picture;
+
+    public static BlockingQueue<Bitmap> queue = new ArrayBlockingQueue<Bitmap>(10);
 
 
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
@@ -96,6 +103,18 @@ public class FrontCameraService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, " onStartCommand...");
+        Thread frontThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    producer();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        frontThread.start();
         setCamera();
         openCamera();
 
@@ -131,6 +150,16 @@ public class FrontCameraService extends Service {
             Log.i("camera", "set camera success");
 
     }
+
+    private static void producer() throws InterruptedException {
+        Random random = new Random();
+        while (true){
+            Thread.sleep(500);
+           // queue.put(picture);
+            Log.i(TAG, "Inserting value: " + "front picture" + "; Queue size is: " + queue.size());
+        }
+    }
+
 
     private void openCamera() {
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
@@ -173,6 +202,36 @@ public class FrontCameraService extends Service {
         public void onImageAvailable(ImageReader reader) {
             Image image = frontImageReader.acquireLatestImage();
             ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+            byte[] bytes = new byte[buffer.remaining()];
+
+           // ByteBuffer buffer2 = ByteBuffer.wrap(bytes);
+            picture = Bitmap.createBitmap(1280, 960, Bitmap.Config.ARGB_8888);
+            buffer.rewind();
+            picture.copyPixelsFromBuffer(buffer);
+            try {
+                queue.put(picture);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            /*
+            final Image.Plane[] planes = image.getPlanes();
+            final ByteBuffer buffer = planes[0].getBuffer();
+
+            int pixelStride = planes[0].getPixelStride();
+            int rowStride = planes[0].getRowStride();
+            int rowPadding = rowStride - pixelStride * image.getWidth();
+            // create bitmap
+            picture = Bitmap.createBitmap(image.getWidth() + rowPadding / pixelStride, image.getHeight(), Bitmap.Config.ARGB_8888);
+            picture.copyPixelsFromBuffer(buffer);
+            try {
+                queue.put(picture);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            image.close();
+            // this part for saving to local
+            /*
+            ByteBuffer buffer = image.getPlanes()[0].getBuffer();
             String fname = getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/pic" + frontCameraID + "_" + frontCounter + ".jpg";
             Log.d(TAG, "Saving:" + fname);
             File file = new File(fname);
@@ -190,6 +249,7 @@ public class FrontCameraService extends Service {
             }
             image.close();
             // frontImageReader.close();
+             */
         }
     };
 
@@ -234,7 +294,7 @@ public class FrontCameraService extends Service {
 
             mFrontCaptureCallback.setState(PictureCaptureCallback.STATE_LOCKING);
             frontCameraCaptureSession.capture(requestBuilder.build(), mFrontCaptureCallback, null);
-            //  frontCameraCaptureSession.setRepeatingRequest(requestBuilder.build(), mFrontCaptureCallback, frontHandler);
+          //  frontCameraCaptureSession.setRepeatingRequest(requestBuilder.build(), mFrontCaptureCallback, null);
 
         } catch (CameraAccessException e) {
             e.printStackTrace();

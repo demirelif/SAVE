@@ -224,9 +224,11 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Log.i(TAG, " ACTIVATE ROAD");
         Toast.makeText(getApplicationContext(), "activating road trip", Toast.LENGTH_LONG).show();
 
+        /*
         Intent cameraIntent = new Intent(MainActivity.this, CameraService.class);
         bindService(cameraIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(cameraIntent);
+         */
 
         Intent frontCameraIntent = new Intent(MainActivity.this, FrontCameraService.class);
         bindService(frontCameraIntent, serviceConnection, BIND_AUTO_CREATE);

@@ -5,6 +5,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -36,9 +37,14 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+
+import static CameraApp.CameraService.queue;
 
 public class BackCameraService extends Service {
-    private static final String TAG = "AndroidCameraApi";
+    private static final String TAG = "BACKCAMERA";
     private static final int REQUEST_CAMERA_PERMISSION = 200;
     private static final int REQUEST_PERMISSION = 200;
 
@@ -54,6 +60,9 @@ public class BackCameraService extends Service {
     private int frontCounter = 0;
     private int backCounter = 0;
     CaptureRequest.Builder mPreviewRequestBuilder;
+    static Bitmap picture;
+
+    public static BlockingQueue<Bitmap> backqueue = new ArrayBlockingQueue<Bitmap>(10);
 
 
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
@@ -75,6 +84,18 @@ public class BackCameraService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, " onStartCommand - backcameraserive");
+        Thread backThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    producer();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        backThread.start();
         setCamera();
         openCamera();
         return super.onStartCommand(intent, flags, startId);
@@ -150,6 +171,17 @@ public class BackCameraService extends Service {
         @Override
         public void onImageAvailable(ImageReader reader) {
             Image image = backImageReader.acquireLatestImage();
+            final Image.Plane[] planes = image.getPlanes();
+            final ByteBuffer buffer = planes[0].getBuffer();
+
+            int pixelStride = planes[0].getPixelStride();
+            int rowStride = planes[0].getRowStride();
+            int rowPadding = rowStride - pixelStride * image.getWidth();
+            // create bitmap
+            picture = Bitmap.createBitmap(image.getWidth() + rowPadding / pixelStride, image.getHeight(), Bitmap.Config.ARGB_8888);
+            picture.copyPixelsFromBuffer(buffer);
+            image.close();
+            /*
             ByteBuffer buffer = image.getPlanes()[0].getBuffer();
             String fname = getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/pic" + backCameraID + "_" + backCounter + ".jpg";
             Log.d(TAG, "Saving:" + fname);
@@ -167,6 +199,7 @@ public class BackCameraService extends Service {
                 e.printStackTrace();
             }
             image.close();
+             */
         }
     };
 
@@ -213,6 +246,15 @@ public class BackCameraService extends Service {
 
         } catch (CameraAccessException e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void producer() throws InterruptedException {
+        Random random = new Random();
+        while (true){
+            Thread.sleep(500);
+            backqueue.put(picture);
+            Log.i(TAG, "Inserting value: " + "back picture" + "; Queue size is: " + backqueue.size());
         }
     }
 
