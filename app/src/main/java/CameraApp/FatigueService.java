@@ -2,17 +2,24 @@ package CameraApp;
 
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import androidx.annotation.Nullable;
 
 import com.example.saveandroid.MainActivity;
 
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -26,6 +33,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+
+import static CameraApp.FrontCameraService.queue;
 
 public class FatigueService extends Service {
     public IBinder mBinder = new LocalBinder();
@@ -56,11 +65,14 @@ public class FatigueService extends Service {
         Toast.makeText(getApplicationContext(),TAG + " onCreate", Toast.LENGTH_SHORT).show();
         super.onCreate();
         // server connection
+        /*
         try {
             postRequest("deneme");
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
+
+         */
     }
 
     @Override
@@ -72,6 +84,17 @@ public class FatigueService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, " onStartCommand");
+        Thread fatigue = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    consumer();
+                } catch (InterruptedException | MalformedURLException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        fatigue.start();
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -136,21 +159,32 @@ public class FatigueService extends Service {
     }
 
     // http request
-    private RequestBody buildRequestBody(String msg) {
+    private RequestBody buildRequestBody(String msg) throws JSONException {
         postBodyString = msg;
         final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/*");
         //   ByteArrayOutputStream stream = new ByteArrayOutputStream();
         //  data.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         //   byte[] byteArray = stream.toByteArray();
         //   data.recycle();
+//        JSONObject j = new JSONObject(msg);
+        RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                .addFormDataPart("image", msg)
+                .addFormDataPart("gaze_offset", "-0.018")
+                .addFormDataPart("pose_offset", "0.061")
+                .build();
 
         // MediaType mediaType = MediaType.parse("multipart/form-data; boundary=--------------------------205063402178265581033669");
+       /*
         RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
                 .addFormDataPart("image", "p2.jpeg",
                         RequestBody.create("image",MediaType.parse("image/*jpg")))
                 .addFormDataPart("gaze_offset", "-0.018")
                 .addFormDataPart("pose_offset", "0.061")
                 .build();
+
+        */
+
+
         // Response response = client.newCall(requestBody).execute();
         // file = new File(Environment.getExternalStorageDirectory(),"p2.jpeg");
         // mediaType = MediaType.parse("text/plain");
@@ -193,6 +227,36 @@ public class FatigueService extends Service {
             }
         }
 
+    }
+
+    private void consumer() throws InterruptedException, MalformedURLException {
+        //Random random = new Random();
+        while (true){
+            //Thread.sleep(500);
+            byte[] emotionPhoto = queue.take();
+            if ( emotionPhoto == null ) { Log.e(TAG, "BYTE ARRAY IS EMPTY"); }
+            Log.i(TAG, "Taken value: " + "emotion photo" + "; Queue size is: " + queue.size());
+
+            Bitmap bmp= BitmapFactory.decodeByteArray(emotionPhoto,0,emotionPhoto.length);
+            String j = getStringFromBitmap(bmp);
+            //JSONObject obj = new JSONObject(j);
+           // JSONObject obj = new JSONObject();
+           // obj.put(emotionPhoto);
+           // jsonObj.put(byte[]);
+            postRequest(j);
+        }
+    }
+
+    private String getStringFromBitmap(Bitmap bitmapPicture) {
+        if ( bitmapPicture == null ) { return null; }
+        final int COMPRESSION_QUALITY = 100;
+        String encodedImage;
+        ByteArrayOutputStream byteArrayBitmapStream = new ByteArrayOutputStream();
+        bitmapPicture.compress(Bitmap.CompressFormat.PNG, COMPRESSION_QUALITY,
+                byteArrayBitmapStream);
+        byte[] b = byteArrayBitmapStream.toByteArray();
+        encodedImage = Base64.encodeToString(b, Base64.DEFAULT);
+        return encodedImage;
     }
 
     public JSONObject get(String url) throws IOException {
