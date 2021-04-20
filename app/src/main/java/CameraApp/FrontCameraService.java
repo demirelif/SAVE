@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -49,9 +50,11 @@ public class FrontCameraService extends Service {
     private static final int REQUEST_CAMERA_PERMISSION = 200;
     private static final int REQUEST_PERMISSION = 200;
     public IBinder mBinder = new FrontCameraService.LocalBinder();
+    public int picNo = 0;
 
     // by elif
     private String frontCameraID;
+    private static Image image;
     private String backCameraID;
     private ImageReader frontImageReader;
     private ImageReader backImageReader;
@@ -68,13 +71,11 @@ public class FrontCameraService extends Service {
     private int frontCounter = 0;
     private int backCounter = 0;
     CaptureRequest.Builder mPreviewRequestBuilder;
-   // static Bitmap picture;
     public static byte[][] yuvBytes = new byte[3][];
 
     //public static BlockingQueue<Bitmap> queue = new ArrayBlockingQueue<Bitmap>(10);
     public static BlockingQueue<byte[]> queue = new ArrayBlockingQueue<>(10);
-
-
+    public static BlockingQueue<Image> imageQueue = new ArrayBlockingQueue<>(10);
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
 
     static {
@@ -160,9 +161,10 @@ public class FrontCameraService extends Service {
         Random random = new Random();
         while (true){
             Thread.sleep(500);
-           // queue.put(picture);
-            if ( picture != null ) queue.add(picture);
-            Log.i(TAG, "Inserting value: " + "front picture" + "; Queue size is: " + queue.size());
+            //queue.put(picture);
+            imageQueue.put(image);
+            //if ( image != null ) imageQueue.put(image);
+            Log.i(TAG, "Inserting value: " + "front picture" + "; Queue size is: " + imageQueue.size());
         }
     }
 
@@ -210,10 +212,19 @@ public class FrontCameraService extends Service {
         @Override
         public void onImageAvailable(ImageReader reader) {
             Log.i("front", "ON IMAGE AVAILABLE");
-            Image image = frontImageReader.acquireLatestImage();
+            image = frontImageReader.acquireLatestImage();
+            picNo++;
+            /*
             ByteBuffer buffer = image.getPlanes()[0].getBuffer();
             byte[] bytes = new byte[buffer.remaining()];
-            picture = bytes;
+            buffer.get(bytes);
+            Bitmap myBitmap = BitmapFactory.decodeByteArray(bytes,0,bytes.length,null);
+            if ( myBitmap == null ){
+                Log.e(TAG, "bitmap null");
+            }
+            //ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+            //byte[] bytes = new byte[buffer.remaining()];
+            //picture = bytes;
             // yuvBytes[0] = bytes;
 
 

@@ -201,19 +201,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION);
             return;
         }
-
-
-
-        //Intent intent = new Intent(MainActivity.this, CameraService.class);
-        //bindService(intent, serviceConnection, BIND_AUTO_CREATE);
-
-
-        // server connection
-        try {
-            postRequest("deneme");
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
     }
 
     public void activateRoadTrip(View view){
@@ -224,11 +211,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Log.i(TAG, " ACTIVATE ROAD");
         Toast.makeText(getApplicationContext(), "activating road trip", Toast.LENGTH_LONG).show();
 
-        /*
-        Intent cameraIntent = new Intent(MainActivity.this, CameraService.class);
-        bindService(cameraIntent, serviceConnection, BIND_AUTO_CREATE);
-        MainActivity.this.startService(cameraIntent);
-         */
 
         Intent frontCameraIntent = new Intent(MainActivity.this, FrontCameraService.class);
         bindService(frontCameraIntent, serviceConnection, BIND_AUTO_CREATE);
@@ -244,152 +226,13 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
         Intent pedestrianIntent = new Intent(MainActivity.this, PedestrianService.class);
         bindService(pedestrianIntent, serviceConnection, BIND_AUTO_CREATE);
-        //MainActivity.this.startService(pedestrianIntent);
+        MainActivity.this.startService(pedestrianIntent);
 
         Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
         bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(rPPGIntent);
-    }
-
-    // http request
-    private RequestBody buildRequestBody(String msg) {
-        postBodyString = msg;
-        final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/*");
-     //   ByteArrayOutputStream stream = new ByteArrayOutputStream();
-      //  data.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-     //   byte[] byteArray = stream.toByteArray();
-     //   data.recycle();
-
-       // MediaType mediaType = MediaType.parse("multipart/form-data; boundary=--------------------------205063402178265581033669");
-        RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                .addFormDataPart("image", "p2.jpeg",
-                        RequestBody.create("image",MediaType.parse("image/*jpg")))
-                .addFormDataPart("gaze_offset", "-0.018")
-                .addFormDataPart("pose_offset", "0.061")
-                .build();
-       // Response response = client.newCall(requestBody).execute();
-       // file = new File(Environment.getExternalStorageDirectory(),"p2.jpeg");
-       // mediaType = MediaType.parse("text/plain");
-       // mediaType = MediaType.parse("image/*");
-       // requestBody = RequestBody.create(file, mediaType);
-        return requestBody;
-    }
-
-    private void post2(){
-
-    }
-    //private void connectServer
-    private void postRequest(String message) throws MalformedURLException {
-        Thread thread = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                try  {
-                    RequestBody requestBody = buildRequestBody(message);
-                    OkHttpClient okHttpClient = new OkHttpClient();
-                    String protocol = "HTTP";
-                    String host = "10.0.2.2";
-                   // String host = "192.168.1.20";
-
-                    //int port = 8002;
-                    String endpoint = "/predict";
-                    JSON = MediaType.parse("application/json; charset=utf-8");
-                    //URL url = new URL(protocol, host, port, endpoint);
-                    URL url = new URL(protocol, host, endpoint);
-                    Request request = new Request.Builder()
-                            .url(url)
-                            .method("POST", requestBody)
-                            .build();
-                    //Response response = client.newCall(request).execute();
-                    /*
-                    okHttpClient.newCall(request).enqueue(new Callback() {
-                        @Override
-                        public void onFailure(final Call call, final IOException e) {
-                            Log.e("hi","calismadi");
-                        }
-
-                        @Override
-                        public void onResponse(Call call, final Response response) throws IOException {
-                            Log.i("hi","onresponse");
-                        }
-                    });
-
-                     */
-                    try{
-                        response = okHttpClient.newCall(request).execute();
-                    }
-                    catch (IOException e) {
-                        Log.e(TAG, "calismadi yine");
-                    }
-
-                    String s = "?";
-                    if ( response!=null)
-                        s = response.body().string();
-                  //  JSONObject json = new JSONObject(response.body().string());
-                  //  String s= json.toString();
-                    Log.i(TAG,s);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        thread.start();
-
-    }
 
 
-    protected void onPostExecute(JSONObject getResponse) {
-        if (getResponse != null) {
-            try {
-                String gazeString = getResponse.get("gaze_offset").toString();
-                String headString = getResponse.get("pose_offset").toString();
-                String confidentString = getResponse.get("is_confident").toString();
-                boolean isConfident = confidentString.equals("true") ? true : false;
-                System.out.println("gaze: " + gazeAngle + " headPose: " + headPose + " isConfident: " + isConfident);
-                if(!isConfident){
-                    Toast.makeText(
-                            MainActivity.this,
-                            "Calibration Failed, Please Try Again.",
-                            Toast.LENGTH_LONG)
-                            .show();
-                }
-                else{
-                    gazeAngle = Double.parseDouble(gazeString);
-                    headPose = Double.parseDouble(headString);
-                    Toast.makeText(
-                            MainActivity.this,
-                            "Calibration Successful, You can use attention tracking tool!",
-                            Toast.LENGTH_LONG)
-                            .show();
-                }
-
-            } catch (Exception e) {
-                Log.e("Error :(", "--" + e);
-            }
-        }
-
-    }
-
-    public JSONObject get(String url) throws IOException {
-        try {
-            String img = "p2.jpeg";
-            postRequest("deneme");
-            JSONObject json = new JSONObject(response.body().string());
-            Log.i("Network", "json is ready");
-            Log.i("Network", json.toString());
-            return json;
-            //  return new JSONObject(response.body().string());
-
-        } catch (UnknownHostException | UnsupportedEncodingException e) {
-            System.out.println("Error: " + e.getLocalizedMessage());
-            Log.e("Network", e.getLocalizedMessage());
-        } catch (Exception e) {
-            System.out.println("Other Error: " + e.getLocalizedMessage());
-            Log.e("Network", e.getLocalizedMessage());
-        }
-
-        return null;
     }
 
     @Override

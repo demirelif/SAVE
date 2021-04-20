@@ -6,11 +6,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.os.Binder;
+import android.os.Environment;
 import android.os.IBinder;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 import androidx.annotation.Nullable;
@@ -21,11 +25,14 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -34,7 +41,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import static CameraApp.FrontCameraService.queue;
+import static CameraApp.FrontCameraService.imageQueue;
 
 public class FatigueService extends Service {
     public IBinder mBinder = new LocalBinder();
@@ -49,6 +56,8 @@ public class FatigueService extends Service {
     private Response response;
     File file;
     MediaType JSON;
+    int picNo =0;
+    private static Image image;
 
     @Nullable
     @Override
@@ -65,14 +74,14 @@ public class FatigueService extends Service {
         Toast.makeText(getApplicationContext(),TAG + " onCreate", Toast.LENGTH_SHORT).show();
         super.onCreate();
         // server connection
-        /*
+
         try {
             postRequest("deneme");
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
 
-         */
+
     }
 
     @Override
@@ -120,8 +129,8 @@ public class FatigueService extends Service {
                             .url(url)
                             .method("POST", requestBody)
                             .build();
-                    //Response response = client.newCall(request).execute();
-                    /*
+                   // Response response = client.newCall(request).execute();
+
                     okHttpClient.newCall(request).enqueue(new Callback() {
                         @Override
                         public void onFailure(final Call call, final IOException e) {
@@ -134,7 +143,7 @@ public class FatigueService extends Service {
                         }
                     });
 
-                     */
+
                     try{
                         response = okHttpClient.newCall(request).execute();
                     }
@@ -145,8 +154,6 @@ public class FatigueService extends Service {
                     String s = "?";
                     if ( response!=null)
                         s = response.body().string();
-                    //  JSONObject json = new JSONObject(response.body().string());
-                    //  String s= json.toString();
                     Log.i(TAG,s);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -162,27 +169,35 @@ public class FatigueService extends Service {
     private RequestBody buildRequestBody(String msg) throws JSONException {
         postBodyString = msg;
         final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/*");
-        //   ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        //  data.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-        //   byte[] byteArray = stream.toByteArray();
-        //   data.recycle();
-//        JSONObject j = new JSONObject(msg);
-        RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                .addFormDataPart("image", msg)
-                .addFormDataPart("gaze_offset", "-0.018")
-                .addFormDataPart("pose_offset", "0.061")
-                .build();
+        if ( image == null ) return requestBody;
 
-        // MediaType mediaType = MediaType.parse("multipart/form-data; boundary=--------------------------205063402178265581033669");
-       /*
+        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+        String fname = getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/pic" + picNo + ".jpg";
+        fname = getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/pic1_45.jpg";
+        Log.d(TAG, "Saving:" + fname);
+        File file = new File(fname);
+        byte[] bytes = new byte[buffer.remaining()];
+        buffer.get(bytes);
+        try {
+            //save(bytes, file); // save image here
+            OutputStream output = null;
+            output = new FileOutputStream(file);
+            output.write(bytes);
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //image.close();
+
         RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                .addFormDataPart("image", "p2.jpeg",
+                .addFormDataPart("image", fname,
                         RequestBody.create("image",MediaType.parse("image/*jpg")))
                 .addFormDataPart("gaze_offset", "-0.018")
                 .addFormDataPart("pose_offset", "0.061")
                 .build();
 
-        */
+
 
 
         // Response response = client.newCall(requestBody).execute();
@@ -233,17 +248,18 @@ public class FatigueService extends Service {
         //Random random = new Random();
         while (true){
             //Thread.sleep(500);
-            byte[] emotionPhoto = queue.take();
-            if ( emotionPhoto == null ) { Log.e(TAG, "BYTE ARRAY IS EMPTY"); }
-            Log.i(TAG, "Taken value: " + "emotion photo" + "; Queue size is: " + queue.size());
+            image = imageQueue.take();
+            if ( image == null ) { Log.e(TAG, "Image is empty"); }
+            Log.i(TAG, "Taken value: " + "emotion photo" + "; Queue size is: " + imageQueue.size());
 
-            Bitmap bmp= BitmapFactory.decodeByteArray(emotionPhoto,0,emotionPhoto.length);
-            String j = getStringFromBitmap(bmp);
+           // Bitmap bmp= BitmapFactory.decodeByteArray(emotionPhoto,0,emotionPhoto.length);
+           // String j = getStringFromBitmap(bmp);
+
             //JSONObject obj = new JSONObject(j);
            // JSONObject obj = new JSONObject();
            // obj.put(emotionPhoto);
            // jsonObj.put(byte[]);
-            postRequest(j);
+
         }
     }
 
