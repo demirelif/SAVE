@@ -72,12 +72,14 @@ public class FrontCameraService extends Service {
     private static String fname = "";
     CaptureRequest.Builder mPreviewRequestBuilder;
     //public static byte[][] yuvBytes = new byte[3][];
+    private static File imageFile;
 
     //public static BlockingQueue<Bitmap> queue = new ArrayBlockingQueue<Bitmap>(10);
    // public static BlockingQueue<byte[]> queue = new ArrayBlockingQueue<>(10);
     //public static BlockingQueue<Image> imageQueue = new ArrayBlockingQueue<>(10);
     //public static BlockingQueue<Integer> numQueue = new ArrayBlockingQueue<>(10);
     public static BlockingQueue<String> queue = new ArrayBlockingQueue<>(10);
+    public static BlockingQueue<File> fileQueue = new ArrayBlockingQueue<>(10);
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
 
     static {
@@ -171,7 +173,14 @@ public class FrontCameraService extends Service {
             Thread.sleep(500);
             //queue.put(picture);
 
-            queue.put(fname);
+            //queue.put(fname);
+            try {
+                fileQueue.put(imageFile);
+            }catch (NullPointerException e){
+                e.printStackTrace();
+            }
+
+
             Log.i(TAG, "Inserting value: " + fname + "; Queue size is: " + queue.size());
         }
     }
@@ -224,16 +233,16 @@ public class FrontCameraService extends Service {
             ByteBuffer buffer = image.getPlanes()[0].getBuffer();
             fname = getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/pic" + frontCameraID + "_" + frontCounter + ".jpg";
             Log.d(TAG, "Saving:" + fname);
-            File file = new File(fname);
+            //File file = new File(fname);
+            imageFile = new File(fname);
             byte[] bytes = new byte[buffer.remaining()];
             buffer.get(bytes);
             try {
                 //save(bytes, file); // save image here
                 OutputStream output = null;
-                output = new FileOutputStream(file);
+                output = new FileOutputStream(imageFile);
                 output.write(bytes);
                 frontCounter++;
-
             } catch (IOException e) {
                 e.printStackTrace();
             }

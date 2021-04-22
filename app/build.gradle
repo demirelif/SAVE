@@ -80,7 +80,7 @@ dependencies {
 
     implementation 'com.google.firebase:firebase-core:9.6.1'
     // for mlkit
-    implementation 'com.google.firebase:firebase-ml-vision:24.0.1'
+    //implementation 'com.google.firebase:firebase-ml-vision:24.0.1'
 
     // for mlkit face detection
     implementation 'com.google.firebase:firebase-ml-vision-face-model:19.0.0'
