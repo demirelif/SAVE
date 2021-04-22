@@ -50,7 +50,6 @@ public class FrontCameraService extends Service {
     private static final int REQUEST_CAMERA_PERMISSION = 200;
     private static final int REQUEST_PERMISSION = 200;
     public IBinder mBinder = new FrontCameraService.LocalBinder();
-    public int picNo = 0;
 
     // by elif
     private String frontCameraID;
@@ -70,19 +69,27 @@ public class FrontCameraService extends Service {
     private HandlerThread frontThread;
     private int frontCounter = 0;
     private int backCounter = 0;
+    private static String fname = "";
     CaptureRequest.Builder mPreviewRequestBuilder;
-    public static byte[][] yuvBytes = new byte[3][];
+    //public static byte[][] yuvBytes = new byte[3][];
 
     //public static BlockingQueue<Bitmap> queue = new ArrayBlockingQueue<Bitmap>(10);
-    public static BlockingQueue<byte[]> queue = new ArrayBlockingQueue<>(10);
-    public static BlockingQueue<Image> imageQueue = new ArrayBlockingQueue<>(10);
+   // public static BlockingQueue<byte[]> queue = new ArrayBlockingQueue<>(10);
+    //public static BlockingQueue<Image> imageQueue = new ArrayBlockingQueue<>(10);
+    //public static BlockingQueue<Integer> numQueue = new ArrayBlockingQueue<>(10);
+    public static BlockingQueue<String> queue = new ArrayBlockingQueue<>(10);
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
 
     static {
-        ORIENTATIONS.append(Surface.ROTATION_0, 90);
-        ORIENTATIONS.append(Surface.ROTATION_90, 0);
-        ORIENTATIONS.append(Surface.ROTATION_180, 270);
-        ORIENTATIONS.append(Surface.ROTATION_270, 180);
+        //ORIENTATIONS.append(Surface.ROTATION_0, 90);
+       // ORIENTATIONS.append(Surface.ROTATION_90, 0);
+        //ORIENTATIONS.append(Surface.ROTATION_180, 270);
+        //ORIENTATIONS.append(Surface.ROTATION_270, 180);
+
+        ORIENTATIONS.append(Surface.ROTATION_0, 0);
+        ORIENTATIONS.append(Surface.ROTATION_90, 90);
+        ORIENTATIONS.append(Surface.ROTATION_180, 180);
+        ORIENTATIONS.append(Surface.ROTATION_270, 270);
     }
     @Nullable
     @Override
@@ -158,13 +165,14 @@ public class FrontCameraService extends Service {
 
     private static void producer() throws InterruptedException {
         Log.i("front", "PRODUCER");
+
         Random random = new Random();
         while (true){
             Thread.sleep(500);
             //queue.put(picture);
-            imageQueue.put(image);
-            //if ( image != null ) imageQueue.put(image);
-            Log.i(TAG, "Inserting value: " + "front picture" + "; Queue size is: " + imageQueue.size());
+
+            queue.put(fname);
+            Log.i(TAG, "Inserting value: " + fname + "; Queue size is: " + queue.size());
         }
     }
 
@@ -213,8 +221,25 @@ public class FrontCameraService extends Service {
         public void onImageAvailable(ImageReader reader) {
             Log.i("front", "ON IMAGE AVAILABLE");
             image = frontImageReader.acquireLatestImage();
-            picNo++;
-            /*
+            ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+            fname = getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/pic" + frontCameraID + "_" + frontCounter + ".jpg";
+            Log.d(TAG, "Saving:" + fname);
+            File file = new File(fname);
+            byte[] bytes = new byte[buffer.remaining()];
+            buffer.get(bytes);
+            try {
+                //save(bytes, file); // save image here
+                OutputStream output = null;
+                output = new FileOutputStream(file);
+                output.write(bytes);
+                frontCounter++;
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            image.close();
+            // frontImageReader.close();
+                        /*
             ByteBuffer buffer = image.getPlanes()[0].getBuffer();
             byte[] bytes = new byte[buffer.remaining()];
             buffer.get(bytes);
@@ -256,27 +281,9 @@ public class FrontCameraService extends Service {
                 e.printStackTrace();
             }
             image.close();
-            // this part for saving to local
-            /*
-            ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-            String fname = getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/pic" + frontCameraID + "_" + frontCounter + ".jpg";
-            Log.d(TAG, "Saving:" + fname);
-            File file = new File(fname);
-            byte[] bytes = new byte[buffer.remaining()];
-            buffer.get(bytes);
-            try {
-                //save(bytes, file); // save image here
-                OutputStream output = null;
-                output = new FileOutputStream(file);
-                output.write(bytes);
-                frontCounter++;
 
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            image.close();
-            // frontImageReader.close();
              */
+
         }
     };
 
@@ -322,8 +329,8 @@ public class FrontCameraService extends Service {
             requestBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(270));
 
             mFrontCaptureCallback.setState(PictureCaptureCallback.STATE_LOCKING);
-            frontCameraCaptureSession.capture(requestBuilder.build(), mFrontCaptureCallback, null);
-          //  frontCameraCaptureSession.setRepeatingRequest(requestBuilder.build(), mFrontCaptureCallback, null);
+          //  frontCameraCaptureSession.capture(requestBuilder.build(), mFrontCaptureCallback, null);
+            frontCameraCaptureSession.setRepeatingRequest(requestBuilder.build(), mFrontCaptureCallback, null);
 
         } catch (CameraAccessException e) {
             e.printStackTrace();

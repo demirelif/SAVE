@@ -41,7 +41,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import static CameraApp.FrontCameraService.imageQueue;
+import static CameraApp.FrontCameraService.queue;
 
 public class FatigueService extends Service {
     public IBinder mBinder = new LocalBinder();
@@ -58,6 +58,7 @@ public class FatigueService extends Service {
     MediaType JSON;
     int picNo =0;
     private static Image image;
+    String file_name;
 
     @Nullable
     @Override
@@ -118,10 +119,7 @@ public class FatigueService extends Service {
                     OkHttpClient okHttpClient = new OkHttpClient();
                     String protocol = "HTTP";
                     String host = "10.0.2.2";
-                    // String host = "192.168.1.20";
-
-                    //int port = 8002;
-                    String endpoint = "/predict";
+                    String endpoint = "/predict"; // port 8002de degil?
                     JSON = MediaType.parse("application/json; charset=utf-8");
                     //URL url = new URL(protocol, host, port, endpoint);
                     java.net.URL url = new URL(protocol, host, endpoint);
@@ -130,7 +128,7 @@ public class FatigueService extends Service {
                             .method("POST", requestBody)
                             .build();
                    // Response response = client.newCall(request).execute();
-
+/*
                     okHttpClient.newCall(request).enqueue(new Callback() {
                         @Override
                         public void onFailure(final Call call, final IOException e) {
@@ -142,16 +140,14 @@ public class FatigueService extends Service {
                             Log.i("hi","onresponse");
                         }
                     });
-
-
+ */
                     try{
                         response = okHttpClient.newCall(request).execute();
                     }
                     catch (IOException e) {
-                        Log.e(TAG, "calismadi yine");
+                        Log.e(TAG, "FATIGUE FAIL");
                     }
-
-                    String s = "?";
+                    String s = "? - empty response";
                     if ( response!=null)
                         s = response.body().string();
                     Log.i(TAG,s);
@@ -169,47 +165,14 @@ public class FatigueService extends Service {
     private RequestBody buildRequestBody(String msg) throws JSONException {
         postBodyString = msg;
         final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/*");
-        if ( image == null ) return requestBody;
-
-        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-        String fname = getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/pic" + picNo + ".jpg";
-        fname = getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/pic1_45.jpg";
-        Log.d(TAG, "Saving:" + fname);
-        File file = new File(fname);
-        byte[] bytes = new byte[buffer.remaining()];
-        buffer.get(bytes);
-        try {
-            //save(bytes, file); // save image here
-            OutputStream output = null;
-            output = new FileOutputStream(file);
-            output.write(bytes);
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        //image.close();
 
         RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                .addFormDataPart("image", fname,
+                .addFormDataPart("image", file_name,
                         RequestBody.create("image",MediaType.parse("image/*jpg")))
                 .addFormDataPart("gaze_offset", "-0.018")
                 .addFormDataPart("pose_offset", "0.061")
                 .build();
-
-
-
-
-        // Response response = client.newCall(requestBody).execute();
-        // file = new File(Environment.getExternalStorageDirectory(),"p2.jpeg");
-        // mediaType = MediaType.parse("text/plain");
-        // mediaType = MediaType.parse("image/*");
-        // requestBody = RequestBody.create(file, mediaType);
         return requestBody;
-    }
-
-    private void post2(){
-
     }
 
     protected void onPostExecute(JSONObject getResponse) {
@@ -247,10 +210,9 @@ public class FatigueService extends Service {
     private void consumer() throws InterruptedException, MalformedURLException {
         //Random random = new Random();
         while (true){
-            //Thread.sleep(500);
-            image = imageQueue.take();
-            if ( image == null ) { Log.e(TAG, "Image is empty"); }
-            Log.i(TAG, "Taken value: " + "emotion photo" + "; Queue size is: " + imageQueue.size());
+            Thread.sleep(500);
+            file_name = queue.take();
+            Log.i(TAG, "Taken value: " + file_name + "; Queue size is: " + queue.size());
 
            // Bitmap bmp= BitmapFactory.decodeByteArray(emotionPhoto,0,emotionPhoto.length);
            // String j = getStringFromBitmap(bmp);
@@ -259,7 +221,6 @@ public class FatigueService extends Service {
            // JSONObject obj = new JSONObject();
            // obj.put(emotionPhoto);
            // jsonObj.put(byte[]);
-
         }
     }
 

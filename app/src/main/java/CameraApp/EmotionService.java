@@ -30,14 +30,12 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-//import static CameraApp.CameraService.queue;
-import static CameraApp.FrontCameraService.imageQueue;
+import static CameraApp.FrontCameraService.queue;
 
 public class EmotionService extends Service {
     public IBinder mBinder = new EmotionService.LocalBinder();
     private static final String TAG = "EMOTION SERVICE";
-    private String url = "http://" + "10.0.2.2" + ":" + 5000 + "/predict_emotion";
-    //String postUrl = "http://" + "10.0.2.2" + ":" + 5000 + "/predict_emotion";
+   // private String url = "http://" + "10.0.2.2" + ":" + 5000 + "/predict_emotion";
     private static java.net.URL URL;
     private static String postBodyString;
     private static MediaType mediaType;
@@ -46,7 +44,7 @@ public class EmotionService extends Service {
     private static File file;
     private static MediaType JSON;
     private static OkHttpClient okHttpClient;
-    private static String protocol;
+    //private static String protocol;
     private static String host;
     private static int port;
     //String endpoint = "/predict_emotion";
@@ -54,6 +52,7 @@ public class EmotionService extends Service {
     private static String endpoint;
     private Image image;
     int picNo = 1;
+    private static String file_name = "";
 
     @Nullable
     @Override
@@ -108,27 +107,18 @@ public class EmotionService extends Service {
             public void run() {
                 try  {
                     RequestBody requestBody = buildRequestBody(message);
+                    String protocol = "HTTP";
+                    String host = "10.0.2.2";
+                    int port = 5000;
+                    String endpoint = "/predict_emotion";
                     okHttpClient = new OkHttpClient();
                     JSON = MediaType.parse("application/json; charset=utf-8");
-                   // URL url = new URL(protocol, host,endpoint);
+                    //URL url = new URL(protocol, host,endpoint);
                     java.net.URL url = new URL(protocol, host, port, endpoint);
                     Request request = new Request.Builder()
                             .url(url)
                             .method("POST", requestBody)
                             .build();
-                    okHttpClient.newCall(request).enqueue(new Callback() {
-                        @Override
-                        public void onFailure(final Call call, final IOException e) {
-                            Log.e("hi","emotion fail");
-                        }
-
-                        @Override
-                        public void onResponse(Call call, final Response response) throws IOException {
-                            Log.i("hi","emotion responsed");
-                        }
-                    });
-
-
                     try{
                         response = okHttpClient.newCall(request).execute();
                     }
@@ -155,19 +145,19 @@ public class EmotionService extends Service {
         postBodyString = msg;
         final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/*");
         RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                .addFormDataPart("image", "p2.jpeg", RequestBody.create("image",MediaType.parse("image/*jpg")))
+                .addFormDataPart("image", file_name, RequestBody.create("image",MediaType.parse("image/*jpg")))
                 .build();
         return requestBody;
     }
 
     private RequestBody buildRequestBody(String msg) {
         postBodyString = msg;
-        if ( image == null ) return requestBody;
+      //  if ( image == null ) return requestBody;
 
-        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-        String fname = getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/pic" + picNo + ".jpg";
-        fname = getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/pic1_45.jpg";
-        Log.d(TAG, "Saving:" + fname);
+//        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+      //  String fname = getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/pic" + picNo + ".jpg";
+       // fname = getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/pic1_45.jpg";
+        Log.d(TAG, "Saving:" + file_name);
         /*
         //File file = new File(fname);
         //byte[] bytes = new byte[buffer.remaining()];
@@ -185,7 +175,7 @@ public class EmotionService extends Service {
         //image.close();
          */
         RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                .addFormDataPart("image", fname,
+                .addFormDataPart("image", file_name,
                         RequestBody.create("image",MediaType.parse("image/*jpg")))
                 .build();
 
@@ -195,9 +185,9 @@ public class EmotionService extends Service {
     private void consumer() throws InterruptedException, MalformedURLException {
         //Random random = new Random();
         while (true){
-            //Thread.sleep(500);
-            image = imageQueue.take();
-            Log.i(TAG, "Taken value: " + "emotion photo" + "; Queue size is: " + imageQueue.size());
+            Thread.sleep(500);
+            file_name = queue.take();
+            Log.i(TAG, "Taken value: " + file_name + "; Queue size is: " + queue.size());
             try {
                 postRequest("emotion photo");
             } catch (MalformedURLException e) {
