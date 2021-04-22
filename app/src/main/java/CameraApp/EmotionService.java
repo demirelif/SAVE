@@ -35,7 +35,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import static CameraApp.FrontCameraService.queue;
 import static CameraApp.FrontCameraService.fileQueue;
 
 public class EmotionService extends Service {
@@ -100,79 +99,6 @@ public class EmotionService extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
-/*    //private void connectServer
-    private void postRequest(String message) throws MalformedURLException {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try  {
-                    RequestBody requestBody = buildRequestBody(message);
-                    String protocol = "HTTP";
-                    //String host = "10.0.2.2";
-                    String host = "192.168.1.102";
-                    int port = 5000;
-                    String endpoint = "/predict_emotion";
-                    okHttpClient = new OkHttpClient();
-                    JSON = MediaType.parse("application/json; charset=utf-8");
-                    //URL url = new URL(protocol, host,endpoint);
-                    java.net.URL url = new URL(protocol, host, port, endpoint);
-                    Request request = new Request.Builder()
-                            .url(url)
-                            .method("POST", requestBody)
-                            .build();
-                    try{
-                        response = okHttpClient.newCall(request).execute();
-                    }
-                    catch (IOException e) {
-                        Log.e(TAG, e.toString());
-                    }
-
-                    String s = "Emotion Failed";
-                    if ( response!= null)
-                        s = response.body().string();
-                    Log.i(TAG,s);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        thread.start();
-
-    }
-
-    private RequestBody buildRequestBody(String msg) {
-        postBodyString = msg;
-      //  if ( image == null ) return requestBody;
-
-//        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-      //  String fname = getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/pic" + picNo + ".jpg";
-       // fname = getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/pic1_45.jpg";
-        Log.d(TAG, "Saving:" + file_name);
-        *//*
-        //File file = new File(fname);
-        //byte[] bytes = new byte[buffer.remaining()];
-        //buffer.get(bytes);
-        try {
-            //save(bytes, file); // save image here
-            OutputStream output = null;
-            output = new FileOutputStream(file);
-            output.write(bytes);
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        //image.close();
-         *//*
-        RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                .addFormDataPart("image", file_name,
-                        RequestBody.create("image",MediaType.parse("image/*jpg")))
-                .build();
-
-        return requestBody;
-    }*/
-
     private void consumer() throws InterruptedException, MalformedURLException {
         //Random random = new Random();
         while (true){
@@ -182,7 +108,6 @@ public class EmotionService extends Service {
             postImageToServer(imageFile);
         }
     }
-
 
     private void postImageToServer(@NonNull File imageFile) {
         String filePath = imageFile.getPath();
@@ -199,9 +124,13 @@ public class EmotionService extends Service {
         try {
             // Read bitmap by file path
             Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getPath(), options);
-            int imageRotation = getImageRotation(imageFile);
+
+            // IMAGE ROTATION PARAMETERS
+            //int imageRotation = getImageRotation(imageFile); // EMULATORDE RUNLAYACAKSANIZ BUNU KULLANIN
+            int imageRotation = 270; // REAL DEVICE ICIN BUNU
             System.out.println("IMAGE ROTATION " + imageRotation);
-            if (imageRotation != 0)
+
+            if (imageRotation != 0) // aslında her zaman değil
                 bitmap = getBitmapRotatedByDegree(bitmap, imageRotation);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
             //Toast.makeText(getApplicationContext(),"converting image",Toast.LENGTH_SHORT).show();

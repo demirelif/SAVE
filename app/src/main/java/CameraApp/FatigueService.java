@@ -41,7 +41,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import static CameraApp.FrontCameraService.queue;
+import static CameraApp.FrontCameraService.fileQueue;
 
 public class FatigueService extends Service {
     public IBinder mBinder = new LocalBinder();
@@ -209,10 +209,11 @@ public class FatigueService extends Service {
 
     private void consumer() throws InterruptedException, MalformedURLException {
         //Random random = new Random();
+        /*
         while (true){
             Thread.sleep(500);
-            file_name = queue.take();
-            Log.i(TAG, "Taken value: " + file_name + "; Queue size is: " + queue.size());
+            //file_name = queue.take();
+            //Log.i(TAG, "Taken value: " + file_name + "; Queue size is: " + queue.size());
 
            // Bitmap bmp= BitmapFactory.decodeByteArray(emotionPhoto,0,emotionPhoto.length);
            // String j = getStringFromBitmap(bmp);
@@ -221,7 +222,7 @@ public class FatigueService extends Service {
            // JSONObject obj = new JSONObject();
            // obj.put(emotionPhoto);
            // jsonObj.put(byte[]);
-        }
+        }*/
     }
 
     private String getStringFromBitmap(Bitmap bitmapPicture) {

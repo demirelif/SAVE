@@ -74,11 +74,6 @@ public class FrontCameraService extends Service {
     //public static byte[][] yuvBytes = new byte[3][];
     private static File imageFile;
 
-    //public static BlockingQueue<Bitmap> queue = new ArrayBlockingQueue<Bitmap>(10);
-   // public static BlockingQueue<byte[]> queue = new ArrayBlockingQueue<>(10);
-    //public static BlockingQueue<Image> imageQueue = new ArrayBlockingQueue<>(10);
-    //public static BlockingQueue<Integer> numQueue = new ArrayBlockingQueue<>(10);
-    public static BlockingQueue<String> queue = new ArrayBlockingQueue<>(10);
     public static BlockingQueue<File> fileQueue = new ArrayBlockingQueue<>(10);
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
 
@@ -167,21 +162,14 @@ public class FrontCameraService extends Service {
 
     private static void producer() throws InterruptedException {
         Log.i("front", "PRODUCER");
-
-        Random random = new Random();
         while (true){
             Thread.sleep(500);
-            //queue.put(picture);
-
-            //queue.put(fname);
             try {
                 fileQueue.put(imageFile);
+                Log.i(TAG, "Inserting image file: " + imageFile.getName() + "; Queue size is: " + fileQueue.size());
             }catch (NullPointerException e){
                 e.printStackTrace();
             }
-
-
-            Log.i(TAG, "Inserting value: " + fname + "; Queue size is: " + queue.size());
         }
     }
 
@@ -230,69 +218,33 @@ public class FrontCameraService extends Service {
         public void onImageAvailable(ImageReader reader) {
             Log.i("front", "ON IMAGE AVAILABLE");
             image = frontImageReader.acquireLatestImage();
-            ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+
+            ByteBuffer buffer = null;
+            byte[] bytes;
+
+            try {
+                buffer = image.getPlanes()[0].getBuffer();
+            }catch (NullPointerException e){
+                e.printStackTrace();
+            }
             fname = getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/pic" + frontCameraID + "_" + frontCounter + ".jpg";
-            Log.d(TAG, "Saving:" + fname);
-            //File file = new File(fname);
             imageFile = new File(fname);
-            byte[] bytes = new byte[buffer.remaining()];
-            buffer.get(bytes);
-            try {
-                //save(bytes, file); // save image here
-                OutputStream output = null;
-                output = new FileOutputStream(imageFile);
-                output.write(bytes);
-                frontCounter++;
-            } catch (IOException e) {
-                e.printStackTrace();
+            if(buffer != null){
+                bytes = new byte[buffer.remaining()];
+                buffer.get(bytes);
+                try {
+                    //save(bytes, file); // save image here
+                    OutputStream output = null;
+                    output = new FileOutputStream(imageFile);
+                    output.write(bytes);
+                    frontCounter++;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-            image.close();
-            // frontImageReader.close();
-                        /*
-            ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-            byte[] bytes = new byte[buffer.remaining()];
-            buffer.get(bytes);
-            Bitmap myBitmap = BitmapFactory.decodeByteArray(bytes,0,bytes.length,null);
-            if ( myBitmap == null ){
-                Log.e(TAG, "bitmap null");
+            if(image != null){
+                image.close();
             }
-            //ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-            //byte[] bytes = new byte[buffer.remaining()];
-            //picture = bytes;
-            // yuvBytes[0] = bytes;
-
-
-
-
-            /*
-           // ByteBuffer buffer2 = ByteBuffer.wrap(bytes);
-            picture = Bitmap.createBitmap(1280, 960, Bitmap.Config.ARGB_8888);
-            buffer.rewind();
-            picture.copyPixelsFromBuffer(buffer);
-            try {
-                queue.put(picture);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            /*
-            final Image.Plane[] planes = image.getPlanes();
-            final ByteBuffer buffer = planes[0].getBuffer();
-
-            int pixelStride = planes[0].getPixelStride();
-            int rowStride = planes[0].getRowStride();
-            int rowPadding = rowStride - pixelStride * image.getWidth();
-            // create bitmap
-            picture = Bitmap.createBitmap(image.getWidth() + rowPadding / pixelStride, image.getHeight(), Bitmap.Config.ARGB_8888);
-            picture.copyPixelsFromBuffer(buffer);
-            try {
-                queue.put(picture);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            image.close();
-
-             */
-
         }
     };
 
