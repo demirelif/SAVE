@@ -227,14 +227,10 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Intent pedestrianIntent = new Intent(MainActivity.this, PedestrianService.class);
         bindService(pedestrianIntent, serviceConnection, BIND_AUTO_CREATE);
         //MainActivity.this.startService(pedestrianIntent);
-
+ */
         Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
         bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
-        //MainActivity.this.startService(rPPGIntent);
-
- */
-
-
+        MainActivity.this.startService(rPPGIntent);
     }
 
     @Override

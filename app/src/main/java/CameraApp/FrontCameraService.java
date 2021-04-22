@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -16,6 +17,7 @@ import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
+import android.media.ExifInterface;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Binder;
@@ -33,6 +35,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -43,6 +46,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 
 
 public class FrontCameraService extends Service {
@@ -75,6 +82,9 @@ public class FrontCameraService extends Service {
     private static File imageFile;
 
     public static BlockingQueue<File> fileQueue = new ArrayBlockingQueue<>(10);
+
+    public static BlockingQueue<byte[]> imageBytes = new ArrayBlockingQueue<>(10);
+
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
 
     static {
@@ -165,12 +175,80 @@ public class FrontCameraService extends Service {
         while (true){
             Thread.sleep(500);
             try {
-                fileQueue.put(imageFile);
-                Log.i(TAG, "Inserting image file: " + imageFile.getName() + "; Queue size is: " + fileQueue.size());
+                //fileQueue.put(imageFile);
+                byte[] byteez = preProcessImage(imageFile);
+                if(byteez != null){
+                    imageBytes.put(byteez);
+                    Log.i(TAG, "Inserting image bytes: " + byteez.length + "; Queue size is: " + imageBytes.size());
+                }else {
+                    Log.i(TAG, "Byteez couldnt make it");
+                }
             }catch (NullPointerException e){
                 e.printStackTrace();
             }
         }
+    }
+
+    private static byte[] preProcessImage(@NonNull File imageFile) {
+        String filePath = imageFile.getPath();
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.RGB_565;
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        try {
+            // Read bitmap by file path
+            Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getPath(), options);
+
+            // IMAGE ROTATION PARAMETERS
+            //int imageRotation = getImageRotation(imageFile); // EMULATORDE RUNLAYACAKSANIZ BUNU KULLANIN
+            int imageRotation = 270; // REAL DEVICE ICIN BUNU
+            System.out.println("IMAGE ROTATION " + imageRotation);
+
+            if (imageRotation != 0) // aslında her zaman değil
+                bitmap = getBitmapRotatedByDegree(bitmap, imageRotation);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+            byte[] byteArray = stream.toByteArray();
+            return byteArray;
+            //Toast.makeText(getApplicationContext(),"converting image",Toast.LENGTH_SHORT).show();
+        }catch (Exception e){
+            //Toast.makeText(getApplicationContext(),"Please Make Sure the Selected File is an Image.",Toast.LENGTH_SHORT).show();
+            Log.i(TAG, "Please Make Sure the Selected File is an Image.");
+            return null;
+        }
+    }
+
+    private static int getImageRotation(@NonNull File imageFile) {
+        ExifInterface exif = null;
+        int exifRotation = 0;
+
+        try {
+            exif = new ExifInterface(imageFile.getPath());
+            exifRotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (exif == null)
+            return 0;
+        else
+            return exifToDegrees(exifRotation);
+    }
+
+    private static int exifToDegrees(int rotation) {
+        if (rotation == ExifInterface.ORIENTATION_ROTATE_90)
+            return 90;
+        else if (rotation == ExifInterface.ORIENTATION_ROTATE_180)
+            return 180;
+        else if (rotation == ExifInterface.ORIENTATION_ROTATE_270)
+            return 270;
+
+        return 0;
+    }
+
+    private static Bitmap getBitmapRotatedByDegree(Bitmap bitmap, int rotationDegree) {
+        Matrix matrix = new Matrix();
+        matrix.preRotate(rotationDegree);
+
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 
 
@@ -216,7 +294,7 @@ public class FrontCameraService extends Service {
     private final ImageReader.OnImageAvailableListener onImageAvailableListener = new ImageReader.OnImageAvailableListener() {
         @Override
         public void onImageAvailable(ImageReader reader) {
-            Log.i("front", "ON IMAGE AVAILABLE");
+            //Log.i("front", "ON IMAGE AVAILABLE");
             image = frontImageReader.acquireLatestImage();
 
             ByteBuffer buffer = null;
