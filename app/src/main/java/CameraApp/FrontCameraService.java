@@ -174,6 +174,7 @@ public class FrontCameraService extends Service {
             //queue.put(picture);
 
             //queue.put(fname);
+
             try {
                 fileQueue.put(imageFile);
             }catch (NullPointerException e){
@@ -229,7 +230,10 @@ public class FrontCameraService extends Service {
         @Override
         public void onImageAvailable(ImageReader reader) {
             Log.i("front", "ON IMAGE AVAILABLE");
+
+
             image = frontImageReader.acquireLatestImage();
+            if ( image == null ) return;
             ByteBuffer buffer = image.getPlanes()[0].getBuffer();
             fname = getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/pic" + frontCameraID + "_" + frontCounter + ".jpg";
             Log.d(TAG, "Saving:" + fname);
