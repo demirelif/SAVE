@@ -40,7 +40,7 @@ import static CameraApp.FrontCameraService.fileQueue;
 public class EmotionService extends Service {
     public IBinder mBinder = new EmotionService.LocalBinder();
     private static final String TAG = "EMOTION SERVICE";
-   // private String url = "http://" + "10.0.2.2" + ":" + 5000 + "/predict_emotion";
+    private String url = "http://" + "10.0.2.2" + ":" + 5000 + "/predict_emotion";
     private static java.net.URL URL;
     private static String postBodyString;
     private static MediaType mediaType;
@@ -59,6 +59,7 @@ public class EmotionService extends Service {
     int picNo = 1;
     private static String file_name = "";
     private static File imageFile;
+    private static File oldImageFile;
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -103,9 +104,9 @@ public class EmotionService extends Service {
         //Random random = new Random();
         while (true){
             Thread.sleep(500);
-            imageFile = fileQueue.take();
             Log.i(TAG, "Taken image path: " + imageFile.getPath() + "; Queue size is: " + fileQueue.size());
             postImageToServer(imageFile);
+
         }
     }
 
@@ -115,6 +116,7 @@ public class EmotionService extends Service {
 
         String postUrl = "http://" + "192.168.1.102" + ":" + 5000 + "/predict_emotion"; // UTKU IP
         String postUrl2 = "http://" + "192.168.1.102" + ":" + 8000 + "/rppg"; // UTKU IP
+        String postUrl3 = "http://" + "10.0.2.2" + ":" + 5000 + "/predict_emotion"; // ELIF IP
 
         MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
 
@@ -144,9 +146,9 @@ public class EmotionService extends Service {
 
         RequestBody postBodyImage = multipartBodyBuilder.build();
         // post request to emotion server
-        postRequest(postUrl, postBodyImage);
+        postRequest(postUrl3, postBodyImage);
         // post request to rppg server
-        postRequest(postUrl2, postBodyImage);
+       // postRequest(postUrl2, postBodyImage);
 
     }
 
