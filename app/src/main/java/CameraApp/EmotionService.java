@@ -41,7 +41,7 @@ import static CameraApp.FrontCameraService.imageBytes;
 public class EmotionService extends Service {
     public IBinder mBinder = new EmotionService.LocalBinder();
     private static final String TAG = "EMOTION SERVICE";
-    private String url = "http://" + "10.0.2.2" + ":" + 5000 + "/predict_emotion";
+   // private String url = "http://" + "10.0.2.2" + ":" + 5000 + "/predict_emotion";
     private static java.net.URL URL;
     private static String postBodyString;
     private static MediaType mediaType;
@@ -118,13 +118,13 @@ public class EmotionService extends Service {
     private void postImageToServer(byte[] byteArray){
         String postUrl = "http://" + "192.168.1.102" + ":" + 5000 + "/predict_emotion"; // UTKU IP
         String postUrl2 = "http://" + "192.168.1.102" + ":" + 8000 + "/rppg"; // UTKU IP
-        //String postUrl3 = "http://" + "10.0.2.2" + ":" + 5000 + "/predict_emotion"; // ELIF IP
+        String postUrl3 = "http://" + "10.0.2.2" + ":" + 5000 + "/predict_emotion"; // ELIF IP
         MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         multipartBodyBuilder.addFormDataPart("image", "front_face_image" + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
 
         RequestBody postBodyImage = multipartBodyBuilder.build();
         // post request to emotion server
-        postRequest(postUrl, postBodyImage);
+        postRequest(postUrl3, postBodyImage);
         // post request to rppg server
         //postRequest(postUrl2, postBodyImage);
     }
@@ -136,7 +136,9 @@ public class EmotionService extends Service {
 
         String postUrl = "http://" + "192.168.1.102" + ":" + 5000 + "/predict_emotion"; // UTKU IP
         String postUrl2 = "http://" + "192.168.1.102" + ":" + 8000 + "/rppg"; // UTKU IP
-        //String postUrl3 = "http://" + "10.0.2.2" + ":" + 5000 + "/predict_emotion"; // ELIF IP
+        String postUrl3 = "http://" + "10.0.2.2" + ":" + 5000 + "/predict_emotion"; // ELIF IP
+
+        String url = postUrl3;
 
         MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
 
@@ -166,9 +168,9 @@ public class EmotionService extends Service {
 
         RequestBody postBodyImage = multipartBodyBuilder.build();
         // post request to emotion server
-        postRequest(postUrl, postBodyImage);
+      //  postRequest(postUrl, postBodyImage);
         // post request to rppg server
-        postRequest(postUrl2, postBodyImage);
+        postRequest(url, postBodyImage);
 
     }
 

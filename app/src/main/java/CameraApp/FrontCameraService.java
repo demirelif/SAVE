@@ -199,8 +199,8 @@ public class FrontCameraService extends Service {
             Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getPath(), options);
 
             // IMAGE ROTATION PARAMETERS
-            //int imageRotation = getImageRotation(imageFile); // EMULATORDE RUNLAYACAKSANIZ BUNU KULLANIN
-            int imageRotation = 270; // REAL DEVICE ICIN BUNU
+            int imageRotation = getImageRotation(imageFile); // EMULATORDE RUNLAYACAKSANIZ BUNU KULLANIN
+            //int imageRotation = 270; // REAL DEVICE ICIN BUNU
             System.out.println("IMAGE ROTATION " + imageRotation);
 
             if (imageRotation != 0) // aslında her zaman değil

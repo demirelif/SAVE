@@ -42,6 +42,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import static CameraApp.FrontCameraService.fileQueue;
+import static CameraApp.FrontCameraService.imageBytes;
 
 public class FatigueService extends Service {
     public IBinder mBinder = new LocalBinder();
@@ -59,6 +60,7 @@ public class FatigueService extends Service {
     int picNo =0;
     private static Image image;
     String file_name;
+    private static byte[] byteArray;
 
     @Nullable
     @Override
@@ -75,14 +77,14 @@ public class FatigueService extends Service {
         Toast.makeText(getApplicationContext(),TAG + " onCreate", Toast.LENGTH_SHORT).show();
         super.onCreate();
         // server connection
-
+/*
         try {
             postRequest("deneme");
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
 
-
+ */
     }
 
     @Override
@@ -108,14 +110,101 @@ public class FatigueService extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
+    private void consumer() throws InterruptedException, MalformedURLException {
+        while (true){
+            Thread.sleep(500);
+            //imageFile = fileQueue.take();
+            //Log.i(TAG, "Taken image path: " + imageFile.getPath() + "; Queue size is: " + fileQueue.size());
+            //postImageToServer(imageFile);
+            byteArray = imageBytes.take();
+            Log.i(TAG, "Consumed byte array length: " + byteArray.length + "; Queue size is: " + imageBytes.size());
+            postImageToServer(byteArray);
+        }
+        //Random random = new Random();
+        /*
+        while (true){
+            Thread.sleep(500);
+            //file_name = queue.take();
+            //Log.i(TAG, "Taken value: " + file_name + "; Queue size is: " + queue.size());
+
+           // Bitmap bmp= BitmapFactory.decodeByteArray(emotionPhoto,0,emotionPhoto.length);
+           // String j = getStringFromBitmap(bmp);
+
+            //JSONObject obj = new JSONObject(j);
+           // JSONObject obj = new JSONObject();
+           // obj.put(emotionPhoto);
+           // jsonObj.put(byte[]);
+        }*/
+    }
+    private void postImageToServer(byte[] byteArray) throws MalformedURLException {
+       // String postUrl = "http://" + "10.0.2.2" + "/predict"; // ELIF IP
+        OkHttpClient okHttpClient = new OkHttpClient();
+        String protocol = "HTTP";
+        String host = "10.0.2.2";
+        String endpoint = "/predict"; // port 8002de degil?
+        //JSON = MediaType.parse("application/json; charset=utf-8");
+        //URL url = new URL(protocol, host, port, endpoint);
+        java.net.URL postUrl = new URL(protocol, host, endpoint);
+
+        MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+        multipartBodyBuilder.addFormDataPart("image", "front_face_image" + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
+        multipartBodyBuilder.addFormDataPart("gaze_offset", "-0.018");
+        multipartBodyBuilder.addFormDataPart("pose_offset", "0.061");
+
+        RequestBody postBodyImage = multipartBodyBuilder.build();
+        postRequest(postUrl, postBodyImage);
+    }
+
     //private void connectServer
-    private void postRequest(String message) throws MalformedURLException {
+
+    void postRequest(java.net.URL postUrl, RequestBody postBody) {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(postUrl)
+                .post(postBody)
+                .build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                // Cancel the post on failure.
+                call.cancel();
+                Log.d("FAIL", e.getMessage());
+                // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //Toast.makeText(getApplicationContext(),"Failed to Connect to Server. Please Try Again.", Toast.LENGTH_LONG).show();
+                        Log.i(TAG, "Failed to Connect to Server. Please Try Again.");
+                    }
+                }).start();
+            }
+
+            @Override
+            public void onResponse(Call call, final Response response) throws IOException {
+                // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //TextView responseText = findViewById(R.id.responseText);
+                        try {
+                            //Toast.makeText(getApplicationContext(), "Server's Response\n" + response.body().string(), Toast.LENGTH_LONG).show();
+                            Log.i(TAG, "Server's Response\n" + response.body().string());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+            }
+        });
+    }
+
+    private void oldpostRequest(String url, RequestBody message) throws MalformedURLException {
         Thread thread = new Thread(new Runnable() {
 
             @Override
             public void run() {
                 try  {
-                    RequestBody requestBody = buildRequestBody(message);
+           //         RequestBody requestBody = buildRequestBody(message);
                     OkHttpClient okHttpClient = new OkHttpClient();
                     String protocol = "HTTP";
                     String host = "10.0.2.2";
@@ -205,56 +294,5 @@ public class FatigueService extends Service {
             }
         }
 
-    }
-
-    private void consumer() throws InterruptedException, MalformedURLException {
-        //Random random = new Random();
-        /*
-        while (true){
-            Thread.sleep(500);
-            //file_name = queue.take();
-            //Log.i(TAG, "Taken value: " + file_name + "; Queue size is: " + queue.size());
-
-           // Bitmap bmp= BitmapFactory.decodeByteArray(emotionPhoto,0,emotionPhoto.length);
-           // String j = getStringFromBitmap(bmp);
-
-            //JSONObject obj = new JSONObject(j);
-           // JSONObject obj = new JSONObject();
-           // obj.put(emotionPhoto);
-           // jsonObj.put(byte[]);
-        }*/
-    }
-
-    private String getStringFromBitmap(Bitmap bitmapPicture) {
-        if ( bitmapPicture == null ) { return null; }
-        final int COMPRESSION_QUALITY = 100;
-        String encodedImage;
-        ByteArrayOutputStream byteArrayBitmapStream = new ByteArrayOutputStream();
-        bitmapPicture.compress(Bitmap.CompressFormat.PNG, COMPRESSION_QUALITY,
-                byteArrayBitmapStream);
-        byte[] b = byteArrayBitmapStream.toByteArray();
-        encodedImage = Base64.encodeToString(b, Base64.DEFAULT);
-        return encodedImage;
-    }
-
-    public JSONObject get(String url) throws IOException {
-        try {
-            String img = "p2.jpeg";
-            postRequest("deneme");
-            JSONObject json = new JSONObject(response.body().string());
-            Log.i("Network", "json is ready");
-            Log.i("Network", json.toString());
-            return json;
-            //  return new JSONObject(response.body().string());
-
-        } catch (UnknownHostException | UnsupportedEncodingException e) {
-            System.out.println("Error: " + e.getLocalizedMessage());
-            Log.e("Network", e.getLocalizedMessage());
-        } catch (Exception e) {
-            System.out.println("Other Error: " + e.getLocalizedMessage());
-            Log.e("Network", e.getLocalizedMessage());
-        }
-
-        return null;
     }
 }
