@@ -383,7 +383,7 @@ public class FrontCameraService extends Service {
             Log.i("front", "ON PRECAPTURE REQUIRED");
             mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
                     CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START);
-            setState(STATE_PRECAPTURE);
+            setState(PictureCaptureCallback.STATE_PRECAPTURE);
             try {
                 frontCameraCaptureSession.capture(mPreviewRequestBuilder.build(), this, frontHandler);
                // frontCameraCaptureSession.setRepeatingRequest(mPreviewRequestBuilder.build(), this, frontHandler);

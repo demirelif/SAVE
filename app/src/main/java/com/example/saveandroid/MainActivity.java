@@ -56,6 +56,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 
 import CameraApp.CameraService;
+import CameraApp.CrashService;
 import CameraApp.EmotionService;
 import CameraApp.FatigueService;
 import CameraApp.FrontCameraService;
@@ -124,6 +125,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             else if(service.getClass().getName().equals(FrontCameraService.LocalBinder.class.getName())){
                 onServiceConnected6(name, (FrontCameraService.LocalBinder) service);
             }
+            else if(service.getClass().getName().equals(CrashService.LocalBinder.class.getName())) {
+                onCrashServiceConnected(name, (CrashService.LocalBinder) service);
+            }
         }
         public void onServiceConnected1(ComponentName name, CameraService.LocalBinder service) {
             System.out.println("CONNECTED");
@@ -160,6 +164,10 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             frontCameraBounded = true;
             FrontCameraService.LocalBinder mLocalBinder = service;
             frontCameraServer = mLocalBinder.getServerInstance();
+        }
+
+        private void onCrashServiceConnected(ComponentName name, CrashService.LocalBinder service) {
+            Log.d(TAG, "onCrashServiceConnected");
         }
 
         @Override
@@ -231,6 +239,10 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
         bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(rPPGIntent);
+
+        Intent crashServiceIntent = new Intent(MainActivity.this, CrashService.class);
+        bindService(crashServiceIntent, serviceConnection, BIND_AUTO_CREATE );
+        MainActivity.this.startService(crashServiceIntent);
     }
 
     @Override
