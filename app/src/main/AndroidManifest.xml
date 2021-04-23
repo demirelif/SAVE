@@ -18,10 +18,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SAVEAndroid"
         android:usesCleartextTraffic="true">
-        <service
-            android:name="CameraApp.CrashService"
-            android:enabled="true"
-            android:exported="true"></service>
 
         <uses-library
             android:name="com.google.android.wearable"
@@ -71,6 +67,7 @@
         <service android:name="CameraApp.CameraService" />
         <service android:name="CameraApp.FrontCameraService" />
         <service android:name="CameraApp.BackCameraService" />
+        <service android:name="CameraApp.CrashService" />
 
         <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"

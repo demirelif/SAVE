@@ -73,7 +73,7 @@ import okhttp3.Response;
 
 
 public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback{
-    private static final String TAG = "MAIN ACTIVITY";
+    private static final String TAG = "cs_mainactivity";
     private static final int REQUEST_CAMERA_PERMISSION = 200;
     private static final int REQUEST_PERMISSION = 200;
     private KenBurnsView kbv;
@@ -193,6 +193,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate enter");
         startKenBurnsView(); // start special ken burns view
 
         // PERMISSION CHECK FOR CAMERA
@@ -209,6 +210,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION);
             return;
         }
+        Log.d(TAG, "onCreateClosed");
     }
 
     public void activateRoadTrip(View view){
@@ -226,11 +228,11 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
         Intent emotionIntent = new Intent(MainActivity.this, EmotionService.class);
         bindService(emotionIntent, serviceConnection, BIND_AUTO_CREATE);
-        MainActivity.this.startService(emotionIntent);
+        //MainActivity.this.startService(emotionIntent);
 
         Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
         bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
-        MainActivity.this.startService(fatigueIntent);
+        //MainActivity.this.startService(fatigueIntent);
 /*
         Intent pedestrianIntent = new Intent(MainActivity.this, PedestrianService.class);
         bindService(pedestrianIntent, serviceConnection, BIND_AUTO_CREATE);
@@ -238,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
  */
         Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
         bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
-        MainActivity.this.startService(rPPGIntent);
+        //MainActivity.this.startService(rPPGIntent);
 
         Intent crashServiceIntent = new Intent(MainActivity.this, CrashService.class);
         bindService(crashServiceIntent, serviceConnection, BIND_AUTO_CREATE );
