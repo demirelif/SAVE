@@ -103,6 +103,8 @@ public class FatigueService extends Service {
                     consumer();
                 } catch (InterruptedException | MalformedURLException e) {
                     e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -110,7 +112,7 @@ public class FatigueService extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
-    private void consumer() throws InterruptedException, MalformedURLException {
+    private void consumer() throws InterruptedException, IOException {
         while (true){
             Thread.sleep(500);
             //imageFile = fileQueue.take();
@@ -136,23 +138,26 @@ public class FatigueService extends Service {
            // jsonObj.put(byte[]);
         }*/
     }
-    private void postImageToServer(byte[] byteArray) throws MalformedURLException {
-       // String postUrl = "http://" + "10.0.2.2" + "/predict"; // ELIF IP
+    private void postImageToServer(byte[] byteArray) throws IOException {
+        String url = "http://" + "10.0.2.2" + "/predict"; // ELIF IP
         OkHttpClient okHttpClient = new OkHttpClient();
         String protocol = "HTTP";
+       // String host = "localhost";
         String host = "10.0.2.2";
         String endpoint = "/predict"; // port 8002de degil?
         //JSON = MediaType.parse("application/json; charset=utf-8");
         //URL url = new URL(protocol, host, port, endpoint);
         java.net.URL postUrl = new URL(protocol, host, endpoint);
 
+
+
         MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
-        multipartBodyBuilder.addFormDataPart("image", "front_face_image" + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
+        multipartBodyBuilder.addFormDataPart("image", "fatigue_image" + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
         multipartBodyBuilder.addFormDataPart("gaze_offset", "-0.018");
         multipartBodyBuilder.addFormDataPart("pose_offset", "0.061");
 
         RequestBody postBodyImage = multipartBodyBuilder.build();
-        postRequest(postUrl, postBodyImage);
+        postRequest(url, postBodyImage);
     }
 
     //private void connectServer
@@ -168,7 +173,7 @@ public class FatigueService extends Service {
             public void onFailure(Call call, IOException e) {
                 // Cancel the post on failure.
                 call.cancel();
-                Log.d("FAIL", e.getMessage());
+                Log.d("FAIL FATIGUE", e.getMessage());
                 // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
                 new Thread(new Runnable() {
                     @Override
@@ -198,6 +203,69 @@ public class FatigueService extends Service {
         });
     }
 
+    void postRequest(String postUrl, RequestBody postBody) throws IOException {
+        OkHttpClient client = new OkHttpClient();
+       /*
+        Request request = new Request.Builder()
+                .url(postUrl)
+                .post(postBody)
+                .build();
+
+        */
+        Request request = new Request.Builder()
+                .url(postUrl)
+                .method("POST", postBody)
+                .build();
+        Response response = null;
+        try {
+            response = client.newCall(request).execute();
+        }  catch (IOException e) {
+            Log.e(TAG, "FATIGUE FAIL");
+        }
+
+        String s = "Empty Response";
+        if ( response != null )
+            s = response.body().string();
+        Log.i(TAG,s);
+
+        /*
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                // Cancel the post on failure.
+                call.cancel();
+                Log.d("FAIL FATIGUE", e.getMessage());
+                // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //Toast.makeText(getApplicationContext(),"Failed to Connect to Server. Please Try Again.", Toast.LENGTH_LONG).show();
+                        Log.i(TAG, "Failed to Connect to Server. Please Try Again.");
+                    }
+                }).start();
+            }
+
+            @Override
+            public void onResponse(Call call, final Response response) throws IOException {
+                // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //TextView responseText = findViewById(R.id.responseText);
+                        try {
+                            //Toast.makeText(getApplicationContext(), "Server's Response\n" + response.body().string(), Toast.LENGTH_LONG).show();
+                            Log.i(TAG, "Server's Response\n" + response.body().string());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+            }
+        });
+
+         */
+    }
+
     private void oldpostRequest(String url, RequestBody message) throws MalformedURLException {
         Thread thread = new Thread(new Runnable() {
 
@@ -207,9 +275,10 @@ public class FatigueService extends Service {
            //         RequestBody requestBody = buildRequestBody(message);
                     OkHttpClient okHttpClient = new OkHttpClient();
                     String protocol = "HTTP";
-                    String host = "10.0.2.2";
+                   // String host = "10.0.2.2";
+                    String host = "localhost";
                     String endpoint = "/predict"; // port 8002de degil?
-                    JSON = MediaType.parse("application/json; charset=utf-8");
+                 //   JSON = MediaType.parse("application/json; charset=utf-8");
                     //URL url = new URL(protocol, host, port, endpoint);
                     java.net.URL url = new URL(protocol, host, endpoint);
                     Request request = new Request.Builder()
