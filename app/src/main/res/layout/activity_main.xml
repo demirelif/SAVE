@@ -57,4 +57,18 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/save_header_small" />
 
+    <TextView
+        android:id="@+id/hizGoster"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:background="@drawable/circle"
+        android:text="0"
+
+        android:textSize="24sp"
+        android:textAlignment="textEnd"
+        android:textColor="#0000FF"
+        android:paddingRight="10dp"
+        android:paddingTop="11dp"
+        tools:layout_editor_absoluteX="164dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

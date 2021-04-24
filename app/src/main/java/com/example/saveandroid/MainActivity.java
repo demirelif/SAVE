@@ -1,6 +1,9 @@
 package com.example.saveandroid;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -21,6 +24,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
 
@@ -38,6 +42,7 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.flaviofaria.kenburnsview.KenBurnsView;
 import com.flaviofaria.kenburnsview.RandomTransitionGenerator;
@@ -97,12 +102,14 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     //String url = "http://" + "192.168.1.20" + "/" + "predict";
     private java.net.URL URL;
    // private String url = "http://" + "10.0.0.2" + "/" + "predict"; // try 10.0.0.2
+   // private String url = "http://" + "10.0.0.2" + "/" + "predict"; // try 10.0.0.2
     private String postBodyString;
     private MediaType mediaType;
     private RequestBody requestBody;
     private Response response;
     File file;
     MediaType JSON;
+    TextView hizView;
 
     ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -190,12 +197,25 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
     };
 
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            int hiz = intent.getIntExtra("hiz", 0);
+            hizView.setText("" + hiz);
+
+
+            Log.d(TAG, "al:" + hiz);
+        }
+    };
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate enter");
         startKenBurnsView(); // start special ken burns view
-
+        hizView = findViewById(R.id.hizGoster);
         // PERMISSION CHECK FOR CAMERA
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION);
@@ -210,7 +230,13 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION);
             return;
         }
-        Log.d(TAG, "onCreateClosed");
+
+    }
+
+    @Override
+    protected void onStart(){
+        super.onStart();
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(broadcastReceiver, new IntentFilter("cs_Message"));
     }
 
     public void activateRoadTrip(View view){
@@ -221,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Log.i(TAG, " ACTIVATE ROAD");
         Toast.makeText(getApplicationContext(), "activating road trip", Toast.LENGTH_LONG).show();
 
-
+/*
         Intent frontCameraIntent = new Intent(MainActivity.this, FrontCameraService.class);
         bindService(frontCameraIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(frontCameraIntent);
@@ -233,18 +259,20 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
         bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
         //MainActivity.this.startService(fatigueIntent);
-/*
+/ *
         Intent pedestrianIntent = new Intent(MainActivity.this, PedestrianService.class);
         bindService(pedestrianIntent, serviceConnection, BIND_AUTO_CREATE);
         //MainActivity.this.startService(pedestrianIntent);
- */
+ * /
         Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
         bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
         //MainActivity.this.startService(rPPGIntent);
-
+*/
         Intent crashServiceIntent = new Intent(MainActivity.this, CrashService.class);
         bindService(crashServiceIntent, serviceConnection, BIND_AUTO_CREATE );
         MainActivity.this.startService(crashServiceIntent);
+
+
     }
 
     @Override
@@ -261,6 +289,10 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
 
     }
+
+    public void hizGoster(View view) {
+    }
+
     public void startKenBurnsView(){
         int colorCodeDark = Color.parseColor("#FF9800");
         Window window = getWindow();
