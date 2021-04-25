@@ -67,6 +67,7 @@ import CameraApp.FatigueService;
 import CameraApp.FrontCameraService;
 import CameraApp.PedestrianService;
 import CameraApp.rPPGService;
+import SpeechRecognition.Speech;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -90,12 +91,14 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     boolean fatigueBounded;
     boolean pedestrianBounded;
     boolean rPPGBounded;
+    boolean speechBounded;
     CameraService cameraServer;
     FrontCameraService frontCameraServer;
     EmotionService emotionServer;
     FatigueService fatigueServer;
     PedestrianService pedestrianServer;
     rPPGService rPPGServer;
+    Speech speechServer;
 
     public static double gazeAngle = 0;
     public static double headPose = 0;
@@ -134,6 +137,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             }
             else if(service.getClass().getName().equals(CrashService.LocalBinder.class.getName())) {
                 onCrashServiceConnected(name, (CrashService.LocalBinder) service);
+            }
+            else if(service.getClass().getName().equals(Speech.LocalBinder.class.getName())) {
+                onServiceConnectedSpeech(name, (Speech.LocalBinder) service);
             }
         }
         public void onServiceConnected1(ComponentName name, CameraService.LocalBinder service) {
@@ -176,6 +182,12 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         private void onCrashServiceConnected(ComponentName name, CrashService.LocalBinder service) {
             Log.d(TAG, "onCrashServiceConnected");
         }
+        public void onServiceConnectedSpeech(ComponentName name, Speech.LocalBinder service){
+            System.out.println("Speech Connected");
+            speechBounded = true;
+            Speech.LocalBinder mSpeech = service;
+            speechServer = mSpeech.getServerInstance();
+        }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
@@ -187,6 +199,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             fatigueBounded = false;
             pedestrianBounded = false;
             rPPGBounded = false;
+            speechBounded = false;
             // disconnect servers
             cameraServer = null;
             frontCameraServer = null;
@@ -194,6 +207,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             fatigueServer = null;
             pedestrianServer = null;
             rPPGServer = null;
+            speechServer = null;
         }
     };
 
@@ -256,27 +270,30 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Log.i(TAG, " ACTIVATE ROAD");
         Toast.makeText(getApplicationContext(), "activating road trip", Toast.LENGTH_LONG).show();
 
-/*
+        Intent speechIntent = new Intent(MainActivity.this, Speech.class);
+        bindService(speechIntent, serviceConnection, BIND_AUTO_CREATE);
+        MainActivity.this.startService(speechIntent);
+
         Intent frontCameraIntent = new Intent(MainActivity.this, FrontCameraService.class);
         bindService(frontCameraIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(frontCameraIntent);
 
         Intent emotionIntent = new Intent(MainActivity.this, EmotionService.class);
         bindService(emotionIntent, serviceConnection, BIND_AUTO_CREATE);
-        //MainActivity.this.startService(emotionIntent);
+        MainActivity.this.startService(emotionIntent);
 
         Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
         bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
-        //MainActivity.this.startService(fatigueIntent);
-/ *
+        MainActivity.this.startService(fatigueIntent);
+
         Intent pedestrianIntent = new Intent(MainActivity.this, PedestrianService.class);
         bindService(pedestrianIntent, serviceConnection, BIND_AUTO_CREATE);
-        //MainActivity.this.startService(pedestrianIntent);
- * /
+        MainActivity.this.startService(pedestrianIntent);
+
         Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
         bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
-        //MainActivity.this.startService(rPPGIntent);
-*/
+        MainActivity.this.startService(rPPGIntent);
+
         Intent crashServiceIntent = new Intent(MainActivity.this, CrashService.class);
         bindService(crashServiceIntent, serviceConnection, BIND_AUTO_CREATE );
         MainActivity.this.startService(crashServiceIntent);

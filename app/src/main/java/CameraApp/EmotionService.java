@@ -8,7 +8,6 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.media.Image;
 import android.os.Binder;
-import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
@@ -18,14 +17,10 @@ import androidx.annotation.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.util.Random;
 
+import SpeechRecognition.Speech;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -35,7 +30,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import static CameraApp.FrontCameraService.fileQueue;
 import static CameraApp.FrontCameraService.imageBytes;
 
 public class EmotionService extends Service {
@@ -62,6 +56,7 @@ public class EmotionService extends Service {
     private static File imageFile;
     private static File oldImageFile;
     private static byte[] byteArray;
+
 
     @Nullable
     @Override
@@ -150,8 +145,8 @@ public class EmotionService extends Service {
             Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getPath(), options);
 
             // IMAGE ROTATION PARAMETERS
-            //int imageRotation = getImageRotation(imageFile); // EMULATORDE RUNLAYACAKSANIZ BUNU KULLANIN
-            int imageRotation = 270; // REAL DEVICE ICIN BUNU
+            int imageRotation = getImageRotation(imageFile); // EMULATORDE RUNLAYACAKSANIZ BUNU KULLANIN
+           // int imageRotation = 270; // REAL DEVICE ICIN BUNU
             System.out.println("IMAGE ROTATION " + imageRotation);
 
             if (imageRotation != 0) // aslında her zaman değil
@@ -210,6 +205,7 @@ public class EmotionService extends Service {
                         try {
                             //Toast.makeText(getApplicationContext(), "Server's Response\n" + response.body().string(), Toast.LENGTH_LONG).show();
                             Log.i(TAG, "Server's Response\n" + response.body().string());
+
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

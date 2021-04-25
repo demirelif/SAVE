@@ -24,7 +24,7 @@
         <service
             android:name="SpeechRecognition.Speech"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <uses-library
             android:name="com.google.android.wearable"
