@@ -18,6 +18,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.View;
@@ -59,6 +60,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.Locale;
 
 import CameraApp.CameraService;
 import CameraApp.CrashService;
@@ -80,8 +82,10 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback{
     private static final String TAG = "cs_mainactivity";
+    private static final int TTS_CHECK_CODE = 101;
     private static final int REQUEST_CAMERA_PERMISSION = 200;
     private static final int REQUEST_PERMISSION = 200;
+    public static TextToSpeech tts;
     private KenBurnsView kbv;
     private boolean moving = true;
     static Bitmap data;
@@ -230,6 +234,23 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Log.d(TAG, "onCreate enter");
         startKenBurnsView(); // start special ken burns view
         hizView = findViewById(R.id.hizGoster);
+
+        tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status != TextToSpeech.ERROR) {
+                    tts.setLanguage(Locale.US);
+                }
+            }
+        });
+        if ( tts!=null){
+            tts.speak("Trying", TextToSpeech.QUEUE_FLUSH,null,null);
+            Log.i(TAG,"Null degil");
+        }
+        else {
+            Log.e(TAG, "Activity mainde de calismadi");
+        }
+
         // PERMISSION CHECK FOR CAMERA
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION);
@@ -262,6 +283,25 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(broadcastReceiver, new IntentFilter("cs_Message"));
     }
 
+    /*
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == TTS_CHECK_CODE) {
+            if (resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
+                // success, create the TTS instance
+
+            } else {
+                // missing data, install it
+                Intent installIntent = new Intent();
+                installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+                startActivity(installIntent);
+            }
+        }
+    }
+
+     */
+
     public void activateRoadTrip(View view){
         //Intent faceIntent = new Intent(MainActivity.this, FaceDetectionActivity.class);
         // MainActivity.this.startActivity(faceIntent);
@@ -273,7 +313,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Intent speechIntent = new Intent(MainActivity.this, Speech.class);
         bindService(speechIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(speechIntent);
-
+/*
         Intent frontCameraIntent = new Intent(MainActivity.this, FrontCameraService.class);
         bindService(frontCameraIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(frontCameraIntent);
@@ -298,6 +338,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         bindService(crashServiceIntent, serviceConnection, BIND_AUTO_CREATE );
         MainActivity.this.startService(crashServiceIntent);
 
+
+ */
 
     }
 

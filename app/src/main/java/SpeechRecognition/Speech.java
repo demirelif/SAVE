@@ -18,17 +18,20 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import CameraApp.FatigueService;
+import com.example.saveandroid.MainActivity;
 
-public class Speech extends Service implements TextToSpeech.OnInitListener  {
+public class Speech extends Service {
     private static final String TAG = "SPEECH";
     public IBinder mBinder = new Speech.LocalBinder();
     private SpeechRecognizer speechRecognizer;
-    private TextToSpeech textToSpeech;
+    private TextToSpeech textToSpeech = MainActivity.tts;
     private Intent intentRecognizer;
     private String speechString;
     private boolean isInit;
     private Handler handler;
-    public String word = "hello";
+    private String word;
+
+
 
     public Speech() {
     }
@@ -41,8 +44,6 @@ public class Speech extends Service implements TextToSpeech.OnInitListener  {
     @Override
     public void onCreate() {
         super.onCreate();
-        textToSpeech = new TextToSpeech(getApplicationContext(), this);
-        Log.i(TAG, "Text to speech on create");
         handler = new Handler();
 
         Toast.makeText(getApplicationContext(),TAG + " onCreate", Toast.LENGTH_SHORT).show();
@@ -108,16 +109,8 @@ public class Speech extends Service implements TextToSpeech.OnInitListener  {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         handler.removeCallbacksAndMessages(null);
-        if (isInit) {
-            readText(word);
-        }
-        handler.postDelayed(new Runnable() {
 
-            @Override
-            public void run() {
-                stopSelf();
-            }
-        }, 15*1000);
+//        textToSpeech = new TextToSpeech(getApplicationContext(), this);
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -128,25 +121,6 @@ public class Speech extends Service implements TextToSpeech.OnInitListener  {
             stopTextReader();
         }
         super.onDestroy();
-    }
-
-    @Override
-    public void onInit(int status) {
-        if ( status == TextToSpeech.SUCCESS){
-            int result = textToSpeech.setLanguage(Locale.ENGLISH);
-            if ( result == TextToSpeech.LANG_MISSING_DATA
-                    || result == TextToSpeech.LANG_NOT_SUPPORTED){
-                Log.e(TAG, "Language not supported.");
-            }
-            else {
-                isInit = true;
-                Log.i(TAG, "Success.");
-
-            }
-        }
-        else {
-            Log.e(TAG, "Initialization failed.");
-        }
     }
 
     public class LocalBinder extends Binder {
@@ -165,12 +139,10 @@ public class Speech extends Service implements TextToSpeech.OnInitListener  {
         return speechString;
     }
 
-    public void giveText(String s){
-        word = s;
-    }
-
     public void readText(String text){
         if ( text != null && textToSpeech != null ){
+            textToSpeech.setPitch(2f);
+            textToSpeech.setSpeechRate(2f);
             textToSpeech.speak(text,TextToSpeech.QUEUE_FLUSH,null, null);
         }
         else {
