@@ -323,7 +323,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Intent speechIntent = new Intent(MainActivity.this, Speech.class);
         bindService(speechIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(speechIntent);
-/*
+
         Intent frontCameraIntent = new Intent(MainActivity.this, FrontCameraService.class);
         bindService(frontCameraIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(frontCameraIntent);
@@ -347,9 +347,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Intent crashServiceIntent = new Intent(MainActivity.this, CrashService.class);
         bindService(crashServiceIntent, serviceConnection, BIND_AUTO_CREATE );
         MainActivity.this.startService(crashServiceIntent);
-
-
- */
 
     }
 

@@ -24,7 +24,7 @@ public class Speech extends Service {
     private static final String TAG = "SPEECH";
     public IBinder mBinder = new Speech.LocalBinder();
     private SpeechRecognizer speechRecognizer;
-    private TextToSpeech textToSpeech = MainActivity.tts;
+    private static TextToSpeech textToSpeech = MainActivity.tts;
     private Intent intentRecognizer;
     private String speechString;
     private boolean isInit;
@@ -47,7 +47,7 @@ public class Speech extends Service {
         handler = new Handler();
 
         Toast.makeText(getApplicationContext(),TAG + " onCreate", Toast.LENGTH_SHORT).show();
-        readText("This is speech");
+       // readText("This is speech");
         intentRecognizer = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intentRecognizer.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
@@ -138,10 +138,10 @@ public class Speech extends Service {
         return speechString;
     }
 
-    public void readText(String text){
+    public static void readText(String text){
         if ( text != null && textToSpeech != null && MainActivity.textToSpeechIsInitialized ){
-            textToSpeech.setPitch(2f);
-            textToSpeech.setSpeechRate(2f);
+            textToSpeech.setPitch(1);
+            textToSpeech.setSpeechRate(1);
             textToSpeech.speak(text,TextToSpeech.QUEUE_FLUSH,null, null);
         }
         else {

@@ -15,6 +15,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.saveandroid.MainActivity;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -198,6 +200,7 @@ public class EmotionService extends Service {
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
                 // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
+                final String res = "emotion";
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -205,12 +208,14 @@ public class EmotionService extends Service {
                         try {
                             //Toast.makeText(getApplicationContext(), "Server's Response\n" + response.body().string(), Toast.LENGTH_LONG).show();
                             Log.i(TAG, "Server's Response\n" + response.body().string());
-
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
+
                 }).start();
+
+                Speech.readText(res);
             }
         });
     }
