@@ -3,13 +3,14 @@
     package="com.example.saveandroid">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:allowBackup="true"
@@ -20,6 +21,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SAVEAndroid"
         android:usesCleartextTraffic="true">
+        <service
+            android:name="SpeechRecognition.Speech"
+            android:enabled="true"
+            android:exported="true"></service>
 
         <uses-library
             android:name="com.google.android.wearable"
