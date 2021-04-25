@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     PedestrianService pedestrianServer;
     rPPGService rPPGServer;
     Speech speechServer;
+    public static boolean textToSpeechIsInitialized = false;
 
     public static double gazeAngle = 0;
     public static double headPose = 0;
@@ -238,13 +239,22 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
-                if(status != TextToSpeech.ERROR) {
-                    tts.setLanguage(Locale.US);
+                if(status == TextToSpeech.SUCCESS) {
+                    textToSpeechIsInitialized = true;
+                    int r = tts.setLanguage(Locale.US);
+                    if (r == TextToSpeech.LANG_MISSING_DATA
+                            || r == TextToSpeech.LANG_NOT_SUPPORTED) {
+                        Log.e(TAG, "This Language is not supported");
+                    }
+                }
+                else if (status == TextToSpeech.ERROR){
+                    Log.e(TAG,"Something went wrong for speech");
                 }
             }
         });
         if ( tts!=null){
-            tts.speak("Trying", TextToSpeech.QUEUE_FLUSH,null,null);
+            if ( textToSpeechIsInitialized )
+                tts.speak("Trying", TextToSpeech.QUEUE_FLUSH,null,null);
             Log.i(TAG,"Null degil");
         }
         else {

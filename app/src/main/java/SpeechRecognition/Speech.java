@@ -47,6 +47,7 @@ public class Speech extends Service {
         handler = new Handler();
 
         Toast.makeText(getApplicationContext(),TAG + " onCreate", Toast.LENGTH_SHORT).show();
+        readText("This is speech");
         intentRecognizer = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intentRecognizer.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
@@ -109,8 +110,6 @@ public class Speech extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         handler.removeCallbacksAndMessages(null);
-
-//        textToSpeech = new TextToSpeech(getApplicationContext(), this);
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -140,7 +139,7 @@ public class Speech extends Service {
     }
 
     public void readText(String text){
-        if ( text != null && textToSpeech != null ){
+        if ( text != null && textToSpeech != null && MainActivity.textToSpeechIsInitialized ){
             textToSpeech.setPitch(2f);
             textToSpeech.setSpeechRate(2f);
             textToSpeech.speak(text,TextToSpeech.QUEUE_FLUSH,null, null);
