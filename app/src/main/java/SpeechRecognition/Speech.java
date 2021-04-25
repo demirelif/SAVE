@@ -105,6 +105,9 @@ public class Speech extends Service {
             }
         });
 
+        if ( speechRecognizer != null ){
+            Log.i(TAG, "speech recognizer ");
+        }
     }
 
     @Override

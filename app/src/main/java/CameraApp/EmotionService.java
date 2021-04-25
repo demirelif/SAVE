@@ -200,22 +200,27 @@ public class EmotionService extends Service {
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
                 // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
-                final String res = "emotion";
                 new Thread(new Runnable() {
+                    String s = "";
                     @Override
                     public void run() {
                         //TextView responseText = findViewById(R.id.responseText);
                         try {
                             //Toast.makeText(getApplicationContext(), "Server's Response\n" + response.body().string(), Toast.LENGTH_LONG).show();
-                            Log.i(TAG, "Server's Response\n" + response.body().string());
+                            //Log.i(TAG, "Server's Response\n" + response.body().string());
+                            s = response.body().string();
+
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+                        if ( s.equals("Sad"))
+                            Speech.readText("Do you want to listen to something to cheer you up?");
+                        Log.i(TAG, "Server's Response\n" + s);
                     }
 
                 }).start();
 
-                Speech.readText(res);
+               // Speech.readText(res);
             }
         });
     }
