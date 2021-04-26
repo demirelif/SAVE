@@ -18,6 +18,9 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -60,6 +63,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Locale;
 
 import CameraApp.BackCameraService;
@@ -105,6 +109,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     rPPGService rPPGServer;
     Speech speechServer;
     public static boolean textToSpeechIsInitialized = false;
+    public static SpeechRecognizer speechRecognizer;
+    public static Intent intentRecognizer;
+    public static String speechString = "";
 
     public static double gazeAngle = 0;
     public static double headPose = 0;
@@ -263,6 +270,73 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         else {
             Log.e(TAG, "Activity mainde de calismadi");
         }
+
+
+        // SPEECH TO TEXT
+        intentRecognizer = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intentRecognizer.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intentRecognizer.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+        speechRecognizer.setRecognitionListener(new RecognitionListener() {
+            @Override
+            public void onReadyForSpeech(Bundle params) {
+
+            }
+
+            @Override
+            public void onBeginningOfSpeech() {
+
+            }
+
+            @Override
+            public void onRmsChanged(float rmsdB) {
+
+            }
+
+            @Override
+            public void onBufferReceived(byte[] buffer) {
+
+            }
+
+            @Override
+            public void onEndOfSpeech() {
+
+            }
+
+            @Override
+            public void onError(int error) {
+
+            }
+
+            @Override
+            public void onResults(Bundle results) {
+                ArrayList<String> matches =  results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                String s = "";
+                if ( matches!= null ){
+                    for ( int i = 0; i < matches.size(); i++){
+                        s += matches.get(i);
+                    }
+                }
+                speechString = s;
+            }
+
+            @Override
+            public void onPartialResults(Bundle partialResults) {
+                ArrayList<String> matches =  partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                String s = "";
+                if ( matches!= null ){
+                    for ( int i = 0; i < matches.size(); i++){
+                        s += matches.get(i);
+                    }
+                }
+                speechString = s;
+            }
+
+            @Override
+            public void onEvent(int eventType, Bundle params) {
+
+            }
+        });
 
         // PERMISSION CHECK FOR CAMERA
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {

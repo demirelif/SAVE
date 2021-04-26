@@ -187,7 +187,7 @@ public class FrontCameraService extends Service {
                 //fileQueue.put(imageFile);
                 byte[] byteez = preProcessImage(imageFile);
                 if(byteez != null){
-                    imageBytesRPPG.put(byteez);
+                  //  imageBytesRPPG.put(byteez);
                     imageBytesEmotion.put(byteez);
                     //imageBytesFatigue.put(byteez);
                     Log.i(TAG, "Inserting image bytes: " + byteez.length + "; rPPG Queue size is: " + imageBytesRPPG.size());

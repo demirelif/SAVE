@@ -23,15 +23,11 @@ import com.example.saveandroid.MainActivity;
 public class Speech extends Service {
     private static final String TAG = "SPEECH";
     public IBinder mBinder = new Speech.LocalBinder();
-    private static SpeechRecognizer speechRecognizer;
+
     private static TextToSpeech textToSpeech = MainActivity.tts;
-    private static Intent intentRecognizer;
-    private static String speechString;
     private boolean isInit;
     private Handler handler;
     private String word;
-
-
 
     public Speech() {
 
@@ -47,76 +43,10 @@ public class Speech extends Service {
         super.onCreate();
         handler = new Handler();
 
-        Toast.makeText(getApplicationContext(),TAG + " onCreate", Toast.LENGTH_SHORT).show();
-       // readText("This is speech");
-        intentRecognizer = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intentRecognizer.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intentRecognizer.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
-        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
-        speechRecognizer.setRecognitionListener(new RecognitionListener() {
-            @Override
-            public void onReadyForSpeech(Bundle params) {
+        Toast.makeText(getApplicationContext(), TAG + " onCreate", Toast.LENGTH_SHORT).show();
+        // readText("This is speech");
 
-            }
 
-            @Override
-            public void onBeginningOfSpeech() {
-
-            }
-
-            @Override
-            public void onRmsChanged(float rmsdB) {
-
-            }
-
-            @Override
-            public void onBufferReceived(byte[] buffer) {
-
-            }
-
-            @Override
-            public void onEndOfSpeech() {
-
-            }
-
-            @Override
-            public void onError(int error) {
-
-            }
-
-            @Override
-            public void onResults(Bundle results) { // results when we finish listening
-                ArrayList<String> matches =  results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-                String s = "";
-                if ( matches!= null ){
-                    for ( int i = 0; i < matches.size(); i++){
-                        s += matches.get(i);
-                    }
-                }
-                speechString = s;
-            }
-
-            @Override
-            public void onPartialResults(Bundle partialResults) { // results before finishing
-                ArrayList<String> matches =  partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-                String s = "";
-                if ( matches!= null ){
-                    for ( int i = 0; i < matches.size(); i++){
-                        s += matches.get(i);
-                    }
-                }
-                speechString = s;
-            }
-
-            @Override
-            public void onEvent(int eventType, Bundle params) {
-
-            }
-        });
-
-        if ( speechRecognizer != null ){
-            Log.i(TAG, "speech recognizer ");
-        }
     }
 
     @Override
@@ -139,15 +69,15 @@ public class Speech extends Service {
     }
 
     public static void startSpeech(){
-        speechRecognizer.startListening(intentRecognizer);
+        MainActivity.speechRecognizer.startListening(MainActivity.intentRecognizer);
     }
 
     public static void stopSpeech(){
-        speechRecognizer.stopListening();
+        MainActivity.speechRecognizer.stopListening();
     }
 
     public static String getSpeech(){
-        return speechString;
+        return MainActivity.speechString;
     }
 
     public static void readText(String text){
@@ -159,31 +89,6 @@ public class Speech extends Service {
         else {
             Log.e(TAG, "Something is wrong");
         }
-      //  textToSpeech.speak(text,TextToSpeech.QUEUE_FLUSH,null);
-        /*
-        textToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if ( status == TextToSpeech.SUCCESS){
-                    int result = textToSpeech.setLanguage(Locale.ENGLISH);
-                    if ( result == TextToSpeech.LANG_MISSING_DATA
-                            || result == TextToSpeech.LANG_NOT_SUPPORTED){
-                        Log.e(TAG, "Language not supported.");
-                    }
-                    else {
-                        Log.i(TAG, "Success.");
-
-                    }
-                }
-                else {
-                    Log.e(TAG, "Initialization failed.");
-                }
-
-            }
-        });
-
-         */
-
     }
 
     public void stopTextReader(){
