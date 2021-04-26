@@ -26,7 +26,7 @@ public class Speech extends Service {
     private static SpeechRecognizer speechRecognizer;
     private static TextToSpeech textToSpeech = MainActivity.tts;
     private static Intent intentRecognizer;
-    private String speechString;
+    private static String speechString;
     private boolean isInit;
     private Handler handler;
     private String word;
@@ -51,6 +51,7 @@ public class Speech extends Service {
        // readText("This is speech");
         intentRecognizer = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intentRecognizer.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intentRecognizer.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         speechRecognizer.setRecognitionListener(new RecognitionListener() {
             @Override
@@ -97,7 +98,14 @@ public class Speech extends Service {
 
             @Override
             public void onPartialResults(Bundle partialResults) { // results before finishing
-
+                ArrayList<String> matches =  partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                String s = "";
+                if ( matches!= null ){
+                    for ( int i = 0; i < matches.size(); i++){
+                        s += matches.get(i);
+                    }
+                }
+                speechString = s;
             }
 
             @Override
@@ -138,7 +146,7 @@ public class Speech extends Service {
         speechRecognizer.stopListening();
     }
 
-    public String getSpeech(){
+    public static String getSpeech(){
         return speechString;
     }
 

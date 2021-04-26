@@ -21,6 +21,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import SpeechRecognition.Speech;
 import okhttp3.Call;
@@ -218,6 +220,7 @@ public class EmotionService extends Service {
 
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
+                //Timer timer = new Timer();
                 // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
                 new Thread(new Runnable() {
                     String s = "";
@@ -237,7 +240,13 @@ public class EmotionService extends Service {
                             Log.i(TAG, "Server's Response\n" + s);
                             Speech.startSpeech();
 
-                            Speech.stopSpeech();
+                            //final int FPS = 40;
+                            //TimerTask updateBall = new UpdateBallTask();
+                            //timer.scheduleAtFixedRate(updateBall, 0, 1000/FPS);
+
+                            //Speech.stopSpeech();
+                            String speech = Speech.getSpeech();
+                            Log.i(TAG, "SPEECH IS: " + speech);
                         }
 
                     }
