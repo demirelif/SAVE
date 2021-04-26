@@ -62,6 +62,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Locale;
 
+import CameraApp.BackCameraService;
 import CameraApp.CameraService;
 import CameraApp.CrashService;
 import CameraApp.EmotionService;
@@ -236,6 +237,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         startKenBurnsView(); // start special ken burns view
         hizView = findViewById(R.id.hizGoster);
 
+        //clearMyFiles();
+
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -327,22 +330,29 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Intent frontCameraIntent = new Intent(MainActivity.this, FrontCameraService.class);
         bindService(frontCameraIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(frontCameraIntent);
-
         Intent emotionIntent = new Intent(MainActivity.this, EmotionService.class);
         bindService(emotionIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(emotionIntent);
 
+        /**
+
+        /*
         Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
         bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(fatigueIntent);
+
+         Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
+         bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
+         MainActivity.this.startService(rPPGIntent);
+        */
+        Intent backCameraIntent = new Intent(MainActivity.this, BackCameraService.class);
+        bindService(backCameraIntent, serviceConnection, BIND_AUTO_CREATE);
+        MainActivity.this.startService(backCameraIntent);
 
         Intent pedestrianIntent = new Intent(MainActivity.this, PedestrianService.class);
         bindService(pedestrianIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(pedestrianIntent);
 
-        Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
-        bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
-        MainActivity.this.startService(rPPGIntent);
 
         Intent crashServiceIntent = new Intent(MainActivity.this, CrashService.class);
         bindService(crashServiceIntent, serviceConnection, BIND_AUTO_CREATE );
@@ -363,6 +373,18 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     @Override
     public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
 
+    }
+
+    void clearMyFiles() {
+        String path = Environment.getExternalStorageDirectory().toString()+"/storage/emulated";
+        Log.d("Files", "Path: " + path);
+        File directory = new File(path);
+        File[] files = directory.listFiles();
+        Log.d("Files", "Size: "+ files.length);
+        for (int i = 0; i < files.length; i++)
+        {
+            Log.d("Files", "FileName:" + files[i].getName());
+        }
     }
 
     public void hizGoster(View view) {
@@ -424,14 +446,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             @Override
             public void onTransitionEnd(Transition transition) {
                 //Toast.makeText(MainActivity.this,"Finished", Toast.LENGTH_SHORT).show();
-            }
-        });
-        FloatingActionButton btnAddPet = findViewById(R.id.addPhoto);
-        btnAddPet.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent addPetIntent = new Intent(MainActivity.this, SendFaceData.class);
-                MainActivity.this.startActivity(addPetIntent);
             }
         });
     }

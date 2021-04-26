@@ -42,7 +42,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import static CameraApp.FrontCameraService.fileQueue;
-import static CameraApp.FrontCameraService.imageBytes;
+import static CameraApp.FrontCameraService.imageBytesFatigue;
 
 public class FatigueService extends Service {
     public IBinder mBinder = new LocalBinder();
@@ -118,8 +118,8 @@ public class FatigueService extends Service {
             //imageFile = fileQueue.take();
             //Log.i(TAG, "Taken image path: " + imageFile.getPath() + "; Queue size is: " + fileQueue.size());
             //postImageToServer(imageFile);
-            byteArray = imageBytes.take();
-            Log.i(TAG, "Consumed byte array length: " + byteArray.length + "; Queue size is: " + imageBytes.size());
+            byteArray = imageBytesFatigue.take();
+            Log.i(TAG, "Consumed byte array length: " + byteArray.length + "; Fatigue Queue size is: " + imageBytesFatigue.size());
             postImageToServer(byteArray);
         }
         //Random random = new Random();

@@ -83,7 +83,9 @@ public class FrontCameraService extends Service {
 
     public static BlockingQueue<File> fileQueue = new ArrayBlockingQueue<>(10);
 
-    public static BlockingQueue<byte[]> imageBytes = new ArrayBlockingQueue<>(10);
+    public static BlockingQueue<byte[]> imageBytesRPPG = new ArrayBlockingQueue<>(10);
+    public static BlockingQueue<byte[]> imageBytesFatigue = new ArrayBlockingQueue<>(10);
+    public static BlockingQueue<byte[]> imageBytesEmotion = new ArrayBlockingQueue<>(10);
 
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
 
@@ -154,8 +156,15 @@ public class FrontCameraService extends Service {
                 }
             }
             // WARNING - THIS PART SHOULD CHANGE, MUST NOT BE CONSTANT?
-            int pictureWidth = 640;
-            int pictureHeight = 480;
+            //int pictureWidth = 640;
+            //int pictureHeight = 480;
+            // utku
+            int pictureWidth = 480;
+            int pictureHeight = 640;
+
+            //int pictureWidth = 1080;
+            //int pictureHeight = 1920;
+
             // END OF THE WARNING
 
             frontImageReader = ImageReader.newInstance(pictureWidth, pictureHeight, ImageFormat.JPEG, 10);
@@ -178,8 +187,12 @@ public class FrontCameraService extends Service {
                 //fileQueue.put(imageFile);
                 byte[] byteez = preProcessImage(imageFile);
                 if(byteez != null){
-                    imageBytes.put(byteez);
-                    Log.i(TAG, "Inserting image bytes: " + byteez.length + "; Queue size is: " + imageBytes.size());
+                    imageBytesRPPG.put(byteez);
+                    imageBytesEmotion.put(byteez);
+                    //imageBytesFatigue.put(byteez);
+                    Log.i(TAG, "Inserting image bytes: " + byteez.length + "; rPPG Queue size is: " + imageBytesRPPG.size());
+                    Log.i(TAG, "Inserting image bytes: " + byteez.length + "; rPPG Queue size is: " + imageBytesEmotion.size());
+                    Log.i(TAG, "Inserting image bytes: " + byteez.length + "; rPPG Queue size is: " + imageBytesFatigue.size());
                 }else {
                     Log.i(TAG, "Byteez couldnt make it");
                 }
@@ -199,8 +212,8 @@ public class FrontCameraService extends Service {
             Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getPath(), options);
 
             // IMAGE ROTATION PARAMETERS
-            int imageRotation = getImageRotation(imageFile); // EMULATORDE RUNLAYACAKSANIZ BUNU KULLANIN
-            //int imageRotation = 270; // REAL DEVICE ICIN BUNU
+            //int imageRotation = getImageRotation(imageFile); // EMULATORDE RUNLAYACAKSANIZ BUNU KULLANIN
+            int imageRotation = 270; // REAL DEVICE ICIN BUNU
             System.out.println("IMAGE ROTATION " + imageRotation);
 
             if (imageRotation != 0) // aslında her zaman değil
@@ -299,7 +312,9 @@ public class FrontCameraService extends Service {
 
             ByteBuffer buffer = null;
             byte[] bytes;
-
+            Long tsLong = System.currentTimeMillis()/1000;
+            String ts = tsLong.toString();
+            System.out.println("TIMESTAMP" + ts);
             try {
                 buffer = image.getPlanes()[0].getBuffer();
             }catch (NullPointerException e){

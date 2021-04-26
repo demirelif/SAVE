@@ -32,7 +32,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import static CameraApp.FrontCameraService.imageBytes;
+import static CameraApp.FrontCameraService.imageBytesEmotion;
 
 public class EmotionService extends Service {
     public IBinder mBinder = new EmotionService.LocalBinder();
@@ -73,6 +73,7 @@ public class EmotionService extends Service {
     public void onCreate() {
         Toast.makeText(getApplicationContext(),TAG + " onCreate", Toast.LENGTH_SHORT).show();
         super.onCreate();
+        //cleanRPPGServer();
     }
 
     @Override
@@ -106,27 +107,45 @@ public class EmotionService extends Service {
             //imageFile = fileQueue.take();
             //Log.i(TAG, "Taken image path: " + imageFile.getPath() + "; Queue size is: " + fileQueue.size());
             //postImageToServer(imageFile);
-            byteArray = imageBytes.take();
-            Log.i(TAG, "Consumed byte array length: " + byteArray.length + "; Queue size is: " + imageBytes.size());
+            byteArray = imageBytesEmotion.take();
+            Log.i(TAG, "Consumed byte array length: " + byteArray.length + "; Emotion Queue size is: " + imageBytesEmotion.size());
             postImageToServer(byteArray);
         }
     }
 
+/*    private void cleanRPPGServer(){
+        String postUrl2 = "http://" + "192.168.1.102" + ":" + 8000 + "/clean"; // UTKU IP
+        MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+        //multipartBodyBuilder.addFormDataPart("image", "clean_image" + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
+        multipartBodyBuilder.addFormDataPart("clean", "selam"); // tamamen random bir sey verdim
+        RequestBody postBodyImage = multipartBodyBuilder.build();
+        postRequest(postUrl2, postBodyImage);
+    }*/
+
+    private String getResultsFromServer(){
+        String postUrl = "http://" + "192.168.1.102" + ":" + 5000 + "/predict_emotion"; // UTKU IP
+        MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+        multipartBodyBuilder.addFormDataPart("image", "front_face_image" + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
+
+        RequestBody getBodyImage = multipartBodyBuilder.build();
+        return "";
+    }
+
     private void postImageToServer(byte[] byteArray){
         String postUrl = "http://" + "192.168.1.102" + ":" + 5000 + "/predict_emotion"; // UTKU IP
-        String postUrl2 = "http://" + "192.168.1.102" + ":" + 8000 + "/rppg"; // UTKU IP
+        //String postUrl2 = "http://" + "192.168.1.102" + ":" + 8000 + "/rppg"; // UTKU IP
         String postUrl3 = "http://" + "10.0.2.2" + ":" + 5000 + "/predict_emotion"; // ELIF IP
         MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         multipartBodyBuilder.addFormDataPart("image", "front_face_image" + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
 
         RequestBody postBodyImage = multipartBodyBuilder.build();
         // post request to emotion server
-        postRequest(postUrl3, postBodyImage);
+        //postRequest(postUrl3, postBodyImage);
         // post request to rppg server
-        //postRequest(postUrl2, postBodyImage);
+        postRequest(postUrl, postBodyImage);
     }
 
-
+    /**
     private void postImageToServer(@NonNull File imageFile) {
         String filePath = imageFile.getPath();
         //Toast.makeText(getApplicationContext(),"Sending the Files. Please Wait ...", Toast.LENGTH_SHORT).show();
@@ -169,7 +188,7 @@ public class EmotionService extends Service {
         // post request to rppg server
         postRequest(url, postBodyImage);
 
-    }
+    }*/
 
     void postRequest(String postUrl, RequestBody postBody) {
 
@@ -213,9 +232,14 @@ public class EmotionService extends Service {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        if ( s.equals("Sad"))
+                        if (s.equals("Sad")){
                             Speech.readText("Do you want to listen to something to cheer you up?");
-                        Log.i(TAG, "Server's Response\n" + s);
+                            Log.i(TAG, "Server's Response\n" + s);
+                            Speech.startSpeech();
+
+                            Speech.stopSpeech();
+                        }
+
                     }
 
                 }).start();
@@ -224,7 +248,7 @@ public class EmotionService extends Service {
             }
         });
     }
-
+    /**
     private static int getImageRotation(@NonNull File imageFile) {
         ExifInterface exif = null;
         int exifRotation = 0;
@@ -258,6 +282,6 @@ public class EmotionService extends Service {
         matrix.preRotate(rotationDegree);
 
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-    }
+    }*/
 
 }

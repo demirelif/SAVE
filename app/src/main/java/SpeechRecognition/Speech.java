@@ -23,9 +23,9 @@ import com.example.saveandroid.MainActivity;
 public class Speech extends Service {
     private static final String TAG = "SPEECH";
     public IBinder mBinder = new Speech.LocalBinder();
-    private SpeechRecognizer speechRecognizer;
+    private static SpeechRecognizer speechRecognizer;
     private static TextToSpeech textToSpeech = MainActivity.tts;
-    private Intent intentRecognizer;
+    private static Intent intentRecognizer;
     private String speechString;
     private boolean isInit;
     private Handler handler;
@@ -34,6 +34,7 @@ public class Speech extends Service {
 
 
     public Speech() {
+
     }
 
     @Override
@@ -129,11 +130,11 @@ public class Speech extends Service {
         public Speech getServerInstance() { return Speech.this; }
     }
 
-    public void startSpeech(){
+    public static void startSpeech(){
         speechRecognizer.startListening(intentRecognizer);
     }
 
-    public void stopSpeech(){
+    public static void stopSpeech(){
         speechRecognizer.stopListening();
     }
 
