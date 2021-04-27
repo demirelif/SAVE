@@ -268,6 +268,9 @@ public class EmotionService extends Service {
                         if (s.equals("Sad")){
                             sadCounter++;
                             if(sadCounter > 50){
+                                if(!MainActivity.isPlayingMusic){
+                                    // speech buraya alınabilir ?
+                                }
                                 Speech.readText("Do you want to listen some music to cheer you up?");
                                 sadCounter = 0;
                                 MainActivity.getInstanceActivity().jukeBox("Happy");

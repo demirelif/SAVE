@@ -145,7 +145,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public static boolean playHappyPlaylist;
     public static boolean playEnergeticPlaylist;
     public static boolean playCalmPlaylist;
-
+    public static boolean isPlayingMusic;
+    public static String lastPlayedGenre;
     public static MainActivity getInstanceActivity() {
         return weakMainActivity.get();
     }
@@ -281,9 +282,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         playHappyPlaylist = false;
         playCalmPlaylist = false;
         playEnergeticPlaylist = false;
-
+        isPlayingMusic = false;
         weakMainActivity = new WeakReference<>(MainActivity.this);
-
+        lastPlayedGenre = "";
 
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
@@ -451,16 +452,23 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
 
     public void jukeBox(String playlistType){
-
-        // Play a playlist
-        if(playlistType.equals("Happy")){
-            mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
-        }
-        else if(playlistType.equals("Energetic")){
-            mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL"); // this should change
-        }
-        else if(playlistType.equals("Calm")){
-            mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX7K31D69s4M1");
+        if(!playlistType.equals(lastPlayedGenre) || isPlayingMusic == false){
+            // Start playing a playlist
+            if(playlistType.equals("Happy")){
+                mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
+                isPlayingMusic = true;
+                lastPlayedGenre = "Happy";
+            }
+            else if(playlistType.equals("Energetic")){
+                mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL"); // this should change
+                isPlayingMusic = true;
+                lastPlayedGenre = "Energetic";
+            }
+            else if(playlistType.equals("Calm")){
+                mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX7K31D69s4M1");
+                isPlayingMusic = true;
+                lastPlayedGenre = "Calm";
+            }
         }
         // Subscribe to PlayerState
         mSpotifyAppRemote.getPlayerApi()
@@ -471,7 +479,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                         Log.d("MainActivity", track.name + " by " + track.artist.name);
                     }
                 });
-
     }
 
     // from spotify documentation wont be used
