@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import FaceDetector.FaceDetectionActivity;
 import SpeechRecognition.Speech;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -60,7 +61,17 @@ public class EmotionService extends Service {
     private static File imageFile;
     private static File oldImageFile;
     private static byte[] byteArray;
+    private static int sadCounter;
+    private static int happyCounter;
+    private static int angryCounter;
+    private static int surprisedCounter;
+    private static int neutralCounter;
+    private static int fearCounter;
+    private static int disgustCounter;
 
+    public static boolean playHappyPlaylist;
+    public static boolean playEnergeticPlaylist;
+    public static boolean playCalmPlaylist;
 
     @Nullable
     @Override
@@ -75,7 +86,17 @@ public class EmotionService extends Service {
     public void onCreate() {
         Toast.makeText(getApplicationContext(),TAG + " onCreate", Toast.LENGTH_SHORT).show();
         super.onCreate();
+        sadCounter = 0;
+        happyCounter = 0;
+        angryCounter = 0;
+        surprisedCounter = 0;
+        neutralCounter = 0;
+        fearCounter = 0;
+        disgustCounter = 0;
         //cleanRPPGServer();
+        playHappyPlaylist = false;
+        playCalmPlaylist = false;
+        playEnergeticPlaylist = false;
     }
 
     @Override
@@ -112,6 +133,14 @@ public class EmotionService extends Service {
             byteArray = imageBytesEmotion.take();
             Log.i(TAG, "Consumed byte array length: " + byteArray.length + "; Emotion Queue size is: " + imageBytesEmotion.size());
             postImageToServer(byteArray);
+
+            if(playHappyPlaylist){
+                MainActivity.getInstanceActivity().jukeBox("Happy");
+            }
+            else if(playCalmPlaylist){
+                MainActivity.getInstanceActivity().jukeBox("Calm");
+            }
+            // ...
         }
     }
 
@@ -222,6 +251,7 @@ public class EmotionService extends Service {
             public void onResponse(Call call, final Response response) throws IOException {
                 //Timer timer = new Timer();
                 // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
+
                 new Thread(new Runnable() {
                     String s = "";
                     @Override
@@ -231,22 +261,32 @@ public class EmotionService extends Service {
                             //Toast.makeText(getApplicationContext(), "Server's Response\n" + response.body().string(), Toast.LENGTH_LONG).show();
                             //Log.i(TAG, "Server's Response\n" + response.body().string());
                             s = response.body().string();
-
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+                        Log.i(TAG, "Server's Response\n" + s);
                         if (s.equals("Sad")){
-                            Speech.readText("Do you want to listen to something to cheer you up?");
-                            Log.i(TAG, "Server's Response\n" + s);
-                            Speech.startSpeech();
-
+                            sadCounter++;
+                            if(sadCounter > 50){
+                                Speech.readText("Do you want to listen some music to cheer you up?");
+                                sadCounter = 0;
+                                MainActivity.getInstanceActivity().jukeBox("Happy");
+                            }
+                            /**
+                            MainActivity.startSpeech();
                             //final int FPS = 40;
                             //TimerTask updateBall = new UpdateBallTask();
                             //timer.scheduleAtFixedRate(updateBall, 0, 1000/FPS);
-
                             //Speech.stopSpeech();
-                            String speech = Speech.getSpeech();
-                            Log.i(TAG, "SPEECH IS: " + speech);
+                            String speech = MainActivity.getSpeech();
+                            Log.i(TAG, "SPEECH IS: " + speech);*/
+                        }else if(s.equals("Angry")){
+                            angryCounter++;
+                            if(angryCounter > 50){
+                                angryCounter = 0;
+                                Speech.readText("Do you want some music to relax ?");
+                                MainActivity.getInstanceActivity().jukeBox("Calm");
+                            }
                         }
 
                     }

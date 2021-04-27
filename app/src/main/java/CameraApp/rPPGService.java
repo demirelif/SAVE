@@ -97,7 +97,7 @@ public class rPPGService extends Service {
 
         Long tsLong = System.currentTimeMillis()/1000;
         String ts = tsLong.toString();
-        System.out.println("TIMESTAMP MATE :  " + ts);
+        //System.out.println("TIMESTAMP MATE :  " + ts);
 
         MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         multipartBodyBuilder.addFormDataPart("image", "front_face_image" + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
