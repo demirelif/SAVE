@@ -44,13 +44,6 @@
             android:value="true" />
 
 
-        <activity
-            android:name=".BubbleActivity"
-            android:label="@string/title_activity_bubble"
-            android:allowEmbedded="true"
-            android:documentLaunchMode="always"
-            android:resizeableActivity="true"
-            android:theme="@style/AppTheme.NoActionBar"/>
 
         <activity
             android:name=".PrefActivity"
