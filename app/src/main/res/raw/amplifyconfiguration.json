@@ -1,0 +1,56 @@
+{
+    "UserAgent": "aws-amplify-cli/2.0",
+    "Version": "1.0",
+    "api": {
+        "plugins": {
+            "awsAPIPlugin": {
+                "AmplifyAndroid": {
+                    "endpointType": "GraphQL",
+                    "endpoint": "https://5k55smosjnbulcduhkbyr6pmje.appsync-api.us-east-1.amazonaws.com/graphql",
+                    "region": "us-east-1",
+                    "authorizationType": "AMAZON_COGNITO_USER_POOLS"
+                }
+            }
+        }
+    },
+    "auth": {
+        "plugins": {
+            "awsCognitoAuthPlugin": {
+                "UserAgent": "aws-amplify-cli/0.1.0",
+                "Version": "0.1.0",
+                "IdentityManager": {
+                    "Default": {}
+                },
+                "CredentialsProvider": {
+                    "CognitoIdentity": {
+                        "Default": {
+                            "PoolId": "us-east-1:2c2e082a-f619-4568-97dc-c36ed54ef9e7",
+                            "Region": "us-east-1"
+                        }
+                    }
+                },
+                "CognitoUserPool": {
+                    "Default": {
+                        "PoolId": "us-east-1_xsx1Psc8Z",
+                        "AppClientId": "dnap1j13rjbjb1ehlhqvkritk",
+                        "AppClientSecret": "rnu0768o54m2pl699mhbih0udkke4npc3681j5g5lfmbrddjade",
+                        "Region": "us-east-1"
+                    }
+                },
+                "Auth": {
+                    "Default": {
+                        "authenticationFlowType": "USER_SRP_AUTH"
+                    }
+                },
+                "AppSync": {
+                    "Default": {
+                        "ApiUrl": "https://5k55smosjnbulcduhkbyr6pmje.appsync-api.us-east-1.amazonaws.com/graphql",
+                        "Region": "us-east-1",
+                        "AuthMode": "AMAZON_COGNITO_USER_POOLS",
+                        "ClientDatabasePrefix": "AmplifyAndroid_AMAZON_COGNITO_USER_POOLS"
+                    }
+                }
+            }
+        }
+    }
+}
