@@ -187,7 +187,7 @@ public class FrontCameraService extends Service {
                 //fileQueue.put(imageFile);
                 byte[] byteez = preProcessImage(imageFile);
                 if(byteez != null){
-                  //  imageBytesRPPG.put(byteez);
+                    imageBytesRPPG.put(byteez);
                     imageBytesEmotion.put(byteez);
                     //imageBytesFatigue.put(byteez);
                     Log.i(TAG, "Inserting image bytes: " + byteez.length + "; rPPG Queue size is: " + imageBytesRPPG.size());
@@ -314,7 +314,6 @@ public class FrontCameraService extends Service {
             byte[] bytes;
             Long tsLong = System.currentTimeMillis()/1000;
             String ts = tsLong.toString();
-            System.out.println("TIMESTAMP" + ts);
             try {
                 buffer = image.getPlanes()[0].getBuffer();
             }catch (NullPointerException e){

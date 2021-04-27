@@ -64,6 +64,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -78,6 +79,7 @@ import CameraApp.FatigueService;
 import CameraApp.FrontCameraService;
 import CameraApp.PedestrianService;
 import CameraApp.rPPGService;
+import FaceDetector.FaceDetectionActivity;
 import SpeechRecognition.Speech;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -88,6 +90,13 @@ import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import com.spotify.android.appremote.api.ConnectionParams;
+import com.spotify.android.appremote.api.Connector;
+import com.spotify.android.appremote.api.SpotifyAppRemote;
+
+import com.spotify.protocol.client.Subscription;
+import com.spotify.protocol.types.PlayerState;
+import com.spotify.protocol.types.Track;
 
 
 public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback {
@@ -95,6 +104,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private static final int TTS_CHECK_CODE = 101;
     private static final int REQUEST_CAMERA_PERMISSION = 200;
     private static final int REQUEST_PERMISSION = 200;
+
+    public static WeakReference<MainActivity> weakMainActivity;
+
     public static TextToSpeech tts;
     private KenBurnsView kbv;
     private boolean moving = true;
@@ -131,6 +143,18 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     File file;
     MediaType JSON;
     TextView hizView;
+
+    private static final String CLIENT_ID = "b35e3998a3fa4e3e88f85a78124e422a"; // SPOTIFY CLIENT ID
+    private static final String REDIRECT_URI = "https://utkukalkanli319.github.io/SAVE/";
+    private SpotifyAppRemote mSpotifyAppRemote;
+    public static boolean playHappyPlaylist;
+    public static boolean playEnergeticPlaylist;
+    public static boolean playCalmPlaylist;
+    public static boolean isPlayingMusic;
+    public static String lastPlayedGenre;
+    public static MainActivity getInstanceActivity() {
+        return weakMainActivity.get();
+    }
 
     ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -241,6 +265,18 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
     };
 
+    public static void startSpeech(){
+        speechRecognizer.startListening(MainActivity.intentRecognizer);
+    }
+
+    public static void stopSpeech(){
+        speechRecognizer.stopListening();
+    }
+
+    public static String getSpeech(){
+        return MainActivity.speechString;
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -248,9 +284,12 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Log.d(TAG, "onCreate enter");
         startKenBurnsView(); // start special ken burns view
         hizView = findViewById(R.id.hizGoster);
-
-
-        //clearMyFiles();
+        playHappyPlaylist = false;
+        playCalmPlaylist = false;
+        playEnergeticPlaylist = false;
+        isPlayingMusic = false;
+        weakMainActivity = new WeakReference<>(MainActivity.this);
+        lastPlayedGenre = "";
 
 
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
@@ -366,13 +405,106 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_PERMISSION);
             return;
         }
-
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(broadcastReceiver, new IntentFilter("cs_Message"));
+
+        // Set the connection parameters
+        ConnectionParams connectionParams =
+                new ConnectionParams.Builder(CLIENT_ID)
+                        .setRedirectUri(REDIRECT_URI)
+                        .showAuthView(true)
+                        .build();
+
+        SpotifyAppRemote.connect(this, connectionParams,
+                new Connector.ConnectionListener() {
+
+                    @Override
+                    public void onConnected(SpotifyAppRemote spotifyAppRemote) {
+                        mSpotifyAppRemote = spotifyAppRemote;
+                        Log.d("MainActivity", "Spofity connected! Yay!");
+
+                        // Now you can start interacting with App Remote
+                        //connected();
+
+                        /**
+                        Thread spotifyThread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    jukeBox();
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });*/
+
+                    }
+
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        Log.e("MainActivity", throwable.getMessage(), throwable);
+
+                        // Something went wrong when attempting to connect! Handle errors here
+                    }
+                });
+
+    }
+
+
+    public void jukeBox(String playlistType){
+        if(!playlistType.equals(lastPlayedGenre) || isPlayingMusic == false){
+            // Start playing a playlist
+            if(playlistType.equals("Happy")){
+                mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
+                isPlayingMusic = true;
+                lastPlayedGenre = "Happy";
+            }
+            else if(playlistType.equals("Energetic")){
+                mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL"); // this should change
+                isPlayingMusic = true;
+                lastPlayedGenre = "Energetic";
+            }
+            else if(playlistType.equals("Calm")){
+                mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX7K31D69s4M1");
+                isPlayingMusic = true;
+                lastPlayedGenre = "Calm";
+            }
+        }
+        // Subscribe to PlayerState
+        mSpotifyAppRemote.getPlayerApi()
+                .subscribeToPlayerState()
+                .setEventCallback(playerState -> {
+                    final Track track = playerState.track;
+                    if (track != null) {
+                        Log.d("MainActivity", track.name + " by " + track.artist.name);
+                    }
+                });
+    }
+
+    // from spotify documentation wont be used
+    public void connected() {
+        // Play a playlist
+        mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
+
+        // Subscribe to PlayerState
+        mSpotifyAppRemote.getPlayerApi()
+                .subscribeToPlayerState()
+                .setEventCallback(playerState -> {
+                    final Track track = playerState.track;
+                    if (track != null) {
+                        Log.d("MainActivity", track.name + " by " + track.artist.name);
+                    }
+                });
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        SpotifyAppRemote.disconnect(mSpotifyAppRemote);
     }
 
 
@@ -411,7 +543,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         bindService(frontCameraIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(frontCameraIntent);
 
-        /*
         Intent emotionIntent = new Intent(MainActivity.this, EmotionService.class);
         bindService(emotionIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(emotionIntent);
@@ -419,15 +550,15 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
         /**
 
-         /*
-         Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
-         bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
-         MainActivity.this.startService(fatigueIntent);
-
-         Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
-         bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
-         MainActivity.this.startService(rPPGIntent);
-         */
+        /*
+        Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
+        bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
+        MainActivity.this.startService(fatigueIntent);
+*/
+        Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
+        bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
+        MainActivity.this.startService(rPPGIntent);
+        /**
         Intent backCameraIntent = new Intent(MainActivity.this, BackCameraService.class);
         bindService(backCameraIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(backCameraIntent);
@@ -435,7 +566,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Intent pedestrianIntent = new Intent(MainActivity.this, PedestrianService.class);
         bindService(pedestrianIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(pedestrianIntent);
-
+        */
 
         Intent crashServiceIntent = new Intent(MainActivity.this, CrashService.class);
         bindService(crashServiceIntent, serviceConnection, BIND_AUTO_CREATE);
@@ -470,8 +601,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
     }
 
-    public void hizGoster(View view) {
-    }
 
     public void startKenBurnsView() {
         int colorCodeDark = Color.parseColor("#FF9800");

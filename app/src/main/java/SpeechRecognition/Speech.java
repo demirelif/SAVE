@@ -67,14 +67,14 @@ public class Speech extends Service {
     public class LocalBinder extends Binder {
         public Speech getServerInstance() { return Speech.this; }
     }
-
+    /**
     public static void startSpeech(){
         MainActivity.speechRecognizer.startListening(MainActivity.intentRecognizer);
     }
 
     public static void stopSpeech(){
         MainActivity.speechRecognizer.stopListening();
-    }
+    }*/
 
     public static String getSpeech(){
         return MainActivity.speechString;
