@@ -13,16 +13,20 @@ import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Intent;
 
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.WindowManager;
@@ -85,7 +89,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 
-public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback{
+
+public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback {
     private static final String TAG = "cs_mainactivity";
     private static final int TTS_CHECK_CODE = 101;
     private static final int REQUEST_CAMERA_PERMISSION = 200;
@@ -117,8 +122,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public static double headPose = 0;
     //String url = "http://" + "192.168.1.20" + "/" + "predict";
     private java.net.URL URL;
-   // private String url = "http://" + "10.0.0.2" + "/" + "predict"; // try 10.0.0.2
-   // private String url = "http://" + "10.0.0.2" + "/" + "predict"; // try 10.0.0.2
+    // private String url = "http://" + "10.0.0.2" + "/" + "predict"; // try 10.0.0.2
+    // private String url = "http://" + "10.0.0.2" + "/" + "predict"; // try 10.0.0.2
     private String postBodyString;
     private MediaType mediaType;
     private RequestBody requestBody;
@@ -130,62 +135,61 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            if(service.getClass().getName().equals(CameraService.LocalBinder.class.getName())){
+            if (service.getClass().getName().equals(CameraService.LocalBinder.class.getName())) {
                 onServiceConnected1(name, (CameraService.LocalBinder) service);
-            }
-            else if(service.getClass().getName().equals(EmotionService.LocalBinder.class.getName())){
+            } else if (service.getClass().getName().equals(EmotionService.LocalBinder.class.getName())) {
                 onServiceConnected2(name, (EmotionService.LocalBinder) service);
-            }
-            else if(service.getClass().getName().equals(FatigueService.LocalBinder.class.getName())){
+            } else if (service.getClass().getName().equals(FatigueService.LocalBinder.class.getName())) {
                 onServiceConnected3(name, (FatigueService.LocalBinder) service);
-            }
-            else if(service.getClass().getName().equals(PedestrianService.LocalBinder.class.getName())){
+            } else if (service.getClass().getName().equals(PedestrianService.LocalBinder.class.getName())) {
                 onServiceConnected4(name, (PedestrianService.LocalBinder) service);
-            }
-            else if (service.getClass().getName().equals(rPPGService.LocalBinder.class.getName())){
+            } else if (service.getClass().getName().equals(rPPGService.LocalBinder.class.getName())) {
                 onServiceConnected5(name, (rPPGService.LocalBinder) service);
-            }
-            else if(service.getClass().getName().equals(FrontCameraService.LocalBinder.class.getName())){
+            } else if (service.getClass().getName().equals(FrontCameraService.LocalBinder.class.getName())) {
                 onServiceConnected6(name, (FrontCameraService.LocalBinder) service);
-            }
-            else if(service.getClass().getName().equals(CrashService.LocalBinder.class.getName())) {
+            } else if (service.getClass().getName().equals(CrashService.LocalBinder.class.getName())) {
                 onCrashServiceConnected(name, (CrashService.LocalBinder) service);
-            }
-            else if(service.getClass().getName().equals(Speech.LocalBinder.class.getName())) {
+            } else if (service.getClass().getName().equals(Speech.LocalBinder.class.getName())) {
                 onServiceConnectedSpeech(name, (Speech.LocalBinder) service);
             }
         }
+
         public void onServiceConnected1(ComponentName name, CameraService.LocalBinder service) {
             System.out.println("CONNECTED");
             cameraBounded = true;
             CameraService.LocalBinder mLocalBinder = service;
             cameraServer = mLocalBinder.getServerInstance();
         }
+
         public void onServiceConnected2(ComponentName name, EmotionService.LocalBinder service) {
             System.out.println("CONNECTED");
             emotionBounded = true;
             EmotionService.LocalBinder mLocalBinder = service;
             emotionServer = mLocalBinder.getServerInstance();
         }
+
         public void onServiceConnected3(ComponentName name, FatigueService.LocalBinder service) {
             System.out.println("CONNECTED");
             fatigueBounded = true;
             FatigueService.LocalBinder mLocalBinder = service;
             fatigueServer = mLocalBinder.getServerInstance();
         }
-        public void onServiceConnected4(ComponentName name, PedestrianService.LocalBinder service){
+
+        public void onServiceConnected4(ComponentName name, PedestrianService.LocalBinder service) {
             System.out.println("CONNECTED");
             pedestrianBounded = true;
             PedestrianService.LocalBinder mLocalBinder = service;
             pedestrianServer = mLocalBinder.getServerInstance();
         }
-        public void onServiceConnected5(ComponentName name, rPPGService.LocalBinder service){
+
+        public void onServiceConnected5(ComponentName name, rPPGService.LocalBinder service) {
             System.out.println("CONNECTED");
             rPPGBounded = true;
             rPPGService.LocalBinder mLocalBinder = service;
             rPPGServer = mLocalBinder.getServerInstance();
         }
-        public void onServiceConnected6(ComponentName name, FrontCameraService.LocalBinder service){
+
+        public void onServiceConnected6(ComponentName name, FrontCameraService.LocalBinder service) {
             System.out.println("CONNECTED");
             frontCameraBounded = true;
             FrontCameraService.LocalBinder mLocalBinder = service;
@@ -195,7 +199,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         private void onCrashServiceConnected(ComponentName name, CrashService.LocalBinder service) {
             Log.d(TAG, "onCrashServiceConnected");
         }
-        public void onServiceConnectedSpeech(ComponentName name, Speech.LocalBinder service){
+
+        public void onServiceConnectedSpeech(ComponentName name, Speech.LocalBinder service) {
             System.out.println("Speech Connected");
             speechBounded = true;
             Speech.LocalBinder mSpeech = service;
@@ -244,30 +249,30 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         startKenBurnsView(); // start special ken burns view
         hizView = findViewById(R.id.hizGoster);
 
+
         //clearMyFiles();
+
 
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
-                if(status == TextToSpeech.SUCCESS) {
+                if (status == TextToSpeech.SUCCESS) {
                     textToSpeechIsInitialized = true;
                     int r = tts.setLanguage(Locale.US);
                     if (r == TextToSpeech.LANG_MISSING_DATA
                             || r == TextToSpeech.LANG_NOT_SUPPORTED) {
                         Log.e(TAG, "This Language is not supported");
                     }
-                }
-                else if (status == TextToSpeech.ERROR){
-                    Log.e(TAG,"Something went wrong for speech");
+                } else if (status == TextToSpeech.ERROR) {
+                    Log.e(TAG, "Something went wrong for speech");
                 }
             }
         });
-        if ( tts!=null){
-            if ( textToSpeechIsInitialized )
-                tts.speak("Trying", TextToSpeech.QUEUE_FLUSH,null,null);
-            Log.i(TAG,"Null degil");
-        }
-        else {
+        if (tts != null) {
+            if (textToSpeechIsInitialized)
+                tts.speak("Trying", TextToSpeech.QUEUE_FLUSH, null, null);
+            Log.i(TAG, "Null degil");
+        } else {
             Log.e(TAG, "Activity mainde de calismadi");
         }
 
@@ -310,10 +315,10 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
             @Override
             public void onResults(Bundle results) {
-                ArrayList<String> matches =  results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 String s = "";
-                if ( matches!= null ){
-                    for ( int i = 0; i < matches.size(); i++){
+                if (matches != null) {
+                    for (int i = 0; i < matches.size(); i++) {
                         s += matches.get(i);
                     }
                 }
@@ -322,10 +327,10 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
             @Override
             public void onPartialResults(Bundle partialResults) {
-                ArrayList<String> matches =  partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                ArrayList<String> matches = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 String s = "";
-                if ( matches!= null ){
-                    for ( int i = 0; i < matches.size(); i++){
+                if (matches != null) {
+                    for (int i = 0; i < matches.size(); i++) {
                         s += matches.get(i);
                     }
                 }
@@ -365,10 +370,11 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     }
 
     @Override
-    protected void onStart(){
+    protected void onStart() {
         super.onStart();
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(broadcastReceiver, new IntentFilter("cs_Message"));
     }
+
 
     /*
     @Override
@@ -389,36 +395,39 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
      */
 
-    public void activateRoadTrip(View view){
+    public void activateRoadTrip(View view) {
         //Intent faceIntent = new Intent(MainActivity.this, FaceDetectionActivity.class);
         // MainActivity.this.startActivity(faceIntent);
         //Intent cameraIntent = new Intent(MainActivity.this, DoubleCamera.class);
         //MainActivity.this.startActivity(cameraIntent);
         Log.i(TAG, " ACTIVATE ROAD");
         Toast.makeText(getApplicationContext(), "activating road trip", Toast.LENGTH_LONG).show();
-
+        /*
         Intent speechIntent = new Intent(MainActivity.this, Speech.class);
         bindService(speechIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(speechIntent);
-
+        */
         Intent frontCameraIntent = new Intent(MainActivity.this, FrontCameraService.class);
         bindService(frontCameraIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(frontCameraIntent);
+
+        /*
         Intent emotionIntent = new Intent(MainActivity.this, EmotionService.class);
         bindService(emotionIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(emotionIntent);
+         */
 
         /**
 
-        /*
-        Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
-        bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
-        MainActivity.this.startService(fatigueIntent);
+         /*
+         Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
+         bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
+         MainActivity.this.startService(fatigueIntent);
 
          Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
          bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
          MainActivity.this.startService(rPPGIntent);
-        */
+         */
         Intent backCameraIntent = new Intent(MainActivity.this, BackCameraService.class);
         bindService(backCameraIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(backCameraIntent);
@@ -429,8 +438,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
 
         Intent crashServiceIntent = new Intent(MainActivity.this, CrashService.class);
-        bindService(crashServiceIntent, serviceConnection, BIND_AUTO_CREATE );
+        bindService(crashServiceIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(crashServiceIntent);
+
 
     }
 
@@ -450,13 +460,12 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     }
 
     void clearMyFiles() {
-        String path = Environment.getExternalStorageDirectory().toString()+"/storage/emulated";
+        String path = Environment.getExternalStorageDirectory().toString() + "/storage/emulated";
         Log.d("Files", "Path: " + path);
         File directory = new File(path);
         File[] files = directory.listFiles();
-        Log.d("Files", "Size: "+ files.length);
-        for (int i = 0; i < files.length; i++)
-        {
+        Log.d("Files", "Size: " + files.length);
+        for (int i = 0; i < files.length; i++) {
             Log.d("Files", "FileName:" + files[i].getName());
         }
     }
@@ -464,7 +473,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public void hizGoster(View view) {
     }
 
-    public void startKenBurnsView(){
+    public void startKenBurnsView() {
         int colorCodeDark = Color.parseColor("#FF9800");
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -499,8 +508,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                             //Toast.makeText(MainActivity.this,  "home", Toast.LENGTH_SHORT).show();
                             Intent addPetIntent = new Intent(MainActivity.this, SettingsActivity.class);
                             MainActivity.this.startActivity(addPetIntent);
-                        }
-                        else if (item.getItemId() == R.id.nav_gallery) {
+                        } else if (item.getItemId() == R.id.nav_gallery) {
                             //Toast.makeText(MainActivity.this,  "home", Toast.LENGTH_SHORT).show();
                             Intent addPetIntent = new Intent(MainActivity.this, SettingsActivity.class);
                             MainActivity.this.startActivity(addPetIntent);
