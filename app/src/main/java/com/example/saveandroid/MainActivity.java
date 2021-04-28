@@ -154,6 +154,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public static boolean playCalmPlaylist;
     public static boolean isPlayingMusic;
     public static boolean openMapFatigue;
+    public static boolean openMapRPPG;
     public static String lastPlayedGenre;
     public static MainActivity getInstanceActivity() {
         return weakMainActivity.get();

@@ -9,6 +9,8 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import com.example.saveandroid.MainActivity;
+
 import java.io.IOException;
 import java.util.Random;
 
@@ -25,6 +27,7 @@ import okhttp3.Response;
 
 import static CameraApp.FrontCameraService.imageBytesRPPG;
 
+import static com.example.saveandroid.MainActivity.openMapRPPG;
 public class rPPGService extends Service {
     public IBinder mBinder = new rPPGService.LocalBinder();
     private static final String TAG = "rPPG SERVICE";
@@ -167,6 +170,9 @@ public class rPPGService extends Service {
                                 if ( counter >= 50  ) {
                                     endTime = System.currentTimeMillis();  //Hold EndTime
                                     Log.d(SpeedTAG, (endTime - startTime) + " ms");
+                                    Speech.readText("Hospital");
+                                    // IF RPPG DETECS SOMETHING
+                                    MainActivity.getInstanceActivity().openGoogleMaps("hospital");
                                     counter = 0;
                                 }
                             }
