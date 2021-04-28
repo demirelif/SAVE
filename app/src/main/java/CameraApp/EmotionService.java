@@ -105,6 +105,7 @@ public class EmotionService extends Service {
         playCalmPlaylist = false;
         playEnergeticPlaylist = false;
 
+        MainActivity.getInstanceActivity().makeCall("");
         //fillMap();
     }
 
