@@ -42,6 +42,9 @@ import static CameraApp.FrontCameraService.imageBytesEmotion;
 public class EmotionService extends Service {
     public IBinder mBinder = new EmotionService.LocalBinder();
     private static final String TAG = "EMOTION SERVICE";
+    private static final String SpeedTAG = "Speed Emotion";
+    long startTime,endTime,contentLength;
+
    // private String url = "http://" + "10.0.2.2" + ":" + 5000 + "/predict_emotion";
     private static java.net.URL URL;
     private static String postBodyString;
@@ -138,7 +141,10 @@ public class EmotionService extends Service {
             //postImageToServer(imageFile);
             byteArray = imageBytesEmotion.take();
             Log.i(TAG, "Consumed byte array length: " + byteArray.length + "; Emotion Queue size is: " + imageBytesEmotion.size());
+            startTime = System.currentTimeMillis(); //Hold StartTime
             postImageToServer(byteArray);
+            endTime = System.currentTimeMillis();  //Hold EndTime
+            Log.d(SpeedTAG, (endTime - startTime) + " ms");
 
             if(playHappyPlaylist){
                 MainActivity.getInstanceActivity().jukeBox("Happy");

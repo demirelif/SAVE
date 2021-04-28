@@ -29,6 +29,8 @@ public class rPPGService extends Service {
     public IBinder mBinder = new rPPGService.LocalBinder();
     private static final String TAG = "rPPG SERVICE";
     private static byte[] byteArray;
+    private static final String SpeedTAG = "Speed Fatigue";
+    long startTime,endTime,contentLength;
 
 
     @Nullable
@@ -79,7 +81,10 @@ public class rPPGService extends Service {
             //postImageToServer(imageFile);
             byteArray = imageBytesRPPG.take();
             Log.i(TAG, "Consumed byte array length: " + byteArray.length + "; RPPG Queue size is: " + imageBytesRPPG.size());
+            startTime = System.currentTimeMillis(); //Hold StartTime
             postImageToServer(byteArray);
+            endTime = System.currentTimeMillis();  //Hold EndTime
+            Log.d(SpeedTAG, (endTime - startTime) + " ms");
         }
     }
     private void cleanRPPGServer(){

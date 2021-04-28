@@ -57,6 +57,8 @@ public class FatigueService extends Service {
     private MediaType mediaType;
     private RequestBody requestBody;
     private Response response;
+    private static final String SpeedTAG = "Speed Fatigue";
+    long startTime,endTime,contentLength;
     File file;
     MediaType JSON;
     int picNo =0;
@@ -78,15 +80,6 @@ public class FatigueService extends Service {
     public void onCreate() {
         Toast.makeText(getApplicationContext(),TAG + " onCreate", Toast.LENGTH_SHORT).show();
         super.onCreate();
-        // server connection
-/*
-        try {
-            postRequest("deneme");
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-
- */
     }
 
     @Override
@@ -122,7 +115,10 @@ public class FatigueService extends Service {
             //postImageToServer(imageFile);
             byteArray = imageBytesFatigue.take();
             Log.i(TAG, "Consumed byte array length: " + byteArray.length + "; Fatigue Queue size is: " + imageBytesFatigue.size());
+            startTime = System.currentTimeMillis(); //Hold StartTime
             postImageToServer(byteArray);
+            endTime = System.currentTimeMillis();  //Hold EndTime
+            Log.d(SpeedTAG, (endTime - startTime) + " ms");
         }
         //Random random = new Random();
         /*
