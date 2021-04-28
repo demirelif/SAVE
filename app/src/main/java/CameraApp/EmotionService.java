@@ -281,26 +281,25 @@ public class EmotionService extends Service {
                             sadCounter++;
                             if(sadCounter > 50){
                                 if(!MainActivity.isPlayingMusic){
-                                    // speech buraya alınabilir ?
+                                    Speech.readText("Do you want to listen some music to cheer you up?");
+                                    String userResponse = MainActivity.speechString;
+                                    if ( userResponse.equals("yes")){
+                                        MainActivity.getInstanceActivity().jukeBox("Happy");
+                                    }
+                                    sadCounter = 0;
                                 }
-                                Speech.readText("Do you want to listen some music to cheer you up?");
-                                sadCounter = 0;
-                                MainActivity.getInstanceActivity().jukeBox("Happy");
                             }
-                            /**
-                            MainActivity.startSpeech();
-                            //final int FPS = 40;
-                            //TimerTask updateBall = new UpdateBallTask();
-                            //timer.scheduleAtFixedRate(updateBall, 0, 1000/FPS);
-                            //Speech.stopSpeech();
-                            String speech = MainActivity.getSpeech();
-                            Log.i(TAG, "SPEECH IS: " + speech);*/
+
                         }else if(s.equals("Angry")){
                             angryCounter++;
                             if(angryCounter > 50){
-                                angryCounter = 0;
                                 Speech.readText("Do you want some music to relax ?");
-                                MainActivity.getInstanceActivity().jukeBox("Calm");
+                                String userResponse = MainActivity.speechString;
+                                if ( userResponse.equals("yes")) {
+                                    MainActivity.getInstanceActivity().jukeBox("Calm");
+                                }
+                                angryCounter = 0;
+
                             }
                         }
 

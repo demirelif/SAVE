@@ -688,6 +688,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             Log.e(TAG,"Location for map is invalid");
         }
     }
+
 }
 
 
