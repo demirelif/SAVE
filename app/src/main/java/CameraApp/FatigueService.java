@@ -12,6 +12,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
+import SpeechRecognition.Speech;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -43,6 +44,7 @@ import okhttp3.Response;
 
 import static CameraApp.FrontCameraService.fileQueue;
 import static CameraApp.FrontCameraService.imageBytesFatigue;
+import static com.example.saveandroid.MainActivity.openMapFatigue;
 
 public class FatigueService extends Service {
     public IBinder mBinder = new LocalBinder();
@@ -227,6 +229,13 @@ public class FatigueService extends Service {
         if ( response != null )
             s = response.body().string();
         Log.i(TAG,s);
+
+        s = "Fatigue"; // FATIGUE daha hazir olmadigi icin boyle degismesi lazim
+        if ( s.equals("Fatigue")){
+            Speech.readText("You look tried, would you like to take a coffee break");
+            MainActivity.getInstanceActivity().openGoogleMaps("cafe");
+        }
+
 
         /*
         client.newCall(request).enqueue(new Callback() {

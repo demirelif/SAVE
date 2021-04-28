@@ -13,6 +13,7 @@ import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Intent;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -146,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public static boolean playEnergeticPlaylist;
     public static boolean playCalmPlaylist;
     public static boolean isPlayingMusic;
+    public static boolean openMapFatigue;
     public static String lastPlayedGenre;
     public static MainActivity getInstanceActivity() {
         return weakMainActivity.get();
@@ -542,13 +544,12 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         bindService(emotionIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(emotionIntent);
 
-        /**
 
-        /*
         Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
         bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(fatigueIntent);
-*/
+
+         /*
         Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
         bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(rPPGIntent);
@@ -654,6 +655,30 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 //Toast.makeText(MainActivity.this,"Finished", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void openGoogleMaps(String location){
+        if ( location.equals("hospital")){
+            Uri gmmIntentUri = Uri.parse("geo:0,0?q=hospitals");
+            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+            mapIntent.setPackage("com.google.android.apps.maps");
+            startActivity(mapIntent);
+        }
+        else if ( location.equals("station")){
+            Uri gmmIntentUri = Uri.parse("geo:0,0?q=gas+station");
+            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+            mapIntent.setPackage("com.google.android.apps.maps");
+            startActivity(mapIntent);
+        }
+        else if ( location.equals("cafe")){
+            Uri gmmIntentUri = Uri.parse("geo:0,0?q=cafe");
+            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+            mapIntent.setPackage("com.google.android.apps.maps");
+            startActivity(mapIntent);
+        }
+        else {
+            Log.e(TAG,"Location for map is invalid");
+        }
     }
 }
 

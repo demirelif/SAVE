@@ -35,6 +35,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import java.util.HashMap;
+
 import static CameraApp.FrontCameraService.imageBytesEmotion;
 
 public class EmotionService extends Service {
@@ -73,6 +75,8 @@ public class EmotionService extends Service {
     public static boolean playEnergeticPlaylist;
     public static boolean playCalmPlaylist;
 
+   // HashMap<String, Integer> moods = new HashMap<>();
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -97,6 +101,8 @@ public class EmotionService extends Service {
         playHappyPlaylist = false;
         playCalmPlaylist = false;
         playEnergeticPlaylist = false;
+
+        //fillMap();
     }
 
     @Override
@@ -173,7 +179,7 @@ public class EmotionService extends Service {
         // post request to emotion server
         //postRequest(postUrl3, postBodyImage);
         // post request to rppg server
-        postRequest(postUrl, postBodyImage);
+        postRequest(postUrl3, postBodyImage);
     }
 
     /**
@@ -300,7 +306,27 @@ public class EmotionService extends Service {
             }
         });
     }
-    /**
+    /*
+
+    private void resetMap(){
+        moods.clear();
+        fillMap();
+    }
+
+    private void fillMap(){
+        moods.put("Sad",0);
+        moods.put("Angry",0);
+        moods.put("Neutral",0);
+        // moods.put()
+        // moods.put()
+    }
+
+    private void getMaxEmotion(){
+
+    }
+
+     */
+    /*
     private static int getImageRotation(@NonNull File imageFile) {
         ExifInterface exif = null;
         int exifRotation = 0;
