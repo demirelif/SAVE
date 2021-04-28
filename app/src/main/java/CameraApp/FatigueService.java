@@ -229,7 +229,9 @@ public class FatigueService extends Service {
         s = "Fatigue"; // FATIGUE daha hazir olmadigi icin boyle degismesi lazim
         if ( s.equals("Fatigue")){
             Speech.readText("You look tried, would you like to take a coffee break");
-            MainActivity.getInstanceActivity().openGoogleMaps("cafe");
+            String userAnswer = "no";
+            if ( userAnswer.equals("yes") )
+                MainActivity.getInstanceActivity().openGoogleMaps("cafe");
         }
 
 
