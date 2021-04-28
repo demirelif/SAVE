@@ -282,6 +282,7 @@ public class EmotionService extends Service {
                             if(sadCounter > 50){
                                 if(!MainActivity.isPlayingMusic){
                                     Speech.readText("Do you want to listen some music to cheer you up?");
+                                    MainActivity.getInstanceActivity().startSpeech();
                                     String userResponse = MainActivity.speechString;
                                     if ( userResponse.equals("yes")){
                                         MainActivity.getInstanceActivity().jukeBox("Happy");
@@ -294,6 +295,7 @@ public class EmotionService extends Service {
                             angryCounter++;
                             if(angryCounter > 50){
                                 Speech.readText("Do you want some music to relax ?");
+                                MainActivity.getInstanceActivity().startSpeech();
                                 String userResponse = MainActivity.speechString;
                                 if ( userResponse.equals("yes")) {
                                     MainActivity.getInstanceActivity().jukeBox("Calm");
