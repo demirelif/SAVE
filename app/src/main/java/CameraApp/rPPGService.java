@@ -9,6 +9,8 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import com.example.saveandroid.MainActivity;
+
 import java.io.IOException;
 import java.util.Random;
 
@@ -25,6 +27,7 @@ import okhttp3.Response;
 
 import static CameraApp.FrontCameraService.imageBytesRPPG;
 
+import static com.example.saveandroid.MainActivity.openMapRPPG;
 public class rPPGService extends Service {
     public IBinder mBinder = new rPPGService.LocalBinder();
     private static final String TAG = "rPPG SERVICE";
@@ -82,6 +85,7 @@ public class rPPGService extends Service {
             //Log.i(TAG, "Taken image path: " + imageFile.getPath() + "; Queue size is: " + fileQueue.size());
             //postImageToServer(imageFile);
             byteArray = imageBytesRPPG.take();
+
             Log.i(TAG, "Consumed byte array length: " + byteArray.length + "; RPPG Queue size is: " + imageBytesRPPG.size());
             if ( counter == 0 )
                 startTime = System.currentTimeMillis(); //Hold StartTime
@@ -92,18 +96,17 @@ public class rPPGService extends Service {
     }
     private void cleanRPPGServer(){
         String postUrl2 = "http://" + "192.168.1.102" + ":" + 8000 + "/clean"; // UTKU IP
-        String postUrl3 = "http://" + "10.0.2.2" + ":" + 5000 + "/clean";
+      //  String postUrl3 = "http://" + "10.0.2.2" + ":" + 5000 + "/clean";
         MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         //multipartBodyBuilder.addFormDataPart("image", "clean_image" + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
         multipartBodyBuilder.addFormDataPart("clean", "selam"); // tamamen random bir sey verdim
         RequestBody postBodyImage = multipartBodyBuilder.build();
-        postRequest(postUrl3, postBodyImage);
+        postRequest(postUrl2, postBodyImage);
     }
 
     private void postImageToServer(byte[] byteArray){
         String postUrl2 = "http://" + "192.168.1.102" + ":" + 8000 + "/rppg"; // UTKU IP
-        String postUrl3 = "http://" + "10.0.2.2" + ":" + 5000 + "/rppg";
-        //String postUrl3 = "http://" + "10.0.2.2" + ":" + 5000 + "/predict_emotion"; // ELIF IP
+        //String postUrl3 = "http://" + "10.0.2.2" + ":" + 5000 + "/rppg";
 
         Long tsLong = System.currentTimeMillis()/1000;
         String ts = tsLong.toString();
@@ -116,7 +119,7 @@ public class rPPGService extends Service {
         // post request to emotion server
         //postRequest(postUrl, postBodyImage);
         // post request to rppg server
-        postRequest(postUrl3, postBodyImage);
+        postRequest(postUrl2, postBodyImage);
     }
 
 
@@ -160,12 +163,18 @@ public class rPPGService extends Service {
                             Log.i(TAG, "Server's Response ---> " + responzee[0]);
                             if (!responzee[0].equals("Calculating..."))
                                 Speech.readText(responzee[0]);
-
-                            if(!response.body().string().equals("Calculating...")){
-                                Log.i(TAG, "rPPG RESPONSE ---> " + response.body().string());
-                                endTime = System.currentTimeMillis();  //Hold EndTime
-                                counter = 0;
-                                Log.d(SpeedTAG, (endTime - startTime) + " ms");
+                            //if(!responzee[0].equals("Calculating...")){
+                            else{
+                               // Log.i(TAG, "rPPG RESPONSE ---> " + response.body().string());
+                                Log.i(TAG, "rPPG RESPONSE ---> " + responzee[0] );
+                                if ( counter >= 50  ) {
+                                    endTime = System.currentTimeMillis();  //Hold EndTime
+                                    Log.d(SpeedTAG, (endTime - startTime) + " ms");
+                                    Speech.readText("Hospital");
+                                    // IF RPPG DETECS SOMETHING
+                                    MainActivity.getInstanceActivity().openGoogleMaps("hospital");
+                                    counter = 0;
+                                }
                             }
                         } catch (IOException e) {
                             e.printStackTrace();

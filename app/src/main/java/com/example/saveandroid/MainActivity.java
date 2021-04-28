@@ -154,6 +154,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public static boolean playCalmPlaylist;
     public static boolean isPlayingMusic;
     public static boolean openMapFatigue;
+    public static boolean openMapRPPG;
     public static String lastPlayedGenre;
     public static MainActivity getInstanceActivity() {
         return weakMainActivity.get();
@@ -537,7 +538,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         //MainActivity.this.startActivity(cameraIntent);
         Log.i(TAG, " ACTIVATE ROAD");
         Toast.makeText(getApplicationContext(), "activating road trip", Toast.LENGTH_LONG).show();
-        /*
+/*
         Intent speechIntent = new Intent(MainActivity.this, Speech.class);
         bindService(speechIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(speechIntent);
@@ -550,15 +551,23 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         bindService(emotionIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(emotionIntent);
 
+
+        Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
+        bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
+        MainActivity.this.startService(rPPGIntent);
+
+
+        Intent crashServiceIntent = new Intent(MainActivity.this, CrashService.class);
+        bindService(crashServiceIntent, serviceConnection, BIND_AUTO_CREATE);
+        MainActivity.this.startService(crashServiceIntent);
+
+/*
         Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
         bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(fatigueIntent);
 
-         /*
-        Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
-        bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
-        MainActivity.this.startService(rPPGIntent);
-        
+ */
+        /**
         Intent backCameraIntent = new Intent(MainActivity.this, BackCameraService.class);
         bindService(backCameraIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(backCameraIntent);
@@ -567,11 +576,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         bindService(pedestrianIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(pedestrianIntent);
         */
-
-        Intent crashServiceIntent = new Intent(MainActivity.this, CrashService.class);
-        bindService(crashServiceIntent, serviceConnection, BIND_AUTO_CREATE);
-        MainActivity.this.startService(crashServiceIntent);
-
 
     }
 
