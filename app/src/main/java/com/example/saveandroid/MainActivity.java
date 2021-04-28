@@ -548,7 +548,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         MainActivity.this.startService(emotionIntent);
 
 
-       
+
 
         /*
         Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
