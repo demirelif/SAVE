@@ -31,6 +31,8 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.example.saveandroid.MainActivity;
+
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -103,11 +105,12 @@ public class CrashService extends Service {
         //Toast.makeText(getApplicationContext(), TAG, Toast.LENGTH_SHORT).show();
         createNotificationChannels();
         notificationManager = NotificationManagerCompat.from(this);
-
+        /*
         if (mTimer == null) {
             mTimer = new Timer();
             mTimer.scheduleAtFixedRate(new TakvimKontrol(), 50, 30000);
         }
+        */
 
 
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -151,9 +154,14 @@ public class CrashService extends Service {
         }
     }
 
+    // Create an explicit intent for an Activity in your app
+
+
     public void msgGoster() {
-        String title = "Title";
-        String message = "Message" + speed;
+        String title = "Crash Warning";
+        String message = "we sensed a concerning change in vehicle speed, would you like to inform emergency contact?" + speed;
+        //Intent snoozeIntent = new Intent(this, MainActivity.class);
+        //PendingIntent snoozePendingIntent = PendingIntent.getActivity(this, 0, snoozeIntent, 0);
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
                 .setSmallIcon(com.example.saveandroid.R.drawable.ic_launcher_foreground)
                 .setContentTitle(title)
@@ -170,6 +178,10 @@ public class CrashService extends Service {
             Intent i = new Intent("cs_Message");
             i.putExtra("hiz", ispeed);
             LocalBroadcastManager.getInstance(mContext).sendBroadcast(i);
+            if(prevSpeed- ispeed > 20){
+                msgGoster();
+            }
+
             prevSpeed = ispeed;
         }
 
