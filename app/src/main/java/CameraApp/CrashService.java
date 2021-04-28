@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -41,8 +42,17 @@ public class CrashService extends Service {
     private NotificationManagerCompat notificationManager;
     private Context mContext;
     private double speed;
+    int sayac=0;
+    private static Timer mTimer = null;
 
     public CrashService() {
+    }
+
+    private class TakvimKontrol extends TimerTask {
+        public void run() {
+            sayac++;
+            msgGoster();
+        }
     }
 
 
@@ -93,6 +103,11 @@ public class CrashService extends Service {
         //Toast.makeText(getApplicationContext(), TAG, Toast.LENGTH_SHORT).show();
         createNotificationChannels();
         notificationManager = NotificationManagerCompat.from(this);
+
+        if (mTimer == null) {
+            mTimer = new Timer();
+            mTimer.scheduleAtFixedRate(new TakvimKontrol(), 50, 30000);
+        }
 
 
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
