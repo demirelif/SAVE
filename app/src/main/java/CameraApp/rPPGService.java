@@ -29,7 +29,7 @@ public class rPPGService extends Service {
     public IBinder mBinder = new rPPGService.LocalBinder();
     private static final String TAG = "rPPG SERVICE";
     private static byte[] byteArray;
-    private static final String SpeedTAG = "Speed Fatigue";
+    private static final String SpeedTAG = "Speed rppg";
     long startTime,endTime,contentLength;
 
 
