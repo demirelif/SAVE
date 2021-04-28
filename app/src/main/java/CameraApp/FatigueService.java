@@ -12,6 +12,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
+import SpeechRecognition.Speech;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -43,6 +44,7 @@ import okhttp3.Response;
 
 import static CameraApp.FrontCameraService.fileQueue;
 import static CameraApp.FrontCameraService.imageBytesFatigue;
+import static com.example.saveandroid.MainActivity.openMapFatigue;
 
 public class FatigueService extends Service {
     public IBinder mBinder = new LocalBinder();
@@ -55,6 +57,8 @@ public class FatigueService extends Service {
     private MediaType mediaType;
     private RequestBody requestBody;
     private Response response;
+    private static final String SpeedTAG = "Speed Fatigue";
+    long startTime,endTime,contentLength;
     File file;
     MediaType JSON;
     int picNo =0;
@@ -76,15 +80,6 @@ public class FatigueService extends Service {
     public void onCreate() {
         Toast.makeText(getApplicationContext(),TAG + " onCreate", Toast.LENGTH_SHORT).show();
         super.onCreate();
-        // server connection
-/*
-        try {
-            postRequest("deneme");
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-
- */
     }
 
     @Override
@@ -120,7 +115,10 @@ public class FatigueService extends Service {
             //postImageToServer(imageFile);
             byteArray = imageBytesFatigue.take();
             Log.i(TAG, "Consumed byte array length: " + byteArray.length + "; Fatigue Queue size is: " + imageBytesFatigue.size());
+            startTime = System.currentTimeMillis(); //Hold StartTime
             postImageToServer(byteArray);
+            endTime = System.currentTimeMillis();  //Hold EndTime
+            Log.d(SpeedTAG, (endTime - startTime) + " ms");
         }
         //Random random = new Random();
         /*
@@ -227,6 +225,15 @@ public class FatigueService extends Service {
         if ( response != null )
             s = response.body().string();
         Log.i(TAG,s);
+
+        s = "Fatigue"; // FATIGUE daha hazir olmadigi icin boyle degismesi lazim
+        if ( s.equals("Fatigue")){
+            Speech.readText("You look tried, would you like to take a coffee break");
+            String userAnswer = "no";
+            if ( userAnswer.equals("yes") )
+                MainActivity.getInstanceActivity().openGoogleMaps("cafe");
+        }
+
 
         /*
         client.newCall(request).enqueue(new Callback() {

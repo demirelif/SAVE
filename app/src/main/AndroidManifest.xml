@@ -18,6 +18,7 @@
             <action android:name="android.intent.action.TTS_SERVICE" />
         </intent>
     </queries>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -27,7 +28,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SAVEAndroid"
         android:usesCleartextTraffic="true">
-        <service
             android:name="SpeechRecognition.Speech"
             android:enabled="true"
             android:exported="true" />

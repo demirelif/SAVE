@@ -29,6 +29,10 @@ public class rPPGService extends Service {
     public IBinder mBinder = new rPPGService.LocalBinder();
     private static final String TAG = "rPPG SERVICE";
     private static byte[] byteArray;
+    private static final String SpeedTAG = "Speed rppg";
+    long startTime,endTime,contentLength;
+    long initialStart;
+    int counter = 0;
 
 
     @Nullable
@@ -79,20 +83,26 @@ public class rPPGService extends Service {
             //postImageToServer(imageFile);
             byteArray = imageBytesRPPG.take();
             Log.i(TAG, "Consumed byte array length: " + byteArray.length + "; RPPG Queue size is: " + imageBytesRPPG.size());
+            if ( counter == 0 )
+                startTime = System.currentTimeMillis(); //Hold StartTime
+            counter++;
             postImageToServer(byteArray);
+
         }
     }
     private void cleanRPPGServer(){
         String postUrl2 = "http://" + "192.168.1.102" + ":" + 8000 + "/clean"; // UTKU IP
+        String postUrl3 = "http://" + "10.0.2.2" + ":" + 5000 + "/clean";
         MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         //multipartBodyBuilder.addFormDataPart("image", "clean_image" + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
         multipartBodyBuilder.addFormDataPart("clean", "selam"); // tamamen random bir sey verdim
         RequestBody postBodyImage = multipartBodyBuilder.build();
-        postRequest(postUrl2, postBodyImage);
+        postRequest(postUrl3, postBodyImage);
     }
 
     private void postImageToServer(byte[] byteArray){
         String postUrl2 = "http://" + "192.168.1.102" + ":" + 8000 + "/rppg"; // UTKU IP
+        String postUrl3 = "http://" + "10.0.2.2" + ":" + 5000 + "/rppg";
         //String postUrl3 = "http://" + "10.0.2.2" + ":" + 5000 + "/predict_emotion"; // ELIF IP
 
         Long tsLong = System.currentTimeMillis()/1000;
@@ -106,7 +116,7 @@ public class rPPGService extends Service {
         // post request to emotion server
         //postRequest(postUrl, postBodyImage);
         // post request to rppg server
-        postRequest(postUrl2, postBodyImage);
+        postRequest(postUrl3, postBodyImage);
     }
 
 
@@ -150,10 +160,13 @@ public class rPPGService extends Service {
                             Log.i(TAG, "Server's Response ---> " + responzee[0]);
                             if (!responzee[0].equals("Calculating..."))
                                 Speech.readText(responzee[0]);
-                            /*
+
                             if(!response.body().string().equals("Calculating...")){
                                 Log.i(TAG, "rPPG RESPONSE ---> " + response.body().string());
-                            }*/
+                                endTime = System.currentTimeMillis();  //Hold EndTime
+                                counter = 0;
+                                Log.d(SpeedTAG, (endTime - startTime) + " ms");
+                            }
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
