@@ -50,6 +50,7 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -106,6 +107,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private static final int TTS_CHECK_CODE = 101;
     private static final int REQUEST_CAMERA_PERMISSION = 200;
     private static final int REQUEST_PERMISSION = 200;
+    private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 200;
+    private static final int CALL_PERMISSION = 200;
 
     public static WeakReference<MainActivity> weakMainActivity;
 
@@ -131,6 +134,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public static SpeechRecognizer speechRecognizer;
     public static Intent intentRecognizer;
     public static String speechString = "";
+    public Intent callIntent;
 
     public static double gazeAngle = 0;
     public static double headPose = 0;
@@ -157,7 +161,13 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public static boolean openMapRPPG;
     public static String lastPlayedGenre;
     public static MainActivity getInstanceActivity() {
-        return weakMainActivity.get();
+        try {
+            return weakMainActivity.get();
+        }
+        catch (Exception exception){
+            Log.e(TAG,"Week reference null pointer exception");
+        }
+        return null ;
     }
 
     ServiceConnection serviceConnection = new ServiceConnection() {
@@ -451,6 +461,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                         // Something went wrong when attempting to connect! Handle errors here
                     }
                 });
+        makeCall("");
+        Log.i(TAG, " after make call");
 
     }
 
@@ -528,10 +540,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
      */
 
     public void activateRoadTrip(View view) {
-        //Intent faceIntent = new Intent(MainActivity.this, FaceDetectionActivity.class);
-        // MainActivity.this.startActivity(faceIntent);
-        //Intent cameraIntent = new Intent(MainActivity.this, DoubleCamera.class);
-        //MainActivity.this.startActivity(cameraIntent);
         Log.i(TAG, " ACTIVATE ROAD");
         Toast.makeText(getApplicationContext(), "activating road trip", Toast.LENGTH_LONG).show();
 /*
@@ -686,11 +694,28 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     }
 
     public void makeCall(String telNo){
-        telNo = "1-555-521-5554"; // elif emulator
-        Intent callIntent = new Intent(Intent.ACTION_CALL);
+        callIntent = new Intent(Intent.ACTION_CALL);
         callIntent.setData(Uri.parse("tel:" + telNo)); // Must be android
-        startActivity(callIntent);
-        Log.i(TAG,"Telephone");
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.CALL_PHONE)!= PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CALL_PHONE},CALL_PERMISSION);
+
+            Log.e(TAG,"Permission denied for call");
+        } else {
+            //You already have permission
+            try {
+
+                // callIntent = new Intent(Intent.ACTION_DIAL);
+                startActivity(callIntent);
+                Log.i(TAG,"Phone call is made");
+            } catch(SecurityException e) {
+                e.printStackTrace();
+                Log.i(TAG,"Call failed." + e);
+            }
+
+        }
     }
 }
 

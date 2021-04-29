@@ -105,7 +105,7 @@ public class EmotionService extends Service {
         playCalmPlaylist = false;
         playEnergeticPlaylist = false;
 
-        MainActivity.getInstanceActivity().makeCall("");
+  //      MainActivity.getInstanceActivity().makeCall("");
         //fillMap();
     }
 
@@ -176,6 +176,7 @@ public class EmotionService extends Service {
     }
 
     private void postImageToServer(byte[] byteArray){
+//        MainActivity.getInstanceActivity().makeCall("90-50-78-65-2663");
         String postUrl = "http://" + "192.168.1.102" + ":" + 5000 + "/predict_emotion"; // UTKU IP
         //String postUrl2 = "http://" + "192.168.1.102" + ":" + 8000 + "/rppg"; // UTKU IP
         String postUrl3 = "http://" + "10.0.2.2" + ":" + 5000 + "/predict_emotion"; // ELIF IP
@@ -247,6 +248,7 @@ public class EmotionService extends Service {
             @Override
             public void onFailure(Call call, IOException e) {
                 // Cancel the post on failure.
+
                 call.cancel();
                 Log.d("FAIL", e.getMessage());
 
@@ -269,6 +271,7 @@ public class EmotionService extends Service {
                     String s = "";
                     @Override
                     public void run() {
+
                         //TextView responseText = findViewById(R.id.responseText);
                         try {
                             //Toast.makeText(getApplicationContext(), "Server's Response\n" + response.body().string(), Toast.LENGTH_LONG).show();
