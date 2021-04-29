@@ -461,7 +461,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                         // Something went wrong when attempting to connect! Handle errors here
                     }
                 });
-        makeCall("");
+      //  makeCall("");
         Log.i(TAG, " after make call");
 
     }
