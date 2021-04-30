@@ -280,7 +280,12 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     };
 
     public static void startSpeech(){
-        speechRecognizer.startListening(MainActivity.intentRecognizer);
+        try {
+            speechRecognizer.startListening(MainActivity.intentRecognizer);
+        }
+        catch(Exception e){
+            Log.e(TAG, "Speech cannot be started " +e);
+        }
     }
 
     public static void stopSpeech(){
