@@ -4,7 +4,7 @@
 
         <SwitchPreferenceCompat
             app:dependency="sync"
-            app:key="attachment"
+            app:key="drowsiness"
             app:summaryOff="@string/attachment_summary_off"
             app:summaryOn="@string/attachment_summary_on"
             app:title="Allow This Application To Warn You When Drowsiness Detected" />
@@ -15,7 +15,7 @@
 
         <SwitchPreferenceCompat
             app:dependency="sync"
-            app:key="attachment"
+            app:key="rppg"
             app:summaryOff="@string/attachment_summary_off"
             app:summaryOn="@string/attachment_summary_on"
             app:title="Allow This Application To Check You When Emergency Health Condition Occurs" />
@@ -26,7 +26,7 @@
 
         <SwitchPreferenceCompat
             app:dependency="sync"
-            app:key="attachment"
+            app:key="distraction"
             app:summaryOff="@string/attachment_summary_off"
             app:summaryOn="@string/attachment_summary_on"
             app:title="Allow This Aplication To Warn You When Distraction Happens" />
@@ -37,7 +37,7 @@
 
         <SwitchPreferenceCompat
             app:dependency="sync"
-            app:key="attachment"
+            app:key="traffic"
             app:summaryOff="@string/attachment_summary_off"
             app:summaryOn="@string/attachment_summary_on"
             app:title="Activate Traffic Light Tracking And Give Warnings When Light Change Goes Unnoticed" />
@@ -48,7 +48,7 @@
 
         <SwitchPreferenceCompat
             app:dependency="sync"
-            app:key="attachment"
+            app:key="gforce"
             app:summaryOff="@string/attachment_summary_off"
             app:summaryOn="@string/attachment_summary_on"
             app:title="In Case Of Sudden Change Of G Force, Inform Emergeny Contact" />
@@ -59,7 +59,7 @@
 
         <SwitchPreferenceCompat
             app:dependency="sync"
-            app:key="attachment"
+            app:key="music"
             app:summaryOff="@string/attachment_summary_off"
             app:summaryOn="@string/attachment_summary_on"
             app:title="Will Play Music According To Your Mood" />

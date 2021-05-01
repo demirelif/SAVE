@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -32,6 +33,7 @@ import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -54,6 +56,10 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceManager;
+import androidx.preference.SwitchPreference;
 
 import com.flaviofaria.kenburnsview.KenBurnsView;
 import com.flaviofaria.kenburnsview.RandomTransitionGenerator;
@@ -102,13 +108,14 @@ import com.spotify.protocol.types.PlayerState;
 import com.spotify.protocol.types.Track;
 
 
-public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback {
+public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback, SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = "cs_mainactivity";
     private static final int TTS_CHECK_CODE = 101;
     private static final int REQUEST_CAMERA_PERMISSION = 200;
     private static final int REQUEST_PERMISSION = 200;
     private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 200;
     private static final int CALL_PERMISSION = 200;
+    static boolean preferencesChanged=false;
 
     public static WeakReference<MainActivity> weakMainActivity;
 
@@ -347,8 +354,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             }
         });
         if (tts != null) {
-            if (textToSpeechIsInitialized)
+            if (textToSpeechIsInitialized) {
                 tts.speak("Trying", TextToSpeech.QUEUE_FLUSH, null, null);
+            }
             Log.i(TAG, "Null degil");
         } else {
             Log.e(TAG, "Activity mainde de calismadi");
@@ -420,12 +428,17 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
             }
         });
+
+        // SETTINGS
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(broadcastReceiver, new IntentFilter("cs_Message"));
+
 
         // Set the connection parameters
         ConnectionParams connectionParams =
@@ -541,17 +554,28 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             }
         }
     }
-
      */
 
     public void activateRoadTrip(View view) {
         Log.i(TAG, " ACTIVATE ROAD");
         Toast.makeText(getApplicationContext(), "activating road trip", Toast.LENGTH_LONG).show();
-/*
+        /*
         Intent speechIntent = new Intent(MainActivity.this, Speech.class);
         bindService(speechIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(speechIntent);
         */
+       SharedPreferences preferences = getSharedPreferences("root_settings", MODE_PRIVATE);
+       //SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+       Log.i(TAG, "bunlar var: " + preferences.getAll());
+
+        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        Log.i(TAG, getApplicationContext().toString());
+        boolean value1 = preferences.getBoolean("audio", false);
+        Log.i(TAG, "Audio: " + value1);
+        boolean value2 = preferences.getBoolean("music", false);
+        Log.i(TAG, "Music: " + value2);
+
+
         Intent frontCameraIntent = new Intent(MainActivity.this, FrontCameraService.class);
         bindService(frontCameraIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(frontCameraIntent);
@@ -560,16 +584,13 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         bindService(emotionIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(emotionIntent);
 
-
         Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
         bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(rPPGIntent);
 
-
         Intent crashServiceIntent = new Intent(MainActivity.this, CrashService.class);
         bindService(crashServiceIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(crashServiceIntent);
-
 /*
         Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
         bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
@@ -720,6 +741,13 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 Log.i(TAG,"Call failed." + e);
             }
 
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if(sharedPreferences !=null){
+            preferencesChanged=true;
         }
     }
 }

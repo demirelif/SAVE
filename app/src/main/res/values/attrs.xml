@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CustomSwitchPreferenceWidget">
+        <attr name="fatigue" format="boolean"/>
+        <attr name="emotion" format="boolean"/>
+        <attr name="popup" format="boolean"/>
+        <attr name="emergency_phone" format="string"/>
+        <attr name="contact_form" format="boolean"/>
+        <attr name="collision" format="boolean"/>
+        <attr name="rppg" format="boolean"/>
+        <attr name="music" format="boolean"/>
+    </declare-styleable>
+</resources>
