@@ -77,6 +77,7 @@ import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -167,6 +168,10 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public static boolean openMapFatigue;
     public static boolean openMapRPPG;
     public static String lastPlayedGenre;
+
+    Connection connect;
+    String connectionResult = "";
+
     public static MainActivity getInstanceActivity() {
         try {
             return weakMainActivity.get();
@@ -748,6 +753,19 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if(sharedPreferences !=null){
             preferencesChanged=true;
+        }
+    }
+
+    public void putData(){
+        try {
+            Database database = new Database();
+            connect = database.connection();
+            if ( connect != null ){
+                // put data
+            }
+        }
+        catch(Exception e){
+            Log.e(TAG, e.getMessage());
         }
     }
 }

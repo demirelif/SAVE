@@ -42,6 +42,9 @@ dependencies {
     implementation project(':spotify-app-remote')
     implementation "com.google.code.gson:gson:2.8.5"
 
+    // piechart
+    implementation "com.github.PhilJay:MPAndroidChart:v3.0.0-beta1"
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     //noinspection GradleCompatible
     implementation 'com.android.support:recyclerview-v7:21.0.+'
@@ -59,6 +62,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
     implementation 'androidx.preference:preference:1.1.1'
+    implementation 'androidx.wear:wear:1.1.0'
     testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
@@ -112,6 +116,7 @@ dependencies {
     implementation 'com.flaviofaria:kenburnsview:1.0.7'
     // floating view
     implementation 'com.github.recruit-lifestyle:FloatingView:2.4.4'
+    compileOnly 'com.google.android.wearable:wearable:2.8.1'
     //def camerax_version = "1.0.0-beta07"
     // CameraX core library using camera2 implementation
     //implementation "androidx.camera:camera-camera2:$camerax_version"

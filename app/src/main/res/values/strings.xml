@@ -45,4 +45,5 @@
     -->
     <string name="hello_world">Hello Square World!</string>
     <string name="title_activity_android_camera">AndroidCamera</string>
+    <string name="title_activity_user_data">UserData</string>
 </resources>
