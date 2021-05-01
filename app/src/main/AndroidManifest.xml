@@ -4,7 +4,6 @@
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-    <uses-feature android:name="android.hardware.type.watch" />
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -36,9 +35,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SAVEAndroid"
         android:usesCleartextTraffic="true">
-        <uses-library
-            android:name="com.google.android.wearable"
-            android:required="true" />
+
 
         <!--
                Set to true if your app is Standalone, that is, it does not require the handheld
