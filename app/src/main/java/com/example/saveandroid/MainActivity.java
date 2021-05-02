@@ -689,6 +689,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                             //Toast.makeText(MainActivity.this,  "home", Toast.LENGTH_SHORT).show();
                             Intent addPetIntent = new Intent(MainActivity.this, SettingsActivity.class);
                             MainActivity.this.startActivity(addPetIntent);
+                        } else if ( item.getItemId() == R.id.nav_slideshow){
+                            Intent addPetIntent = new Intent(MainActivity.this, UserData.class);
+                            MainActivity.this.startActivity(addPetIntent);
                         }
                         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
                         drawerLayout.closeDrawer(GravityCompat.START);

@@ -5,8 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:baselineAligned="false">
-    tools:context=".UserData">
+    android:baselineAligned="false"
+    tools:context=".UserData"
+    android:id="@+id/userdata">
 
     <RelativeLayout
         android:layout_width="match_parent"
