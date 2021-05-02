@@ -180,6 +180,7 @@ public class CrashService extends Service {
             LocalBroadcastManager.getInstance(mContext).sendBroadcast(i);
             if(prevSpeed- ispeed > 20){
                 msgGoster();
+                Log.d(TAG, "msg goster");
             }
 
             prevSpeed = ispeed;
