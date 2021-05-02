@@ -334,7 +334,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             return;
         }
 
-        hizView = findViewById(R.id.hizGoster);
+//        hizView = findViewById(R.id.hizGoster);
         playHappyPlaylist = false;
         playCalmPlaylist = false;
         playEnergeticPlaylist = false;
@@ -564,7 +564,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public void activateRoadTrip(View view) {
         Log.i(TAG, " ACTIVATE ROAD");
         Toast.makeText(getApplicationContext(), "activating road trip", Toast.LENGTH_LONG).show();
-        /*
+
         Intent speechIntent = new Intent(MainActivity.this, Speech.class);
         bindService(speechIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(speechIntent);
@@ -597,7 +597,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         bindService(crashServiceIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(crashServiceIntent);
 
-         */
         startTracking(null);
 /*
         Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
