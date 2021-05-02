@@ -2,21 +2,28 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.saveandroid">
 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.MANAGE_OWN_CALLS" />
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
 
     <queries>
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
         </intent>
+
+        <package android:name="com.spotify.music" />
     </queries>
 
     <application
@@ -28,13 +35,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SAVEAndroid"
         android:usesCleartextTraffic="true">
-            android:name="SpeechRecognition.Speech"
-            android:enabled="true"
-            android:exported="true" />
 
-        <uses-library
-            android:name="com.google.android.wearable"
-            android:required="false" />
+
         <!--
                Set to true if your app is Standalone, that is, it does not require the handheld
                app to run.
@@ -43,8 +45,9 @@
             android:name="com.google.android.wearable.standalone"
             android:value="true" />
 
-
-
+        <activity
+            android:name=".UserData"
+            android:label="@string/title_activity_user_data"></activity>
         <activity
             android:name=".PrefActivity"
             android:label="PrefActivity" />

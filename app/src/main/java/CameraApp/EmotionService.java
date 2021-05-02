@@ -105,6 +105,7 @@ public class EmotionService extends Service {
         playCalmPlaylist = false;
         playEnergeticPlaylist = false;
 
+  //      MainActivity.getInstanceActivity().makeCall("");
         //fillMap();
     }
 
@@ -175,6 +176,7 @@ public class EmotionService extends Service {
     }
 
     private void postImageToServer(byte[] byteArray){
+//        MainActivity.getInstanceActivity().makeCall("90-50-78-65-2663");
         String postUrl = "http://" + "192.168.1.102" + ":" + 5000 + "/predict_emotion"; // UTKU IP
         //String postUrl2 = "http://" + "192.168.1.102" + ":" + 8000 + "/rppg"; // UTKU IP
         String postUrl3 = "http://" + "10.0.2.2" + ":" + 5000 + "/predict_emotion"; // ELIF IP
@@ -246,6 +248,7 @@ public class EmotionService extends Service {
             @Override
             public void onFailure(Call call, IOException e) {
                 // Cancel the post on failure.
+
                 call.cancel();
                 Log.d("FAIL", e.getMessage());
 
@@ -268,6 +271,7 @@ public class EmotionService extends Service {
                     String s = "";
                     @Override
                     public void run() {
+
                         //TextView responseText = findViewById(R.id.responseText);
                         try {
                             //Toast.makeText(getApplicationContext(), "Server's Response\n" + response.body().string(), Toast.LENGTH_LONG).show();
@@ -281,26 +285,27 @@ public class EmotionService extends Service {
                             sadCounter++;
                             if(sadCounter > 50){
                                 if(!MainActivity.isPlayingMusic){
-                                    // speech buraya alınabilir ?
+                                    Speech.readText("Do you want to listen some music to cheer you up?");
+                                    MainActivity.getInstanceActivity().startSpeech();
+                                    String userResponse = MainActivity.speechString;
+                                    if ( userResponse.equals("yes")){
+                                        MainActivity.getInstanceActivity().jukeBox("Happy");
+                                    }
+                                    sadCounter = 0;
                                 }
-                                Speech.readText("Do you want to listen some music to cheer you up?");
-                                sadCounter = 0;
-                                MainActivity.getInstanceActivity().jukeBox("Happy");
                             }
-                            /**
-                            MainActivity.startSpeech();
-                            //final int FPS = 40;
-                            //TimerTask updateBall = new UpdateBallTask();
-                            //timer.scheduleAtFixedRate(updateBall, 0, 1000/FPS);
-                            //Speech.stopSpeech();
-                            String speech = MainActivity.getSpeech();
-                            Log.i(TAG, "SPEECH IS: " + speech);*/
+
                         }else if(s.equals("Angry")){
                             angryCounter++;
                             if(angryCounter > 50){
-                                angryCounter = 0;
                                 Speech.readText("Do you want some music to relax ?");
-                                MainActivity.getInstanceActivity().jukeBox("Calm");
+                                MainActivity.getInstanceActivity().startSpeech();
+                                String userResponse = MainActivity.speechString;
+                                if ( userResponse.equals("yes")) {
+                                    MainActivity.getInstanceActivity().jukeBox("Calm");
+                                }
+                                angryCounter = 0;
+
                             }
                         }
 

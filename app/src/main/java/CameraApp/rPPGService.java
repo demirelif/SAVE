@@ -96,17 +96,17 @@ public class rPPGService extends Service {
     }
     private void cleanRPPGServer(){
         String postUrl2 = "http://" + "192.168.1.102" + ":" + 8000 + "/clean"; // UTKU IP
-      //  String postUrl3 = "http://" + "10.0.2.2" + ":" + 5000 + "/clean";
+        String postUrl3 = "http://" + "10.0.2.2" + ":" + 8000 + "/clean";
         MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         //multipartBodyBuilder.addFormDataPart("image", "clean_image" + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
         multipartBodyBuilder.addFormDataPart("clean", "selam"); // tamamen random bir sey verdim
         RequestBody postBodyImage = multipartBodyBuilder.build();
-        postRequest(postUrl2, postBodyImage);
+        postRequest(postUrl3, postBodyImage);
     }
 
     private void postImageToServer(byte[] byteArray){
         String postUrl2 = "http://" + "192.168.1.102" + ":" + 8000 + "/rppg"; // UTKU IP
-        //String postUrl3 = "http://" + "10.0.2.2" + ":" + 5000 + "/rppg";
+        String postUrl3 = "http://" + "10.0.2.2" + ":" + 8000 + "/rppg";
 
         Long tsLong = System.currentTimeMillis()/1000;
         String ts = tsLong.toString();
@@ -119,7 +119,7 @@ public class rPPGService extends Service {
         // post request to emotion server
         //postRequest(postUrl, postBodyImage);
         // post request to rppg server
-        postRequest(postUrl2, postBodyImage);
+        postRequest(postUrl3, postBodyImage);
     }
 
 
@@ -170,9 +170,9 @@ public class rPPGService extends Service {
                                 if ( counter >= 50  ) {
                                     endTime = System.currentTimeMillis();  //Hold EndTime
                                     Log.d(SpeedTAG, (endTime - startTime) + " ms");
-                                    Speech.readText("Hospital");
+                                    //Speech.readText("Hospital");
                                     // IF RPPG DETECS SOMETHING
-                                    MainActivity.getInstanceActivity().openGoogleMaps("hospital");
+                                    //MainActivity.getInstanceActivity().openGoogleMaps("hospital");
                                     counter = 0;
                                 }
                             }

@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -32,6 +33,7 @@ import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -50,9 +52,14 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceManager;
+import androidx.preference.SwitchPreference;
 
 import com.flaviofaria.kenburnsview.KenBurnsView;
 import com.flaviofaria.kenburnsview.RandomTransitionGenerator;
@@ -70,6 +77,7 @@ import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -101,11 +109,14 @@ import com.spotify.protocol.types.PlayerState;
 import com.spotify.protocol.types.Track;
 
 
-public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback {
+public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback, SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = "cs_mainactivity";
     private static final int TTS_CHECK_CODE = 101;
     private static final int REQUEST_CAMERA_PERMISSION = 200;
     private static final int REQUEST_PERMISSION = 200;
+    private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 200;
+    private static final int CALL_PERMISSION = 200;
+    static boolean preferencesChanged=false;
 
     public static WeakReference<MainActivity> weakMainActivity;
 
@@ -131,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public static SpeechRecognizer speechRecognizer;
     public static Intent intentRecognizer;
     public static String speechString = "";
+    public Intent callIntent;
 
     public static double gazeAngle = 0;
     public static double headPose = 0;
@@ -156,8 +168,18 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public static boolean openMapFatigue;
     public static boolean openMapRPPG;
     public static String lastPlayedGenre;
+
+    Connection connect;
+    String connectionResult = "";
+
     public static MainActivity getInstanceActivity() {
-        return weakMainActivity.get();
+        try {
+            return weakMainActivity.get();
+        }
+        catch (Exception exception){
+            Log.e(TAG,"Week reference null pointer exception");
+        }
+        return null ;
     }
 
     ServiceConnection serviceConnection = new ServiceConnection() {
@@ -270,7 +292,12 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     };
 
     public static void startSpeech(){
-        speechRecognizer.startListening(MainActivity.intentRecognizer);
+        try {
+            speechRecognizer.startListening(MainActivity.intentRecognizer);
+        }
+        catch(Exception e){
+            Log.e(TAG, "Speech cannot be started " +e);
+        }
     }
 
     public static void stopSpeech(){
@@ -286,7 +313,27 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate enter");
+
         startKenBurnsView(); // start special ken burns view
+        // PERMISSION CHECK FOR CAMERA
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION);
+            return;
+        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION);
+            return;
+        }
+        // PERMISSION CHECK FOR MIC
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_PERMISSION);
+            return;
+        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, REQUEST_PERMISSION);
+            return;
+        }
+
         hizView = findViewById(R.id.hizGoster);
         playHappyPlaylist = false;
         playCalmPlaylist = false;
@@ -312,8 +359,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             }
         });
         if (tts != null) {
-            if (textToSpeechIsInitialized)
+            if (textToSpeechIsInitialized) {
                 tts.speak("Trying", TextToSpeech.QUEUE_FLUSH, null, null);
+            }
             Log.i(TAG, "Null degil");
         } else {
             Log.e(TAG, "Activity mainde de calismadi");
@@ -386,35 +434,16 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             }
         });
 
-        // PERMISSION CHECK FOR CAMERA
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION);
-            return;
-        }
-        /*
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION);
-            return;
-        }
-
-         */
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION);
-            return;
-        }
-
-        // PERMISSION CHECK FOR MIC
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_PERMISSION);
-            return;
-        }
+        // SETTINGS
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(broadcastReceiver, new IntentFilter("cs_Message"));
+
 
         // Set the connection parameters
         ConnectionParams connectionParams =
@@ -455,6 +484,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                         // Something went wrong when attempting to connect! Handle errors here
                     }
                 });
+      //  makeCall("");
+        Log.i(TAG, " after make call");
 
     }
 
@@ -528,21 +559,28 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             }
         }
     }
-
      */
 
     public void activateRoadTrip(View view) {
-        //Intent faceIntent = new Intent(MainActivity.this, FaceDetectionActivity.class);
-        // MainActivity.this.startActivity(faceIntent);
-        //Intent cameraIntent = new Intent(MainActivity.this, DoubleCamera.class);
-        //MainActivity.this.startActivity(cameraIntent);
         Log.i(TAG, " ACTIVATE ROAD");
         Toast.makeText(getApplicationContext(), "activating road trip", Toast.LENGTH_LONG).show();
-/*
+        /*
         Intent speechIntent = new Intent(MainActivity.this, Speech.class);
         bindService(speechIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(speechIntent);
         */
+       SharedPreferences preferences = getSharedPreferences("root_settings", MODE_PRIVATE);
+       //SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+       Log.i(TAG, "bunlar var: " + preferences.getAll());
+
+        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        Log.i(TAG, getApplicationContext().toString());
+        boolean value1 = preferences.getBoolean("audio", false);
+        Log.i(TAG, "Audio: " + value1);
+        boolean value2 = preferences.getBoolean("music", false);
+        Log.i(TAG, "Music: " + value2);
+
+
         Intent frontCameraIntent = new Intent(MainActivity.this, FrontCameraService.class);
         bindService(frontCameraIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(frontCameraIntent);
@@ -551,16 +589,13 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         bindService(emotionIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(emotionIntent);
 
-
         Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
         bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(rPPGIntent);
 
-
         Intent crashServiceIntent = new Intent(MainActivity.this, CrashService.class);
         bindService(crashServiceIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(crashServiceIntent);
-
 /*
         Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
         bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
@@ -686,6 +721,51 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
         else {
             Log.e(TAG,"Location for map is invalid");
+        }
+    }
+
+    public void makeCall(String telNo){
+        callIntent = new Intent(Intent.ACTION_CALL);
+        callIntent.setData(Uri.parse("tel:" + telNo)); // Must be android
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.CALL_PHONE)!= PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CALL_PHONE},CALL_PERMISSION);
+
+            Log.e(TAG,"Permission denied for call");
+        } else {
+            //You already have permission
+            try {
+
+                // callIntent = new Intent(Intent.ACTION_DIAL);
+                startActivity(callIntent);
+                Log.i(TAG,"Phone call is made");
+            } catch(SecurityException e) {
+                e.printStackTrace();
+                Log.i(TAG,"Call failed." + e);
+            }
+
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if(sharedPreferences !=null){
+            preferencesChanged=true;
+        }
+    }
+
+    public void putData(){
+        try {
+            Database database = new Database();
+            connect = database.connection();
+            if ( connect != null ){
+                // put data
+            }
+        }
+        catch(Exception e){
+            Log.e(TAG, e.getMessage());
         }
     }
 }
