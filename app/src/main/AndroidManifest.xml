@@ -3,8 +3,6 @@
     package="com.example.saveandroid">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-
-
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -17,6 +15,7 @@
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.MANAGE_OWN_CALLS" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <queries>
         <intent>
@@ -36,7 +35,6 @@
         android:theme="@style/Theme.SAVEAndroid"
         android:usesCleartextTraffic="true">
 
-
         <!--
                Set to true if your app is Standalone, that is, it does not require the handheld
                app to run.
@@ -47,7 +45,7 @@
 
         <activity
             android:name=".UserData"
-            android:label="@string/title_activity_user_data"></activity>
+            android:label="@string/title_activity_user_data" />
         <activity
             android:name=".PrefActivity"
             android:label="PrefActivity" />
@@ -75,7 +73,10 @@
             android:theme="@style/Theme.SAVEAndroid.NoActionBar" />
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name" />
+            android:label="@string/app_name"
+            android:allowEmbedded="true"
+            android:documentLaunchMode="always"
+            android:resizeableActivity="true"/>
 
         <service android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService" />
         <service android:name="CameraApp.EmotionService" />
@@ -86,6 +87,8 @@
         <service android:name="CameraApp.FrontCameraService" />
         <service android:name="CameraApp.BackCameraService" />
         <service android:name="CameraApp.CrashService" />
+        <service android:name="CameraApp.LocationTrackerService" android:enabled="true" android:foregroundServiceType="location">
+        </service>
 
         <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"

@@ -29,7 +29,7 @@ public class LocationTracker { //implements  GoogleApiClient.ConnectionCallbacks
     private LocationManager mLocationManager;
     private long minTime;
     private float minDistance;
-    private ILocationTrackerCallBack callBack;
+    private CameraApp.ILocationTrackerCallBack callBack;
     private LocationListener locListener = null;
 
     public LocationTracker(Context owner, Method method)  {
@@ -41,7 +41,7 @@ public class LocationTracker { //implements  GoogleApiClient.ConnectionCallbacks
     }
 
     @SuppressLint("MissingPermission")
-    public void StartTracking(long minTime, float minDistance, ILocationTrackerCallBack callBack) throws Exception {
+    public void StartTracking(long minTime, float minDistance, CameraApp.ILocationTrackerCallBack callBack) throws Exception {
         Log.i(TAG, "StartTracking");
         this.minTime = minTime;
         this.minDistance = minDistance;

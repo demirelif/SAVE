@@ -110,7 +110,7 @@ import com.spotify.protocol.types.Track;
 
 
 public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback, SharedPreferences.OnSharedPreferenceChangeListener {
-    private static final String TAG = "cs_mainactivity";
+    public static final String TAG = "cs_mainactivity";
     private static final int TTS_CHECK_CODE = 101;
     private static final int REQUEST_CAMERA_PERMISSION = 200;
     private static final int REQUEST_PERMISSION = 200;
@@ -568,7 +568,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Intent speechIntent = new Intent(MainActivity.this, Speech.class);
         bindService(speechIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(speechIntent);
-        */
+
        SharedPreferences preferences = getSharedPreferences("root_settings", MODE_PRIVATE);
        //SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
        Log.i(TAG, "bunlar var: " + preferences.getAll());
@@ -596,6 +596,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Intent crashServiceIntent = new Intent(MainActivity.this, CrashService.class);
         bindService(crashServiceIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(crashServiceIntent);
+
+         */
+        startTracking(null);
 /*
         Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
         bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
@@ -612,6 +615,12 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         MainActivity.this.startService(pedestrianIntent);
         */
 
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void startTracking(View view) {
+        CameraApp.LocationTrackerService.StartLocationTracking(getApplicationContext());
+        Log.i(TAG, " start location tracking");
     }
 
     @Override
