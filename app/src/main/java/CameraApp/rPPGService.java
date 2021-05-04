@@ -5,11 +5,13 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
 import com.example.saveandroid.MainActivity;
+import com.example.saveandroid.R;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -37,6 +39,9 @@ public class rPPGService extends Service {
     long startTime,endTime,contentLength;
     long initialStart;
     int counter = 0;
+    private boolean isInHighPulse = false;
+    private CustomDialogBox customDialogBox = null;
+    private static FloatingIcon floatingIcon = null;
 
 
     @Nullable
@@ -181,7 +186,12 @@ public class rPPGService extends Service {
                                 if(pulse_rate > 800){
                                     Thread.sleep(1600);
                                     Speech.readText("Your pulse rate seems above normal, consider having a stopover");
-                                    MainActivity.getInstanceActivity().openGoogleMaps("hospital");
+                                    //MainActivity.getInstanceActivity().openGoogleMaps("hospital");
+                                    if(!isInHighPulse){
+                                        isInHighPulse = true;
+                                        DisplayIcon();
+                                        DisplayDialog();
+                                    }
                                 }
                             }
                             else{
@@ -203,5 +213,61 @@ public class rPPGService extends Service {
                 }).start();
             }
         });
+    }
+
+    private void DisplayIcon() {
+        floatingIcon = new FloatingIcon(this, new ICustomBubbleListener() {
+            @Override
+            public void onFloatingIconClicked(View v) {
+                showCustomDlg(v);
+            }
+        });
+    }
+
+    private void DisplayDialog() {
+        if (customDialogBox == null)
+            customDialogBox = new CustomDialogBox(this, new ICustomDialogListener() {
+                @Override
+                public void onClick(View view) {
+                    showCustomDlg(view);
+                }
+
+                @Override
+                public void dlgTimeOut() {
+                    checkTimeOut();
+                }
+            }, DialogType.Fatigue, 10);
+    }
+
+    private void SetStateToSafeMode() {
+        if (isInHighPulse) {
+            isInHighPulse = false;
+            if (floatingIcon != null)
+                floatingIcon.Remove();
+            if (customDialogBox != null){
+                customDialogBox.Remove();
+                customDialogBox = null;
+            }
+        }
+    }
+
+    public void showCustomDlg(View view) {
+        if (view.getId() == R.id.csbubbleimg)
+            DisplayDialog();
+        else if(view.getId()== R.id.btnYes){
+            SetStateToSafeMode();
+            MainActivity.getInstanceActivity().openGoogleMaps("hospital");
+        }
+        else if(view.getId() == R.id.btnNo){
+            SetStateToSafeMode();
+        }
+        else
+            SetStateToSafeMode();
+    }
+    public void checkTimeOut() {
+        if (customDialogBox != null) {
+            customDialogBox.Remove();
+            customDialogBox = null;
+        }
     }
 }
