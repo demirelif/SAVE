@@ -597,7 +597,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void activateRoadTrip(View view) {
         Log.i(TAG, " ACTIVATE ROAD");
-        Toast.makeText(getApplicationContext(), "activating road trip", Toast.LENGTH_LONG).show();
+        //Toast.makeText(getApplicationContext(), "activating road trip", Toast.LENGTH_LONG).show();
 
         Intent speechIntent = new Intent(MainActivity.this, Speech.class);
         bindService(speechIntent, serviceConnection, BIND_AUTO_CREATE);

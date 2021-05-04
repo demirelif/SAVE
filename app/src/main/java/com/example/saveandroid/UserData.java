@@ -43,8 +43,8 @@ public class UserData extends Activity {
     private int[] values = new int[5];
 
     //private int[] heartRates = {69,70,68,68,71};
-    private int[] axisData = {70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90};
-    int[] yAxisData = {65, 60, 70, 69, 60, 60, 65, 61, 63, 65, 66, 67};
+    private int[] axisData = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+    int[] yAxisData = {70, 72, 80, 83, 70, 72, 50, 79, 65, 69, 64};
 
 
 
@@ -114,12 +114,16 @@ public class UserData extends Activity {
         pieDataSet.setValueTextSize(12);
 
         ArrayList<Integer> colors = new ArrayList<>();
-        colors.add(Color.BLUE);
-        colors.add(Color.YELLOW);
+        colors.add(getResources().getColor(R.color.savegreen));
+        colors.add(getResources().getColor(R.color.saveblue));
+        colors.add(getResources().getColor(R.color.orange));
+        colors.add(getResources().getColor(R.color.lila));
+        colors.add(getResources().getColor(R.color.sage));
+        //colors.add(Color.YELLOW);
        // colors.add(Color.MAGENTA);
-        colors.add(Color.GRAY);
-        colors.add(Color.GREEN);
-        colors.add(Color.DKGRAY);
+       // colors.add(Color.GRAY);
+       // colors.add(Color.GREEN);
+       // colors.add(Color.DKGRAY);
 
         pieDataSet.setColors(colors);
 
@@ -138,7 +142,7 @@ public class UserData extends Activity {
         Log.d(TAG, "line diagram");
         List yAxisValues = new ArrayList();
         List axisValues = new ArrayList();
-        Line line = new Line(yAxisValues).setColor(Color.parseColor("#9C27B0"));
+        Line line = new Line(yAxisValues).setColor(Color.parseColor("#1cb583"));
 
 
         for(int i = 0; i < axisData.length; i++){

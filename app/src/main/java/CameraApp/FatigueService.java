@@ -229,15 +229,17 @@ public class FatigueService extends Service {
                     alarm_counter++;
                     if(alarm_counter > 3){
                         Speech.readText("You show fatigue symptoms. Consider having a stopover");
-                        MainActivity.getInstanceActivity().openGoogleMaps("station");
-                        DisplayIcon();
-                        DisplayDialog();
+
+                        //DisplayIcon();
+                        //DisplayDialog();
+
                         if(!isInFatigue){
                             isInFatigue = true;
                             DisplayIcon();
                             DisplayDialog();
                         }
-
+                        Log.i(TAG, "DISPLAY KISMINDAN CIKTIM");
+                        fatigue_frame_counter = 0;
                         alarm_counter = 0;
                     }
                     Thread.sleep(500);
@@ -299,6 +301,7 @@ public class FatigueService extends Service {
             DisplayDialog();
         else if(view.getId()== R.id.btnYes){
             SetStateToSafeMode();
+            MainActivity.getInstanceActivity().openGoogleMaps("station");
         }
         else if(view.getId() == R.id.btnNo){
             SetStateToSafeMode();

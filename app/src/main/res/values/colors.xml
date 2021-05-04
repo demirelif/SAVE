@@ -10,4 +10,10 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="sage">#9FE2BF</color>
+    <color name="lila">#CCCCFF</color>
+    <color name="savegreen">#1cb583</color>
+    <color name="orange">#FFBF00</color>
+    <color name="saveblue">#6495ED</color>
+
 </resources>
