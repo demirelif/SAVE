@@ -110,7 +110,7 @@ import com.spotify.protocol.types.Track;
 
 
 public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback, SharedPreferences.OnSharedPreferenceChangeListener {
-    public static final String TAG = "cs_mainactivity";
+    public static final String TAG = "MAIN ACTIVITY";
     private static final int TTS_CHECK_CODE = 101;
     private static final int REQUEST_CAMERA_PERMISSION = 200;
     private static final int REQUEST_PERMISSION = 200;
@@ -173,13 +173,15 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     String connectionResult = "";
 
     public static MainActivity getInstanceActivity() {
-        try {
+        return weakMainActivity.get();
+
+        /*        try {
             return weakMainActivity.get();
         }
         catch (Exception exception){
             Log.e(TAG,"Week reference null pointer exception");
         }
-        return null ;
+        return null ;*/
     }
 
     ServiceConnection serviceConnection = new ServiceConnection() {
@@ -279,6 +281,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
     };
 
+/*
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -290,6 +293,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             Log.d(TAG, "al:" + hiz);
         }
     };
+*/
 
     public static void startSpeech(){
         try {
@@ -315,24 +319,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Log.d(TAG, "onCreate enter");
 
         startKenBurnsView(); // start special ken burns view
-        // PERMISSION CHECK FOR CAMERA
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION);
-            return;
-        }
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION);
-            return;
-        }
-        // PERMISSION CHECK FOR MIC
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_PERMISSION);
-            return;
-        }
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, REQUEST_PERMISSION);
-            return;
-        }
 
         hizView = findViewById(R.id.hizGoster);
         playHappyPlaylist = false;
@@ -359,6 +345,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             }
         });
         if (tts != null) {
+            Log.i(TAG, "TTTS NULLLLLLL HEEEEEEEEEY");
+            Log.i(TAG, "TTTS NULLLLLLL HEEEEEEEEEY");
             if (textToSpeechIsInitialized) {
                 tts.speak("Trying", TextToSpeech.QUEUE_FLUSH, null, null);
             }
@@ -433,16 +421,37 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
             }
         });
-
+        checkPermissions();
         // SETTINGS
         PreferenceManager.getDefaultSharedPreferences(this)
                 .registerOnSharedPreferenceChangeListener(this);
     }
 
+    public void checkPermissions(){
+        // PERMISSION CHECK FOR CAMERA
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION);
+            return;
+        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION);
+            return;
+        }
+        // PERMISSION CHECK FOR MIC
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_PERMISSION);
+            return;
+        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, REQUEST_PERMISSION);
+            return;
+        }
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
-        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(broadcastReceiver, new IntentFilter("cs_Message"));
+        //LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(broadcastReceiver, new IntentFilter("cs_Message"));
 
 
         // Set the connection parameters
@@ -491,15 +500,15 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
 
     public void jukeBox(String playlistType){
-        if(!playlistType.equals(lastPlayedGenre) || isPlayingMusic == false){
-            // Start playing a playlist
-            if(playlistType.equals("Happy")){
-                mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
+        if(!playlistType.equals(lastPlayedGenre) || !isPlayingMusic){
+            if(playlistType.equals("Uplift")){
+                //mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
+                mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:7mVs8kAaSgHEYaM2g2sRM1");
                 isPlayingMusic = true;
-                lastPlayedGenre = "Happy";
+                lastPlayedGenre = "Uplift";
             }
             else if(playlistType.equals("Energetic")){
-                mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL"); // this should change
+                mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:5UG3L9ClOde17mwIRg4W11"); // this should change
                 isPlayingMusic = true;
                 lastPlayedGenre = "Energetic";
             }
@@ -507,6 +516,16 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX7K31D69s4M1");
                 isPlayingMusic = true;
                 lastPlayedGenre = "Calm";
+            }
+            else if(playlistType.equals("Fear")){
+                mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:52SCQMfvDpqfGfRtGdj9qA");
+                isPlayingMusic = true;
+                lastPlayedGenre = "Fear";
+            }
+            else if(playlistType.equals("Happy")){
+                mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
+                isPlayingMusic = true;
+                lastPlayedGenre = "Happy";
             }
         }
         // Subscribe to PlayerState
@@ -564,7 +583,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public void activateRoadTrip(View view) {
         Log.i(TAG, " ACTIVATE ROAD");
         Toast.makeText(getApplicationContext(), "activating road trip", Toast.LENGTH_LONG).show();
-        /*
+
         Intent speechIntent = new Intent(MainActivity.this, Speech.class);
         bindService(speechIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(speechIntent);
@@ -597,14 +616,15 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         bindService(crashServiceIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(crashServiceIntent);
 
-         */
-        startTracking(null);
-/*
+        //startTracking(null);
+
+
+        /**
         Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
         bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(fatigueIntent);
+        */
 
- */
         /**
         Intent backCameraIntent = new Intent(MainActivity.this, BackCameraService.class);
         bindService(backCameraIntent, serviceConnection, BIND_AUTO_CREATE);
@@ -636,17 +656,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     @Override
     public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
 
-    }
-
-    void clearMyFiles() {
-        String path = Environment.getExternalStorageDirectory().toString() + "/storage/emulated";
-        Log.d("Files", "Path: " + path);
-        File directory = new File(path);
-        File[] files = directory.listFiles();
-        Log.d("Files", "Size: " + files.length);
-        for (int i = 0; i < files.length; i++) {
-            Log.d("Files", "FileName:" + files[i].getName());
-        }
     }
 
 

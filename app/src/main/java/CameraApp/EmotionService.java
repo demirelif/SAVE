@@ -44,8 +44,6 @@ public class EmotionService extends Service {
     private static final String TAG = "EMOTION SERVICE";
     private static final String SpeedTAG = "Speed Emotion";
     long startTime,endTime,contentLength;
-
-   // private String url = "http://" + "10.0.2.2" + ":" + 5000 + "/predict_emotion";
     private static java.net.URL URL;
     private static String postBodyString;
     private static MediaType mediaType;
@@ -73,6 +71,8 @@ public class EmotionService extends Service {
     private static int neutralCounter;
     private static int fearCounter;
     private static int disgustCounter;
+
+    private static String lastPlayedObservedEmotion;
 
     public static boolean playHappyPlaylist;
     public static boolean playEnergeticPlaylist;
@@ -104,7 +104,7 @@ public class EmotionService extends Service {
         playHappyPlaylist = false;
         playCalmPlaylist = false;
         playEnergeticPlaylist = false;
-
+        lastPlayedObservedEmotion = "";
   //      MainActivity.getInstanceActivity().makeCall("");
         //fillMap();
     }
@@ -118,7 +118,6 @@ public class EmotionService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, " onStartCommand...");
-
         Thread t2 = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -137,35 +136,14 @@ public class EmotionService extends Service {
     private void consumer() throws InterruptedException, MalformedURLException {
         while (true){
             Thread.sleep(500);
-            //imageFile = fileQueue.take();
-            //Log.i(TAG, "Taken image path: " + imageFile.getPath() + "; Queue size is: " + fileQueue.size());
-            //postImageToServer(imageFile);
             byteArray = imageBytesEmotion.take();
             Log.i(TAG, "Consumed byte array length: " + byteArray.length + "; Emotion Queue size is: " + imageBytesEmotion.size());
             startTime = System.currentTimeMillis(); //Hold StartTime
             postImageToServer(byteArray);
             endTime = System.currentTimeMillis();  //Hold EndTime
             Log.d(SpeedTAG, (endTime - startTime) + " ms");
-
-            if(playHappyPlaylist){
-                MainActivity.getInstanceActivity().jukeBox("Happy");
-            }
-            else if(playCalmPlaylist){
-                MainActivity.getInstanceActivity().jukeBox("Calm");
-            }
-            // ...
         }
     }
-
-/*    private void cleanRPPGServer(){
-        String postUrl2 = "http://" + "192.168.1.102" + ":" + 8000 + "/clean"; // UTKU IP
-        MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
-        //multipartBodyBuilder.addFormDataPart("image", "clean_image" + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
-        multipartBodyBuilder.addFormDataPart("clean", "selam"); // tamamen random bir sey verdim
-        RequestBody postBodyImage = multipartBodyBuilder.build();
-        postRequest(postUrl2, postBodyImage);
-    }*/
-
     private String getResultsFromServer(){
         String postUrl = "http://" + "192.168.1.102" + ":" + 5000 + "/predict_emotion"; // UTKU IP
         MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
@@ -187,53 +165,8 @@ public class EmotionService extends Service {
         // post request to emotion server
         //postRequest(postUrl3, postBodyImage);
         // post request to rppg server
-        postRequest(postUrl3, postBodyImage);
+        postRequest(postUrl, postBodyImage);
     }
-
-    /**
-    private void postImageToServer(@NonNull File imageFile) {
-        String filePath = imageFile.getPath();
-        //Toast.makeText(getApplicationContext(),"Sending the Files. Please Wait ...", Toast.LENGTH_SHORT).show();
-
-        String postUrl = "http://" + "192.168.1.102" + ":" + 5000 + "/predict_emotion"; // UTKU IP
-        String postUrl2 = "http://" + "192.168.1.102" + ":" + 8000 + "/rppg"; // UTKU IP
-        String postUrl3 = "http://" + "10.0.2.2" + ":" + 5000 + "/predict_emotion"; // ELIF IP
-
-        String url = postUrl3;
-
-        MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
-
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPreferredConfig = Bitmap.Config.RGB_565;
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        try {
-            // Read bitmap by file path
-            Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getPath(), options);
-
-            // IMAGE ROTATION PARAMETERS
-            int imageRotation = getImageRotation(imageFile); // EMULATORDE RUNLAYACAKSANIZ BUNU KULLANIN
-           // int imageRotation = 270; // REAL DEVICE ICIN BUNU
-            System.out.println("IMAGE ROTATION " + imageRotation);
-
-            if (imageRotation != 0) // aslında her zaman değil
-                bitmap = getBitmapRotatedByDegree(bitmap, imageRotation);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-            //Toast.makeText(getApplicationContext(),"converting image",Toast.LENGTH_SHORT).show();
-        }catch (Exception e){
-            //Toast.makeText(getApplicationContext(),"Please Make Sure the Selected File is an Image.",Toast.LENGTH_SHORT).show();
-            //Log.i(TAG, "Please Make Sure the Selected File is an Image.");
-            return;
-        }
-        byte[] byteArray = stream.toByteArray();
-        multipartBodyBuilder.addFormDataPart("image", "front_face_image" + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
-
-        RequestBody postBodyImage = multipartBodyBuilder.build();
-        // post request to emotion server
-      //  postRequest(postUrl, postBodyImage);
-        // post request to rppg server
-        postRequest(url, postBodyImage);
-
-    }*/
 
     void postRequest(String postUrl, RequestBody postBody) {
 
@@ -281,41 +214,82 @@ public class EmotionService extends Service {
                             e.printStackTrace();
                         }
                         Log.i(TAG, "Server's Response\n" + s);
+                        Log.i(TAG, "SAD COUNTER " + sadCounter);
+                        Log.i(TAG, "ANGRY COUNTER " + angryCounter);
+
                         if (s.equals("Sad")){
                             sadCounter++;
-                            if(sadCounter > 50){
-                                if(!MainActivity.isPlayingMusic){
-                                    Speech.readText("Do you want to listen some music to cheer you up?");
-                                    MainActivity.getInstanceActivity().startSpeech();
-                                    String userResponse = MainActivity.speechString;
-                                    if ( userResponse.equals("yes")){
-                                        MainActivity.getInstanceActivity().jukeBox("Happy");
-                                    }
-                                    sadCounter = 0;
+                            if(sadCounter > 20 && !lastPlayedObservedEmotion.equals("Sad")){
+                                Speech.readText("Do you want to listen some music to cheer you up?");
+                                try {
+                                    Thread.sleep(500);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
                                 }
+                                MainActivity.getInstanceActivity().jukeBox("Energetic");
+                                sadCounter = 0;
+                                lastPlayedObservedEmotion = "Sad";
+                                setAllCounterZero();
                             }
-
                         }else if(s.equals("Angry")){
                             angryCounter++;
-                            if(angryCounter > 50){
+                            if(angryCounter > 2 && !lastPlayedObservedEmotion.equals("Angry")){
                                 Speech.readText("Do you want some music to relax ?");
-                                MainActivity.getInstanceActivity().startSpeech();
-                                String userResponse = MainActivity.speechString;
-                                if ( userResponse.equals("yes")) {
-                                    MainActivity.getInstanceActivity().jukeBox("Calm");
+                                try {
+                                    Thread.sleep(500);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
                                 }
-                                angryCounter = 0;
-
+                                MainActivity.getInstanceActivity().jukeBox("Calm");
+                                /**
+                                 MainActivity.getInstanceActivity().startSpeech();
+                                 String userResponse = MainActivity.speechString;
+                                 if ( userResponse.equals("yes")) {
+                                 MainActivity.getInstanceActivity().jukeBox("Calm");
+                                 }*/
+                                lastPlayedObservedEmotion = "Angry";
+                                setAllCounterZero();
                             }
                         }
-
+                        else if(s.equals("Fear")){
+                            fearCounter++;
+                            if(fearCounter > 2 && !lastPlayedObservedEmotion.equals("Fear")){
+                                Speech.readText("Don't panic, everything is fine");
+                                try {
+                                    Thread.sleep(500);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                MainActivity.getInstanceActivity().jukeBox("Fear");
+                                lastPlayedObservedEmotion = "Fear";
+                                setAllCounterZero();
+                            }
+                        }
+                        else if(s.equals("Happy")){
+                            happyCounter++;
+                            if(happyCounter > 12 && !lastPlayedObservedEmotion.equals("Happy")){
+                                Speech.readText("Happy road trips !!");
+                                try {
+                                    Thread.sleep(500);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                MainActivity.getInstanceActivity().jukeBox("Happy");
+                                lastPlayedObservedEmotion = "Happy";
+                                setAllCounterZero();
+                            }
+                        }
                     }
-
                 }).start();
-
-               // Speech.readText(res);
             }
         });
+    }
+
+    public void setAllCounterZero(){
+        sadCounter = 0;
+        happyCounter = 0;
+        fearCounter = 0;
+        angryCounter = 0;
     }
     /*
 

@@ -1,3 +1,4 @@
+/*
 package com.example.saveandroid;
 
 import android.Manifest;
@@ -90,7 +91,6 @@ public class SendFaceData extends AppCompatActivity {
         Button btnAddPhoto = findViewById(R.id.btn_add_photoX);
         btnAddPhoto.setOnClickListener(view -> choosePhoto(view));
     }
-     */
 
     private void selectImage(Context context) {
         final CharSequence[] options = { "Take Photo", "Choose from Gallery","Cancel" };
@@ -262,3 +262,4 @@ public class SendFaceData extends AppCompatActivity {
     }
 
 }
+*/

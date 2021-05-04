@@ -97,11 +97,12 @@ public class rPPGService extends Service {
     private void cleanRPPGServer(){
         String postUrl2 = "http://" + "192.168.1.102" + ":" + 8000 + "/clean"; // UTKU IP
         String postUrl3 = "http://" + "10.0.2.2" + ":" + 8000 + "/clean";
+
         MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         //multipartBodyBuilder.addFormDataPart("image", "clean_image" + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
         multipartBodyBuilder.addFormDataPart("clean", "selam"); // tamamen random bir sey verdim
         RequestBody postBodyImage = multipartBodyBuilder.build();
-        postRequest(postUrl3, postBodyImage);
+        postRequest(postUrl2, postBodyImage);
     }
 
     private void postImageToServer(byte[] byteArray){
@@ -119,7 +120,7 @@ public class rPPGService extends Service {
         // post request to emotion server
         //postRequest(postUrl, postBodyImage);
         // post request to rppg server
-        postRequest(postUrl3, postBodyImage);
+        postRequest(postUrl2, postBodyImage);
     }
 
 
@@ -161,7 +162,7 @@ public class rPPGService extends Service {
                             responzee[0] = response.body().string();
                             //Toast.makeText(getApplicationContext(), "Server's Response\n" + response.body().string(), Toast.LENGTH_LONG).show();
                             Log.i(TAG, "Server's Response ---> " + responzee[0]);
-                            if (!responzee[0].equals("Calculating..."))
+                            if (!(responzee[0].equals("Calculating...") || responzee[0].equals("cleaned successfully")))
                                 Speech.readText(responzee[0]);
                             //if(!responzee[0].equals("Calculating...")){
                             else{
