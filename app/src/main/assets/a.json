@@ -1,9 +1,12 @@
 {
-	"totalemotions" : [{
-		"totalfear": 0,
-		"totalsad": 0,
-		"totalhappy": 0,
-		"totalangry": 0
-	}
+	"totalfear": 34,
+	"totalsad": 58,
+	"totalhappy": 60,
+	"totalangry": 20,
+	"totalfatigue": 45,
+	"heartbeats": [
+		"beat: 70",
+		"beat: 65",
+		"beat: 69"
 	]
 }
