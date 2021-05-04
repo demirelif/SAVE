@@ -22,7 +22,6 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
-import com.example.saveandroid.LocationTracker;
 import com.example.saveandroid.MainActivity;
 import com.example.saveandroid.R;
 
@@ -46,7 +45,7 @@ public class LocationTrackerService extends Service implements ILocationTrackerC
     };
     private static FloatingIcon floatingIcon = null;
     public IBinder mBinder = new LocationTrackerService.LocalBinder();
-    public LocationTracker locationTracker;
+    public com.example.saveandroid.LocationTracker locationTracker;
     double prevSpeed = -1;
     private Context mContext;
     private float MIN_METER = 1;  /* 10 secs */
@@ -108,7 +107,7 @@ public class LocationTrackerService extends Service implements ILocationTrackerC
 
     private void CreateLocationTracker(Context context) {
         try {
-            locationTracker = new LocationTracker(context, LocationTracker.Method.Location);
+            locationTracker = new com.example.saveandroid.LocationTracker(context, com.example.saveandroid.LocationTracker.Method.Location);
         } catch (Exception ex) {
             Log.e(MainActivity.TAG, "LocationTracker Creation Exception");
         }
@@ -178,7 +177,18 @@ public class LocationTrackerService extends Service implements ILocationTrackerC
     }
 
     private void DisplayDialog() {
-        customDialogBox = new CustomDialogBox(this);
+        if (customDialogBox == null)
+            customDialogBox = new CustomDialogBox(this, new ICustomDialogListener() {
+                @Override
+                public void onClick(View view) {
+                    onFloatingIconClicked(view);
+                }
+
+                @Override
+                public void dlgTimeOut() {
+                    checkTimeOut();
+                }
+            }, DialogType.AbnormalBPM, 8);
     }
 
     public void onFloatingIconClicked(View view) {
@@ -188,8 +198,8 @@ public class LocationTrackerService extends Service implements ILocationTrackerC
             SetStateToSafeMode();
     }
 
-    public void dlgTimeOut() {
-        if(customDialogBox!=null) {
+    public void checkTimeOut() {
+        if (customDialogBox != null) {
             customDialogBox.Remove();
             customDialogBox = null;
         }

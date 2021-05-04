@@ -21,7 +21,7 @@ public class FloatingIcon {
     public FloatingIcon(LocationTrackerService context)
     {
         this.context = context;
-        csView = LayoutInflater.from(context).inflate(R.layout.crashservice_icon, null);
+        csView = LayoutInflater.from(context).inflate(R.layout.floating_icon, null);
         WindowManager.LayoutParams lParams = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
