@@ -35,6 +35,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 
+import com.example.saveandroid.MainActivity;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -84,7 +86,8 @@ public class FrontCameraService extends Service {
     public static BlockingQueue<File> fileQueue = new ArrayBlockingQueue<>(10);
 
     public static BlockingQueue<byte[]> imageBytesRPPG = new ArrayBlockingQueue<>(10);
-    public static BlockingQueue<byte[]> imageBytesFatigue = new ArrayBlockingQueue<>(10);
+    //public static BlockingQueue<byte[]> imageBytesFatigue = new ArrayBlockingQueue<>(10);
+    public static BlockingQueue<Bitmap> imageBitmapFatigue = new ArrayBlockingQueue<>(10);
     public static BlockingQueue<byte[]> imageBytesEmotion = new ArrayBlockingQueue<>(10);
 
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
@@ -110,8 +113,8 @@ public class FrontCameraService extends Service {
     }
     @Override
     public void onCreate() {
-        Toast.makeText(getApplicationContext(),TAG + " onCreate", Toast.LENGTH_SHORT).show();
-
+        //Toast.makeText(getApplicationContext(),TAG + " onCreate", Toast.LENGTH_SHORT).show();
+        Log.i(TAG, " ON CREATE");
         super.onCreate();
     }
 
@@ -186,18 +189,45 @@ public class FrontCameraService extends Service {
             try {
                 byte[] byteez = preProcessImage(imageFile);
                 if(byteez != null){
-                    imageBytesRPPG.put(byteez);
-                    imageBytesEmotion.put(byteez);
-                    //imageBytesFatigue.put(byteez);
+                    if(MainActivity.fatigueStarted){
+                        imageBitmapFatigue.put(preProcessImageForFatigue(imageFile));
+                    }
+                    if(MainActivity.emotionStarted){
+                        imageBytesEmotion.put(byteez);
+                    }
+                    if(MainActivity.rPPGStarted){
+                        imageBytesRPPG.put(byteez);
+                    }
                     Log.i(TAG, "Inserting image bytes: " + byteez.length + "; rPPG Queue size is: " + imageBytesRPPG.size());
                     Log.i(TAG, "Inserting image bytes: " + byteez.length + "; Emotion Queue size is: " + imageBytesEmotion.size());
-                    Log.i(TAG, "Inserting image bytes: " + byteez.length + "; Fatigue Queue size is: " + imageBytesFatigue.size());
+                    Log.i(TAG, "Inserting image bytes, Fatigue Queue size is: " + imageBitmapFatigue.size());
                 }else {
                     Log.i(TAG, "Byteez couldnt make it");
                 }
             }catch (NullPointerException e){
                 e.printStackTrace();
             }
+        }
+    }
+    private static Bitmap preProcessImageForFatigue(@NonNull File imageFile) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.RGB_565;
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        try {
+            // Read bitmap by file path
+            Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getPath(), options);
+
+            // IMAGE ROTATION PARAMETERS
+            //int imageRotation = getImageRotation(imageFile); // EMULATORDE RUNLAYACAKSANIZ BUNU KULLANIN
+            int imageRotation = 270; // REAL DEVICE ICIN BUNU
+
+            if (imageRotation != 0) // aslında her zaman değil
+                bitmap = getBitmapRotatedByDegree(bitmap, imageRotation);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+            return bitmap;
+        }catch (Exception e){
+            Log.i(TAG, "FATIGUEEE Please Make Sure the Selected File is an Image.");
+            return null;
         }
     }
 
@@ -212,16 +242,13 @@ public class FrontCameraService extends Service {
             // IMAGE ROTATION PARAMETERS
             //int imageRotation = getImageRotation(imageFile); // EMULATORDE RUNLAYACAKSANIZ BUNU KULLANIN
             int imageRotation = 270; // REAL DEVICE ICIN BUNU
-            System.out.println("IMAGE ROTATION " + imageRotation);
 
             if (imageRotation != 0) // aslında her zaman değil
                 bitmap = getBitmapRotatedByDegree(bitmap, imageRotation);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
             byte[] byteArray = stream.toByteArray();
             return byteArray;
-            //Toast.makeText(getApplicationContext(),"converting image",Toast.LENGTH_SHORT).show();
         }catch (Exception e){
-            //Toast.makeText(getApplicationContext(),"Please Make Sure the Selected File is an Image.",Toast.LENGTH_SHORT).show();
             Log.i(TAG, "Please Make Sure the Selected File is an Image.");
             return null;
         }
@@ -288,7 +315,7 @@ public class FrontCameraService extends Service {
        // Log.i("front", "SET CAMERA");
         @Override
         public void onOpened(CameraDevice device) {
-            Log.i("front", "FRONTCAMERASTATECALLBACK ON OPENED");
+            Log.i("front", "FRONT CAMERA STATE CALLBACK ON OPENED");
             frontCameraDevice = device;
             createCaptureSession();
         }

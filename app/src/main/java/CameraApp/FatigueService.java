@@ -3,7 +3,6 @@ package CameraApp;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.os.Binder;
 import android.os.Environment;
@@ -19,8 +18,14 @@ import okhttp3.OkHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.BitmapCompat;
 
 import com.example.saveandroid.MainActivity;
+import com.google.firebase.ml.vision.FirebaseVision;
+import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+import com.google.firebase.ml.vision.face.FirebaseVisionFace;
+import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetector;
+import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions;
 
 import org.json.JSONObject;
 
@@ -34,6 +39,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.text.DecimalFormat;
+import java.util.List;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -42,16 +49,20 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import static CameraApp.FrontCameraService.fileQueue;
-import static CameraApp.FrontCameraService.imageBytesFatigue;
+import static CameraApp.FrontCameraService.imageBitmapFatigue;
 import static com.example.saveandroid.MainActivity.openMapFatigue;
 
 public class FatigueService extends Service {
     public IBinder mBinder = new LocalBinder();
     private static final String TAG = "FATIGUE SERVICE";
+    private FirebaseVisionFaceDetector faceDetector;
+    private FirebaseVisionImage fbImage;
 
     public static double gazeAngle = 0;
     public static double headPose = 0;
+    private static double gaze_offset;
+    private static double pose_offset;
+
     private java.net.URL URL;
     private String postBodyString;
     private MediaType mediaType;
@@ -65,6 +76,19 @@ public class FatigueService extends Service {
     private static Image image;
     String file_name;
     private static byte[] byteArray;
+    private static Bitmap fatigueBitmap;
+    private float smileProb;
+    private float leftEyeOpenProb;
+    private float rightEyeOpenProb;
+    private int fatigue_frame_counter;
+    private int blink_frame_counter;
+    private int blink_counter;
+    private int yawn_frame_counter;
+    private int alarm_counter;
+    private final int FATIGUE_THRESHOLD = 5;
+    private final int BLINK_THRESHOLD = 3;
+    private final int YAWN_THRESHOLD = 20;
+
 
     @Nullable
     @Override
@@ -78,8 +102,19 @@ public class FatigueService extends Service {
 
     @Override
     public void onCreate() {
-        Toast.makeText(getApplicationContext(),TAG + " onCreate", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getApplicationContext(),TAG + " onCreate", Toast.LENGTH_SHORT).show();
+        Log.i(TAG, " ON CREATE");
         super.onCreate();
+        gaze_offset = 0.0;
+        pose_offset = 0.0;
+        smileProb = 0;
+        leftEyeOpenProb = 0;
+        rightEyeOpenProb = 0;
+        fatigue_frame_counter = 0;
+        blink_frame_counter = 0;
+        blink_counter = 0;
+        yawn_frame_counter = 0;
+        alarm_counter = 0;
     }
 
     @Override
@@ -110,264 +145,93 @@ public class FatigueService extends Service {
     private void consumer() throws InterruptedException, IOException {
         while (true){
             Thread.sleep(500);
-            //imageFile = fileQueue.take();
-            //Log.i(TAG, "Taken image path: " + imageFile.getPath() + "; Queue size is: " + fileQueue.size());
-            //postImageToServer(imageFile);
-            byteArray = imageBytesFatigue.take();
-            Log.i(TAG, "Consumed byte array length: " + byteArray.length + "; Fatigue Queue size is: " + imageBytesFatigue.size());
+            fatigueBitmap = imageBitmapFatigue.take();
+            int bitmapByteCount = BitmapCompat.getAllocationByteCount(fatigueBitmap);
+            Log.i(TAG, "Fatigue BITMAP SIZE: " + bitmapByteCount + "  Fatigue Queue size is: " + imageBitmapFatigue.size());
             startTime = System.currentTimeMillis(); //Hold StartTime
-            postImageToServer(byteArray);
+            analyze(fatigueBitmap);
             endTime = System.currentTimeMillis();  //Hold EndTime
             Log.d(SpeedTAG, (endTime - startTime) + " ms");
         }
-        //Random random = new Random();
-        /*
-        while (true){
-            Thread.sleep(500);
-            //file_name = queue.take();
-            //Log.i(TAG, "Taken value: " + file_name + "; Queue size is: " + queue.size());
-
-           // Bitmap bmp= BitmapFactory.decodeByteArray(emotionPhoto,0,emotionPhoto.length);
-           // String j = getStringFromBitmap(bmp);
-
-            //JSONObject obj = new JSONObject(j);
-           // JSONObject obj = new JSONObject();
-           // obj.put(emotionPhoto);
-           // jsonObj.put(byte[]);
-        }*/
-    }
-    private void postImageToServer(byte[] byteArray) throws IOException {
-        String url = "http://" + "10.0.2.2" + "/predict"; // ELIF IP
-        OkHttpClient okHttpClient = new OkHttpClient();
-        String protocol = "HTTP";
-       // String host = "localhost";
-        String host = "10.0.2.2";
-        String endpoint = "/predict"; // port 8002de degil?
-        //JSON = MediaType.parse("application/json; charset=utf-8");
-        //URL url = new URL(protocol, host, port, endpoint);
-        java.net.URL postUrl = new URL(protocol, host, endpoint);
-
-
-
-        MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
-        multipartBodyBuilder.addFormDataPart("image", "fatigue_image" + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
-        multipartBodyBuilder.addFormDataPart("gaze_offset", "-0.018");
-        multipartBodyBuilder.addFormDataPart("pose_offset", "0.061");
-
-        RequestBody postBodyImage = multipartBodyBuilder.build();
-        postRequest(url, postBodyImage);
     }
 
-    //private void connectServer
-
-    void postRequest(java.net.URL postUrl, RequestBody postBody) {
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url(postUrl)
-                .post(postBody)
-                .build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                // Cancel the post on failure.
-                call.cancel();
-                Log.d("FAIL FATIGUE", e.getMessage());
-                // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //Toast.makeText(getApplicationContext(),"Failed to Connect to Server. Please Try Again.", Toast.LENGTH_LONG).show();
-                        Log.i(TAG, "Failed to Connect to Server. Please Try Again.");
-                    }
-                }).start();
-            }
-
-            @Override
-            public void onResponse(Call call, final Response response) throws IOException {
-                // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //TextView responseText = findViewById(R.id.responseText);
-                        try {
-                            //Toast.makeText(getApplicationContext(), "Server's Response\n" + response.body().string(), Toast.LENGTH_LONG).show();
-                            Log.i(TAG, "Server's Response\n" + response.body().string());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
-            }
-        });
-    }
-
-    void postRequest(String postUrl, RequestBody postBody) throws IOException {
-        OkHttpClient client = new OkHttpClient();
-       /*
-        Request request = new Request.Builder()
-                .url(postUrl)
-                .post(postBody)
-                .build();
-
-        */
-        Request request = new Request.Builder()
-                .url(postUrl)
-                .method("POST", postBody)
-                .build();
-        Response response = null;
-        try {
-            response = client.newCall(request).execute();
-        }  catch (IOException e) {
-            Log.e(TAG, "FATIGUE FAIL");
+    public void analyze(Bitmap fatigueBitmap) {
+        if (fatigueBitmap == null) {
+            return;
         }
-
-        String s = "Empty Response";
-        if ( response != null )
-            s = response.body().string();
-        Log.i(TAG,s);
-
-        s = "Fatigue"; // FATIGUE daha hazir olmadigi icin boyle degismesi lazim
-        if ( s.equals("Fatigue")){
-            Speech.readText("You look tried, would you like to take a coffee break");
-            String userAnswer = "no";
-            if ( userAnswer.equals("yes") )
-                MainActivity.getInstanceActivity().openGoogleMaps("cafe");
-        }
-
-
-        /*
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                // Cancel the post on failure.
-                call.cancel();
-                Log.d("FAIL FATIGUE", e.getMessage());
-                // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //Toast.makeText(getApplicationContext(),"Failed to Connect to Server. Please Try Again.", Toast.LENGTH_LONG).show();
-                        Log.i(TAG, "Failed to Connect to Server. Please Try Again.");
-                    }
-                }).start();
-            }
-
-            @Override
-            public void onResponse(Call call, final Response response) throws IOException {
-                // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //TextView responseText = findViewById(R.id.responseText);
-                        try {
-                            //Toast.makeText(getApplicationContext(), "Server's Response\n" + response.body().string(), Toast.LENGTH_LONG).show();
-                            Log.i(TAG, "Server's Response\n" + response.body().string());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
-            }
-        });
-
-         */
+        fbImage = FirebaseVisionImage.fromBitmap(fatigueBitmap);
+        initDetector();
+        detectFaces();
     }
 
-    private void oldpostRequest(String url, RequestBody message) throws MalformedURLException {
-        Thread thread = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                try  {
-           //         RequestBody requestBody = buildRequestBody(message);
-                    OkHttpClient okHttpClient = new OkHttpClient();
-                    String protocol = "HTTP";
-                   // String host = "10.0.2.2";
-                    String host = "localhost";
-                    String endpoint = "/predict"; // port 8002de degil?
-                 //   JSON = MediaType.parse("application/json; charset=utf-8");
-                    //URL url = new URL(protocol, host, port, endpoint);
-                    java.net.URL url = new URL(protocol, host, endpoint);
-                    Request request = new Request.Builder()
-                            .url(url)
-                            .method("POST", requestBody)
-                            .build();
-                   // Response response = client.newCall(request).execute();
-/*
-                    okHttpClient.newCall(request).enqueue(new Callback() {
-                        @Override
-                        public void onFailure(final Call call, final IOException e) {
-                            Log.e("hi","calismadi");
-                        }
-
-                        @Override
-                        public void onResponse(Call call, final Response response) throws IOException {
-                            Log.i("hi","onresponse");
-                        }
-                    });
- */
-                    try{
-                        response = okHttpClient.newCall(request).execute();
-                    }
-                    catch (IOException e) {
-                        Log.e(TAG, "FATIGUE FAIL");
-                    }
-                    String s = "? - empty response";
-                    if ( response!=null)
-                        s = response.body().string();
-                    Log.i(TAG,s);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        thread.start();
-
-    }
-
-    // http request
-    private RequestBody buildRequestBody(String msg) throws JSONException {
-        postBodyString = msg;
-        final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/*");
-
-        RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                .addFormDataPart("image", file_name,
-                        RequestBody.create("image",MediaType.parse("image/*jpg")))
-                .addFormDataPart("gaze_offset", "-0.018")
-                .addFormDataPart("pose_offset", "0.061")
+    private void initDetector() {
+        FirebaseVisionFaceDetectorOptions detectorOptions = new FirebaseVisionFaceDetectorOptions
+                .Builder()
+                .setClassificationMode(FirebaseVisionFaceDetectorOptions.ALL_CLASSIFICATIONS)
                 .build();
-        return requestBody;
+        faceDetector = FirebaseVision
+                .getInstance()
+                .getVisionFaceDetector(detectorOptions);
     }
 
-    protected void onPostExecute(JSONObject getResponse) {
-        if (getResponse != null) {
-            try {
-                String gazeString = getResponse.get("gaze_offset").toString();
-                String headString = getResponse.get("pose_offset").toString();
-                String confidentString = getResponse.get("is_confident").toString();
-                boolean isConfident = confidentString.equals("true") ? true : false;
-                System.out.println("gaze: " + gazeAngle + " headPose: " + headPose + " isConfident: " + isConfident);
-                if(!isConfident){
-                    Toast.makeText(
-                            getApplicationContext(),
-                            "Calibration Failed, Please Try Again.",
-                            Toast.LENGTH_LONG)
-                            .show();
-                }
-                else{
-                    gazeAngle = Double.parseDouble(gazeString);
-                    headPose = Double.parseDouble(headString);
-                    Toast.makeText(
-                            getApplicationContext(),
-                            "Calibration Successful, You can use attention tracking tool!",
-                            Toast.LENGTH_LONG)
-                            .show();
+    private void detectFaces() {
+        faceDetector
+                .detectInImage(fbImage)
+                .addOnSuccessListener(firebaseVisionFaces -> {
+                    if (!firebaseVisionFaces.isEmpty()) {
+                        getInfoFromFaces(firebaseVisionFaces);
+                    } else {
+                        System.out.println("FIREBASE VISION FACES EMPTY");
+                    }
+                }).addOnFailureListener(e -> Log.i(TAG, e.toString()));
+    }
+
+    private void getInfoFromFaces(List<FirebaseVisionFace> faces) {
+        StringBuilder result = new StringBuilder();
+        for (FirebaseVisionFace face : faces) {
+            // If landmark detection was enabled (mouth, ears, eyes, cheeks, and nose available):
+            smileProb = face.getSmilingProbability();
+            leftEyeOpenProb = face.getLeftEyeOpenProbability();
+            rightEyeOpenProb = face.getRightEyeOpenProbability();
+            DecimalFormat numberFormat = new DecimalFormat("#0.00");
+            result.append("Smile: ");
+            result.append( numberFormat.format(smileProb) );
+            result.append("\nLeft Eye Open: ");
+            result.append(numberFormat.format(leftEyeOpenProb) );
+            result.append("\nRight Eye Open: ");
+            result.append(numberFormat.format(rightEyeOpenProb));
+            result.append("\n");
+
+            /*	30 frame for fatigue
+            	3 frame for blink
+            	20 frame for yawn */
+
+            if(leftEyeOpenProb <= 0.5 && rightEyeOpenProb <= 0.5){
+
+                fatigue_frame_counter++;
+                blink_frame_counter++;
+
+                if(fatigue_frame_counter >= FATIGUE_THRESHOLD){
+                    result.append("FATIGUE ALERT");
+                    Log.i(TAG, " FATIGUE ALERT");
+                    MainActivity.getInstanceActivity().playAlarm();
+                    alarm_counter++;
+                    if(alarm_counter > 3){
+                        Speech.readText("You show fatigue symptoms. Consider having a stopover");
+                        alarm_counter = 0;
+                    }
                 }
 
-            } catch (Exception e) {
-                Log.e("Error :(", "--" + e);
+                if(blink_frame_counter >= BLINK_THRESHOLD){
+                    blink_counter++;
+                    System.out.println("Number of Blinks =" + blink_counter);
+                }
             }
+            else{
+                fatigue_frame_counter = 0;
+                blink_frame_counter = 0;
+            }
+            System.out.println("\n" + result);
         }
 
     }

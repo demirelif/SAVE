@@ -49,7 +49,8 @@ public class rPPGService extends Service {
     }
     @Override
     public void onCreate() {
-        Toast.makeText(getApplicationContext(),TAG + " onCreate", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getApplicationContext(),TAG + " onCreate", Toast.LENGTH_SHORT).show();
+        Log.i(TAG, " ON CREATE");
         super.onCreate();
         cleanRPPGServer();
     }

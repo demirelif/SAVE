@@ -14,6 +14,7 @@ import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Intent;
 
+import android.media.MediaPlayer;
 import android.net.Uri;
 
 import android.os.Build;
@@ -117,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 200;
     private static final int CALL_PERMISSION = 200;
     static boolean preferencesChanged=false;
-
+    MediaPlayer player;
     public static WeakReference<MainActivity> weakMainActivity;
 
     public static TextToSpeech tts;
@@ -143,6 +144,11 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public static Intent intentRecognizer;
     public static String speechString = "";
     public Intent callIntent;
+
+    public static boolean fatigueStarted;
+    public static boolean emotionStarted;
+    public static boolean rPPGStarted;
+    public static boolean crashStarted;
 
     public static double gazeAngle = 0;
     public static double headPose = 0;
@@ -328,6 +334,10 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         weakMainActivity = new WeakReference<>(MainActivity.this);
         lastPlayedGenre = "";
 
+        fatigueStarted = false;
+        emotionStarted = false;
+        crashStarted = false;
+        rPPGStarted = false;
 
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
@@ -468,22 +478,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                     public void onConnected(SpotifyAppRemote spotifyAppRemote) {
                         mSpotifyAppRemote = spotifyAppRemote;
                         Log.d("MainActivity", "Spofity connected! Yay!");
-
                         // Now you can start interacting with App Remote
                         //connected();
-
-                        /**
-                        Thread spotifyThread = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    jukeBox();
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });*/
-
                     }
 
                     @Override
@@ -588,9 +584,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         bindService(speechIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(speechIntent);
 
-       SharedPreferences preferences = getSharedPreferences("root_settings", MODE_PRIVATE);
-       //SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-       Log.i(TAG, "bunlar var: " + preferences.getAll());
+        SharedPreferences preferences = getSharedPreferences("root_settings", MODE_PRIVATE);
+        //SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        Log.i(TAG, "bunlar var: " + preferences.getAll());
 
         //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         Log.i(TAG, getApplicationContext().toString());
@@ -607,23 +603,23 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Intent emotionIntent = new Intent(MainActivity.this, EmotionService.class);
         bindService(emotionIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(emotionIntent);
+        emotionStarted = true;
 
         Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
         bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(rPPGIntent);
+        rPPGStarted = true;
+
+        Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
+        bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
+        MainActivity.this.startService(fatigueIntent);
+        fatigueStarted = true;
+
 
         Intent crashServiceIntent = new Intent(MainActivity.this, CrashService.class);
         bindService(crashServiceIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(crashServiceIntent);
-
-        //startTracking(null);
-        Speech.readText("Starting our road trip");
-
-        /**
-        Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
-        bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
-        MainActivity.this.startService(fatigueIntent);
-        */
+        crashStarted = true;
 
         /**
         Intent backCameraIntent = new Intent(MainActivity.this, BackCameraService.class);
@@ -634,7 +630,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         bindService(pedestrianIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(pedestrianIntent);
         */
-
+        Speech.readText("Starting our road trip");
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -656,6 +652,20 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     @Override
     public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
 
+    }
+
+    public void playAlarm(){
+        if(player == null){
+            player = MediaPlayer.create(this, R.raw.alarm);
+            player.setOnCompletionListener(mp -> stopPlayer());
+        }
+        player.start();
+    }
+    private void stopPlayer(){
+        if (player != null){
+            player.release();
+            player = null;
+        }
     }
 
 

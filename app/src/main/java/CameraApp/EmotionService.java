@@ -91,7 +91,8 @@ public class EmotionService extends Service {
     }
     @Override
     public void onCreate() {
-        Toast.makeText(getApplicationContext(),TAG + " onCreate", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getApplicationContext(),TAG + " onCreate", Toast.LENGTH_SHORT).show();
+        Log.i(TAG, " ON CREATE");
         super.onCreate();
         sadCounter = 0;
         happyCounter = 0;
@@ -100,12 +101,11 @@ public class EmotionService extends Service {
         neutralCounter = 0;
         fearCounter = 0;
         disgustCounter = 0;
-        //cleanRPPGServer();
         playHappyPlaylist = false;
         playCalmPlaylist = false;
         playEnergeticPlaylist = false;
         lastPlayedObservedEmotion = "";
-  //      MainActivity.getInstanceActivity().makeCall("");
+        //MainActivity.getInstanceActivity().makeCall("");
         //fillMap();
     }
 
@@ -143,14 +143,6 @@ public class EmotionService extends Service {
             endTime = System.currentTimeMillis();  //Hold EndTime
             Log.d(SpeedTAG, (endTime - startTime) + " ms");
         }
-    }
-    private String getResultsFromServer(){
-        String postUrl = "http://" + "192.168.1.102" + ":" + 5000 + "/predict_emotion"; // UTKU IP
-        MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
-        multipartBodyBuilder.addFormDataPart("image", "front_face_image" + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
-
-        RequestBody getBodyImage = multipartBodyBuilder.build();
-        return "";
     }
 
     private void postImageToServer(byte[] byteArray){
@@ -309,42 +301,8 @@ public class EmotionService extends Service {
     private void getMaxEmotion(){
 
     }
-
      */
-    /*
-    private static int getImageRotation(@NonNull File imageFile) {
-        ExifInterface exif = null;
-        int exifRotation = 0;
 
-        try {
-            exif = new ExifInterface(imageFile.getPath());
-            exifRotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        if (exif == null)
-            return 0;
-        else
-            return exifToDegrees(exifRotation);
-    }
-
-    private static int exifToDegrees(int rotation) {
-        if (rotation == ExifInterface.ORIENTATION_ROTATE_90)
-            return 90;
-        else if (rotation == ExifInterface.ORIENTATION_ROTATE_180)
-            return 180;
-        else if (rotation == ExifInterface.ORIENTATION_ROTATE_270)
-            return 270;
-
-        return 0;
-    }
-
-    private static Bitmap getBitmapRotatedByDegree(Bitmap bitmap, int rotationDegree) {
-        Matrix matrix = new Matrix();
-        matrix.preRotate(rotationDegree);
-
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-    }*/
 
 }
