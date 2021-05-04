@@ -7,6 +7,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 //import androidx.annotation.Nullable;
@@ -18,6 +19,8 @@ import androidx.annotation.NonNull;
 //import com.google.android.gms.location.LocationRequest;
 //import com.google.android.gms.location.LocationResult;
 //import com.google.android.gms.location.LocationServices;
+
+
 
 public class LocationTracker { //implements  GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener
     private static final String TAG = "LocationTracker";
