@@ -1,6 +1,7 @@
 package com.example.saveandroid;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,16 +14,37 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
+
+import lecho.lib.hellocharts.model.Axis;
+import lecho.lib.hellocharts.model.AxisValue;
+import lecho.lib.hellocharts.model.Line;
+import lecho.lib.hellocharts.model.LineChartData;
+import lecho.lib.hellocharts.model.PointValue;
+import lecho.lib.hellocharts.model.Viewport;
+import lecho.lib.hellocharts.view.LineChartView;
 
 public class UserData extends Activity {
 
     private static String TAG = "Data";
     private String[] dataPie = {"Fear", "Sadness", "Anger", "Fatigue"}; // iks
-    private int[] values = {10,20,20,10}; // y
+    private int[] values = {10,206,20,10}; // y
+
+    //
+
+    //private int[] heartRates = {69,70,68,68,71};
+    private int[] axisData = {60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90};
+    int[] yAxisData = {65, 60, 70, 69, 60, 60, 65, 61, 63, 65, 66, 67};
 
     PieChart pieChart;
     LineChart lineChart;
+    LineChartView lineChartView;
 
 
     @Override
@@ -34,8 +56,12 @@ public class UserData extends Activity {
         pieChart = (PieChart) findViewById(R.id.idPieChart);
         pieChart.setDescription("Moods and Fatigue");
         addDataSet();
-        lineChart = (LineChart) findViewById(R.id.idLineChart);
+        //lineChart = (LineChart) findViewById(R.id.idLineChart);
+
+        lineChartView = findViewById(R.id.idLineChart);
+        drawLine();
     }
+
 
     private void addDataSet() {
         Log.d(TAG, "data set");
@@ -43,7 +69,7 @@ public class UserData extends Activity {
         ArrayList<String> entry = new ArrayList<>();
 
         for ( int i = 0; i < values.length; i++){
-            yEntry.add(new PieEntry(i, values[i]));
+            yEntry.add(new PieEntry(values[i],i));
         }
 
         for ( int i = 0; i < dataPie.length; i++){
@@ -57,7 +83,7 @@ public class UserData extends Activity {
         ArrayList<Integer> colors = new ArrayList<>();
         colors.add(Color.BLUE);
         colors.add(Color.YELLOW);
-        colors.add(Color.MAGENTA);
+       // colors.add(Color.MAGENTA);
         colors.add(Color.GRAY);
         colors.add(Color.GREEN);
         colors.add(Color.DKGRAY);
@@ -72,7 +98,53 @@ public class UserData extends Activity {
         pieChart.setData(pieData);
         pieChart.invalidate();
 
+    }
 
+
+    private void drawLine(){
+        Log.d(TAG, "line diagram");
+        List yAxisValues = new ArrayList();
+        List axisValues = new ArrayList();
+        Line line = new Line(yAxisValues).setColor(Color.parseColor("#9C27B0"));
+
+
+        for(int i = 0; i < axisData.length; i++){
+            axisValues.add(i, new AxisValue(i).setLabel(String.valueOf(axisData[i])));
+        }
+
+        for (int i = 0; i < yAxisData.length; i++){
+            yAxisValues.add(new PointValue(i, yAxisData[i]));
+        }
+
+       // Line line = new Line(yAxisValues).setColor(Color.parseColor("#9C27B0"));
+
+        List lines = new ArrayList();
+        lines.add(line);
+
+        LineChartData data = new LineChartData();
+        data.setLines(lines);
+
+        Axis yAxis = new Axis();
+        data.setAxisYLeft(yAxis);
+        Axis axis = new Axis();
+        axis.setValues(axisValues);
+        data.setAxisXBottom(axis);
+        axis.setTextColor(Color.parseColor("#03A9F4"));
+        yAxis.setTextColor(Color.parseColor("#03A9F4"));
+        yAxis.setTextSize(12);
+        axis.setTextSize(12);
+        yAxis.setName("Heart Rate");
+        /*
+        Viewport viewport = new Viewport(lineChartView.getMaximumViewport());
+        viewport.top =110;
+        lineChartView.setMaximumViewport(viewport);
+        lineChartView.setCurrentViewport(viewport);
+
+         */
+
+
+
+        lineChartView.setLineChartData(data);
 
     }
 

@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1">
 
-        <com.github.mikephil.charting.charts.LineChart
+        <lecho.lib.hellocharts.view.LineChartView
             android:id="@+id/idLineChart"
             android:layout_width="match_parent"
             android:layout_height="400dp" />

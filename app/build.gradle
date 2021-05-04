@@ -45,6 +45,9 @@ dependencies {
     // piechart
     implementation "com.github.PhilJay:MPAndroidChart:v3.0.0-beta1"
 
+    // line chart
+    implementation 'com.github.lecho:hellocharts-library:1.5.8@aar'
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     //noinspection GradleCompatible
     implementation 'com.android.support:recyclerview-v7:21.0.+'

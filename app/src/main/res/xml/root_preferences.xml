@@ -3,7 +3,6 @@
     <PreferenceCategory app:title="Fatigue Detection">
 
         <SwitchPreferenceCompat
-            app:dependency="sync"
             app:key="drowsiness"
             app:summaryOff="@string/attachment_summary_off"
             app:summaryOn="@string/attachment_summary_on"
@@ -14,7 +13,6 @@
     <PreferenceCategory app:title="Health Condition Check">
 
         <SwitchPreferenceCompat
-            app:dependency="sync"
             app:key="rppg"
             app:summaryOff="@string/attachment_summary_off"
             app:summaryOn="@string/attachment_summary_on"
@@ -25,7 +23,6 @@
     <PreferenceCategory app:title="Distraction Assistant">
 
         <SwitchPreferenceCompat
-            app:dependency="sync"
             app:key="distraction"
             app:summaryOff="@string/attachment_summary_off"
             app:summaryOn="@string/attachment_summary_on"
@@ -36,7 +33,6 @@
     <PreferenceCategory app:title="Traffic Light Assistant">
 
         <SwitchPreferenceCompat
-            app:dependency="sync"
             app:key="traffic"
             app:summaryOff="@string/attachment_summary_off"
             app:summaryOn="@string/attachment_summary_on"
@@ -47,7 +43,6 @@
     <PreferenceCategory app:title="emergency Collusion Message">
 
         <SwitchPreferenceCompat
-            app:dependency="sync"
             app:key="gforce"
             app:summaryOff="@string/attachment_summary_off"
             app:summaryOn="@string/attachment_summary_on"
@@ -58,7 +53,6 @@
     <PreferenceCategory app:title="Music Player">
 
         <SwitchPreferenceCompat
-            app:dependency="sync"
             app:key="music"
             app:summaryOff="@string/attachment_summary_off"
             app:summaryOn="@string/attachment_summary_on"
