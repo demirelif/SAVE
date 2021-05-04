@@ -152,6 +152,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public static Intent intentRecognizer;
     public static String speechString = "";
     public Intent callIntent;
+    public Intent smsIntent;
 
     public static boolean fatigueStarted;
     public static boolean emotionStarted;
@@ -821,5 +822,20 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             return null;
         }
         return json;
+    }
+
+    public void sendSMS(String number){
+        smsIntent = new Intent(Intent.ACTION_VIEW);
+        smsIntent.setData(Uri.parse("smsto:"));
+        smsIntent.setType("vnd.android-dir/mms-sms");
+        smsIntent.putExtra("address"  , new String(number));
+        smsIntent.putExtra("sms_body"  , "There might be an emergency. Please check on Elif");
+        try {
+            startActivity(smsIntent);
+            finish();
+            Log.i(TAG, "SMS successfull.");
+        } catch (android.content.ActivityNotFoundException ex) {
+            Log.e(TAG, "sms failed");
+        }
     }
 }
