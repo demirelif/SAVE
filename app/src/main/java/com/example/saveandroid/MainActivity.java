@@ -300,7 +300,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     public static void startSpeech(){
         try {
-            speechRecognizer.startListening(MainActivity.intentRecognizer);
+            speechRecognizer.startListening(intentRecognizer);
         }
         catch(Exception e){
             Log.e(TAG, "Speech cannot be started " +e);
@@ -312,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     }
 
     public static String getSpeech(){
-        return MainActivity.speechString;
+        return speechString;
     }
 
 
@@ -364,10 +364,11 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
 
         // SPEECH TO TEXT
+
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         intentRecognizer = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intentRecognizer.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intentRecognizer.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
-        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+      //  intentRecognizer.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
         speechRecognizer.setRecognitionListener(new RecognitionListener() {
             @Override
             public void onReadyForSpeech(Bundle params) {
@@ -769,6 +770,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
                 // callIntent = new Intent(Intent.ACTION_DIAL);
                 startActivity(callIntent);
+                
                 Log.i(TAG,"Phone call is made");
             } catch(SecurityException e) {
                 e.printStackTrace();

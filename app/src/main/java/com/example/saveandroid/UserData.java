@@ -25,7 +25,7 @@ public class UserData extends Activity {
 
     private static String TAG = "Data";
     private String[] dataPie = {"Fear", "Sadness", "Anger", "Fatigue"}; // iks
-    private int[] values = {10,20,20,10}; // y
+    private int[] values = {10,206,20,10}; // y
 
     //
 
@@ -54,7 +54,7 @@ public class UserData extends Activity {
         ArrayList<String> entry = new ArrayList<>();
 
         for ( int i = 0; i < values.length; i++){
-            yEntry.add(new PieEntry(i, values[i]));
+            yEntry.add(new PieEntry(values[i],i));
         }
 
         for ( int i = 0; i < dataPie.length; i++){
@@ -68,7 +68,7 @@ public class UserData extends Activity {
         ArrayList<Integer> colors = new ArrayList<>();
         colors.add(Color.BLUE);
         colors.add(Color.YELLOW);
-        colors.add(Color.MAGENTA);
+       // colors.add(Color.MAGENTA);
         colors.add(Color.GRAY);
         colors.add(Color.GREEN);
         colors.add(Color.DKGRAY);
