@@ -576,6 +576,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     }
      */
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void activateRoadTrip(View view) {
         Log.i(TAG, " ACTIVATE ROAD");
         Toast.makeText(getApplicationContext(), "activating road trip", Toast.LENGTH_LONG).show();
@@ -615,10 +616,13 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         MainActivity.this.startService(fatigueIntent);
         fatigueStarted = true;
 
-
+        /*
         Intent crashServiceIntent = new Intent(MainActivity.this, CrashService.class);
         bindService(crashServiceIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(crashServiceIntent);
+
+         */
+        startTracking(null);
         crashStarted = true;
 
         /**
