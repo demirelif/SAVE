@@ -320,7 +320,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
         startKenBurnsView(); // start special ken burns view
 
-        hizView = findViewById(R.id.hizGoster);
+        //hizView = findViewById(R.id.hizGoster);
         playHappyPlaylist = false;
         playCalmPlaylist = false;
         playEnergeticPlaylist = false;
@@ -617,7 +617,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         MainActivity.this.startService(crashServiceIntent);
 
         //startTracking(null);
-
+        Speech.readText("Starting our road trip");
 
         /**
         Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);

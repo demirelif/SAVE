@@ -184,15 +184,14 @@ public class FrontCameraService extends Service {
         while (true){
             Thread.sleep(500);
             try {
-                //fileQueue.put(imageFile);
                 byte[] byteez = preProcessImage(imageFile);
                 if(byteez != null){
                     imageBytesRPPG.put(byteez);
                     imageBytesEmotion.put(byteez);
-                  //  imageBytesFatigue.put(byteez);
+                    //imageBytesFatigue.put(byteez);
                     Log.i(TAG, "Inserting image bytes: " + byteez.length + "; rPPG Queue size is: " + imageBytesRPPG.size());
-                    Log.i(TAG, "Inserting image bytes: " + byteez.length + "; rPPG Queue size is: " + imageBytesEmotion.size());
-                    Log.i(TAG, "Inserting image bytes: " + byteez.length + "; rPPG Queue size is: " + imageBytesFatigue.size());
+                    Log.i(TAG, "Inserting image bytes: " + byteez.length + "; Emotion Queue size is: " + imageBytesEmotion.size());
+                    Log.i(TAG, "Inserting image bytes: " + byteez.length + "; Fatigue Queue size is: " + imageBytesFatigue.size());
                 }else {
                     Log.i(TAG, "Byteez couldnt make it");
                 }
@@ -203,7 +202,6 @@ public class FrontCameraService extends Service {
     }
 
     private static byte[] preProcessImage(@NonNull File imageFile) {
-        String filePath = imageFile.getPath();
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.RGB_565;
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
