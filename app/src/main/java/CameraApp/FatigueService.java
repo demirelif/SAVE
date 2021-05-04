@@ -85,10 +85,10 @@ public class FatigueService extends Service {
     private int blink_counter;
     private int yawn_frame_counter;
     private int alarm_counter;
-    private final int FATIGUE_THRESHOLD = 5;
+    private final int FATIGUE_THRESHOLD = 3;
     private final int BLINK_THRESHOLD = 3;
     private final int YAWN_THRESHOLD = 20;
-
+    boolean enteredThePlace;
 
     @Nullable
     @Override
@@ -115,6 +115,7 @@ public class FatigueService extends Service {
         blink_counter = 0;
         yawn_frame_counter = 0;
         alarm_counter = 0;
+        enteredThePlace = false;
     }
 
     @Override
@@ -179,14 +180,18 @@ public class FatigueService extends Service {
                 .detectInImage(fbImage)
                 .addOnSuccessListener(firebaseVisionFaces -> {
                     if (!firebaseVisionFaces.isEmpty()) {
-                        getInfoFromFaces(firebaseVisionFaces);
+                        try {
+                            getInfoFromFaces(firebaseVisionFaces);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     } else {
                         System.out.println("FIREBASE VISION FACES EMPTY");
                     }
                 }).addOnFailureListener(e -> Log.i(TAG, e.toString()));
     }
 
-    private void getInfoFromFaces(List<FirebaseVisionFace> faces) {
+    private void getInfoFromFaces(List<FirebaseVisionFace> faces) throws InterruptedException {
         StringBuilder result = new StringBuilder();
         for (FirebaseVisionFace face : faces) {
             // If landmark detection was enabled (mouth, ears, eyes, cheeks, and nose available):
@@ -211,15 +216,19 @@ public class FatigueService extends Service {
                 fatigue_frame_counter++;
                 blink_frame_counter++;
 
-                if(fatigue_frame_counter >= FATIGUE_THRESHOLD){
+                if(fatigue_frame_counter >= FATIGUE_THRESHOLD && !enteredThePlace){
+                    enteredThePlace = true;
                     result.append("FATIGUE ALERT");
                     Log.i(TAG, " FATIGUE ALERT");
                     MainActivity.getInstanceActivity().playAlarm();
                     alarm_counter++;
                     if(alarm_counter > 3){
                         Speech.readText("You show fatigue symptoms. Consider having a stopover");
+                        MainActivity.getInstanceActivity().openGoogleMaps("station");
                         alarm_counter = 0;
                     }
+                    Thread.sleep(500);
+                    enteredThePlace = false;
                 }
 
                 if(blink_frame_counter >= BLINK_THRESHOLD){

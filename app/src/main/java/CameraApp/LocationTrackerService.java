@@ -25,6 +25,8 @@ import androidx.core.content.ContextCompat;
 import com.example.saveandroid.MainActivity;
 import com.example.saveandroid.R;
 
+import SpeechRecognition.Speech;
+
 public class LocationTrackerService extends Service implements ILocationTrackerCallBack {
     public static final String CHANNEL_LOCATIONTRACKER = "RouteTrackingChannel";
     public static NotificationManager notificationManager = null;
@@ -159,6 +161,7 @@ public class LocationTrackerService extends Service implements ILocationTrackerC
             isInDanger = true;
             DisplayIcon();
             DisplayDialog();
+            Speech.readText("Collision Warning");
         }
     }
 

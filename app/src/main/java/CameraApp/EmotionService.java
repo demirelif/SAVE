@@ -146,10 +146,10 @@ public class EmotionService extends Service {
     }
 
     private void postImageToServer(byte[] byteArray){
-//        MainActivity.getInstanceActivity().makeCall("90-50-78-65-2663");
+        //MainActivity.getInstanceActivity().makeCall("90-50-78-65-2663");
         String postUrl = "http://" + "192.168.1.102" + ":" + 5000 + "/predict_emotion"; // UTKU IP
-        //String postUrl2 = "http://" + "192.168.1.102" + ":" + 8000 + "/rppg"; // UTKU IP
         String postUrl3 = "http://" + "10.0.2.2" + ":" + 5000 + "/predict_emotion"; // ELIF IP
+        String postUrl4 = "http://" + "172.20.10.2" + ":" + 5000 + "/predict_emotion"; // UTKU HOTSPOT IP
         MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         multipartBodyBuilder.addFormDataPart("image", "front_face_image" + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
 
@@ -157,7 +157,7 @@ public class EmotionService extends Service {
         // post request to emotion server
         //postRequest(postUrl3, postBodyImage);
         // post request to rppg server
-        postRequest(postUrl, postBodyImage);
+        postRequest(postUrl4, postBodyImage);
     }
 
     void postRequest(String postUrl, RequestBody postBody) {
@@ -211,8 +211,8 @@ public class EmotionService extends Service {
 
                         if (s.equals("Sad")){
                             sadCounter++;
-                            if(sadCounter > 20 && !lastPlayedObservedEmotion.equals("Sad")){
-                                Speech.readText("You seem sad, Do you want to listen some music to cheer you up?");
+                            if(sadCounter > 40 && !lastPlayedObservedEmotion.equals("Sad")){
+                                Speech.readText("You seem sad, Do you want to listen some music to cheer up?");
                                 try {
                                     Thread.sleep(500);
                                 } catch (InterruptedException e) {
@@ -226,7 +226,7 @@ public class EmotionService extends Service {
                         }else if(s.equals("Angry")){
                             angryCounter++;
                             if(angryCounter > 2 && !lastPlayedObservedEmotion.equals("Angry")){
-                                Speech.readText("Do you want some music to relax ?");
+                                Speech.readText("You seem angry, Do you want some music to relax ?");
                                 try {
                                     Thread.sleep(500);
                                 } catch (InterruptedException e) {

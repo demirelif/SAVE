@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 import com.example.saveandroid.MainActivity;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
 
 
@@ -98,17 +99,18 @@ public class rPPGService extends Service {
     private void cleanRPPGServer(){
         String postUrl2 = "http://" + "192.168.1.102" + ":" + 8000 + "/clean"; // UTKU IP
         String postUrl3 = "http://" + "10.0.2.2" + ":" + 8000 + "/clean";
-
+        String postUrl4 = "http://" + "172.20.10.2" + ":" + 8000 + "/clean"; // UTKU HOTSPOT IP
         MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         //multipartBodyBuilder.addFormDataPart("image", "clean_image" + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
         multipartBodyBuilder.addFormDataPart("clean", "selam"); // tamamen random bir sey verdim
         RequestBody postBodyImage = multipartBodyBuilder.build();
-        postRequest(postUrl2, postBodyImage);
+        postRequest(postUrl4, postBodyImage);
     }
 
     private void postImageToServer(byte[] byteArray){
         String postUrl2 = "http://" + "192.168.1.102" + ":" + 8000 + "/rppg"; // UTKU IP
         String postUrl3 = "http://" + "10.0.2.2" + ":" + 8000 + "/rppg";
+        String postUrl4 = "http://" + "172.20.10.2" + ":" + 8000 + "/rppg"; // UTKU HOTSPOT IP
 
         Long tsLong = System.currentTimeMillis()/1000;
         String ts = tsLong.toString();
@@ -121,7 +123,7 @@ public class rPPGService extends Service {
         // post request to emotion server
         //postRequest(postUrl, postBodyImage);
         // post request to rppg server
-        postRequest(postUrl2, postBodyImage);
+        postRequest(postUrl4, postBodyImage);
     }
 
 
@@ -163,9 +165,25 @@ public class rPPGService extends Service {
                             responzee[0] = response.body().string();
                             //Toast.makeText(getApplicationContext(), "Server's Response\n" + response.body().string(), Toast.LENGTH_LONG).show();
                             Log.i(TAG, "Server's Response ---> " + responzee[0]);
-                            if (!(responzee[0].equals("Calculating...") || responzee[0].equals("cleaned successfully")))
+                            if (!(responzee[0].equals("Calculating...") || responzee[0].equals("cleaned successfully"))){
                                 Speech.readText(responzee[0]);
-                            //if(!responzee[0].equals("Calculating...")){
+                                String str = responzee[0];
+                                String mid_str = str.replaceAll("[^0-9]", "");
+                                System.out.println("mid_str " + mid_str);
+                                int pulse_rate = 0;
+                                if(!mid_str.equals("")){
+                                    try{
+                                        pulse_rate = Integer.parseInt(mid_str);
+                                    }catch (Exception e){
+                                        e.printStackTrace();
+                                    }
+                                }
+                                if(pulse_rate > 800){
+                                    Thread.sleep(1600);
+                                    Speech.readText("Your pulse rate seems above normal, consider having a stopover");
+                                    MainActivity.getInstanceActivity().openGoogleMaps("hospital");
+                                }
+                            }
                             else{
                                // Log.i(TAG, "rPPG RESPONSE ---> " + response.body().string());
                                 Log.i(TAG, "rPPG RESPONSE ---> " + responzee[0] );
@@ -178,7 +196,7 @@ public class rPPGService extends Service {
                                     counter = 0;
                                 }
                             }
-                        } catch (IOException e) {
+                        } catch (IOException | InterruptedException e) {
                             e.printStackTrace();
                         }
                     }

@@ -563,6 +563,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         if (requestCode == TTS_CHECK_CODE) {
             if (resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
                 // success, create the TTS instance
+
             } else {
                 // missing data, install it
                 Intent installIntent = new Intent();
@@ -613,22 +614,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         MainActivity.this.startService(fatigueIntent);
         fatigueStarted = true;
 
-        /*
-        Intent crashServiceIntent = new Intent(MainActivity.this, CrashService.class);
-        bindService(crashServiceIntent, serviceConnection, BIND_AUTO_CREATE);
-        MainActivity.this.startService(crashServiceIntent);
-         */
         startTracking(null);
         crashStarted = true;
-
-        /**
-         Intent backCameraIntent = new Intent(MainActivity.this, BackCameraService.class);
-         bindService(backCameraIntent, serviceConnection, BIND_AUTO_CREATE);
-         MainActivity.this.startService(backCameraIntent);
-         Intent pedestrianIntent = new Intent(MainActivity.this, PedestrianService.class);
-         bindService(pedestrianIntent, serviceConnection, BIND_AUTO_CREATE);
-         MainActivity.this.startService(pedestrianIntent);
-         */
         Speech.readText("Starting our road trip");
     }
 
@@ -754,7 +741,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
     }
 
-    public void makeCall(String telNo){
+    public void makeCall(String telNo, String message){
         callIntent = new Intent(Intent.ACTION_CALL);
         callIntent.setData(Uri.parse("tel:" + telNo)); // Must be android
 
@@ -767,16 +754,16 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         } else {
             //You already have permission
             try {
-
                 // callIntent = new Intent(Intent.ACTION_DIAL);
                 startActivity(callIntent);
-                
+
                 Log.i(TAG,"Phone call is made");
-            } catch(SecurityException e) {
+                Thread.sleep(500);
+                Speech.readText(message);
+            } catch(SecurityException | InterruptedException e) {
                 e.printStackTrace();
                 Log.i(TAG,"Call failed." + e);
             }
-
         }
     }
 
