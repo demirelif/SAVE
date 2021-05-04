@@ -6,13 +6,17 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -34,12 +38,12 @@ public class UserData extends Activity {
 
     private static String TAG = "Data";
     private String[] dataPie = {"Fear", "Sadness", "Anger", "Fatigue"}; // iks
-    private int[] values = {10,206,20,10}; // y
+    private int[] values = {10,206,20,11}; // y
 
     //
 
     //private int[] heartRates = {69,70,68,68,71};
-    private int[] axisData = {60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90};
+    private int[] axisData = {70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90};
     int[] yAxisData = {65, 60, 70, 69, 60, 60, 65, 61, 63, 65, 66, 67};
 
     PieChart pieChart;
@@ -56,6 +60,28 @@ public class UserData extends Activity {
         pieChart = (PieChart) findViewById(R.id.idPieChart);
         pieChart.setDescription("Moods and Fatigue");
         addDataSet();
+        int y = values.length;
+        pieChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+            @Override
+            public void onValueSelected(Entry e, Highlight h) {
+                int pos1 = e.toString().indexOf("(sum): ");
+                String s = e.toString().substring(pos1+7);
+
+                for ( int i = 0; i < y; i++){
+                    if ( values[i] == Math.round(Float.parseFloat(s))){
+                        pos1 = i;
+                        break;
+                    }
+                }
+                String emotion = dataPie[pos1];
+                Toast.makeText(UserData.this, emotion, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onNothingSelected() {
+
+            }
+        });
         //lineChart = (LineChart) findViewById(R.id.idLineChart);
 
         lineChartView = findViewById(R.id.idLineChart);
