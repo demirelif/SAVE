@@ -9,6 +9,7 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.util.Base64;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import SpeechRecognition.Speech;
@@ -21,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.core.graphics.BitmapCompat;
 
 import com.example.saveandroid.MainActivity;
+import com.example.saveandroid.R;
 import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.face.FirebaseVisionFace;
@@ -57,7 +59,7 @@ public class FatigueService extends Service {
     private static final String TAG = "FATIGUE SERVICE";
     private FirebaseVisionFaceDetector faceDetector;
     private FirebaseVisionImage fbImage;
-
+    private static FloatingIcon floatingIcon = null;
     public static double gazeAngle = 0;
     public static double headPose = 0;
     private static double gaze_offset;
@@ -88,6 +90,7 @@ public class FatigueService extends Service {
     private final int FATIGUE_THRESHOLD = 5;
     private final int BLINK_THRESHOLD = 3;
     private final int YAWN_THRESHOLD = 20;
+    private CustomDialogBox customDialogBox = null;
 
 
     @Nullable
@@ -218,6 +221,8 @@ public class FatigueService extends Service {
                     alarm_counter++;
                     if(alarm_counter > 3){
                         Speech.readText("You show fatigue symptoms. Consider having a stopover");
+                        DisplayIcon();
+                        DisplayDialog();
                         alarm_counter = 0;
                     }
                 }
@@ -234,5 +239,40 @@ public class FatigueService extends Service {
             System.out.println("\n" + result);
         }
 
+    }
+
+    private void DisplayIcon() {
+        floatingIcon = new FloatingIcon(this, new ICustomBubbleListener() {
+            @Override
+            public void onFloatingIconClicked(View v) {
+                showCustomDlg(v);
+            }
+        });
+    }
+
+    private void DisplayDialog() {
+        if (customDialogBox == null)
+            customDialogBox = new CustomDialogBox(this, new ICustomDialogListener() {
+                @Override
+                public void onClick(View view) {
+                    showCustomDlg(view);
+                }
+
+                @Override
+                public void dlgTimeOut() {
+                    checkTimeOut();
+                }
+            }, DialogType.Fatigue, 10);
+    }
+
+    public void showCustomDlg(View view) {
+        if (view.getId() == R.id.csbubbleimg)
+            DisplayDialog();
+    }
+    public void checkTimeOut() {
+        if (customDialogBox != null) {
+            customDialogBox.Remove();
+            customDialogBox = null;
+        }
     }
 }

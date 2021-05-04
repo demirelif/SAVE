@@ -173,7 +173,12 @@ public class LocationTrackerService extends Service implements ILocationTrackerC
     }
 
     private void DisplayIcon() {
-        floatingIcon = new FloatingIcon(this);
+        floatingIcon = new FloatingIcon(this, new ICustomBubbleListener() {
+            @Override
+            public void onFloatingIconClicked(View v) {
+                showCustomDlg(v);
+            }
+        });
     }
 
     private void DisplayDialog() {
@@ -181,30 +186,28 @@ public class LocationTrackerService extends Service implements ILocationTrackerC
             customDialogBox = new CustomDialogBox(this, new ICustomDialogListener() {
                 @Override
                 public void onClick(View view) {
-                    onFloatingIconClicked(view);
+                    showCustomDlg(view);
                 }
 
                 @Override
                 public void dlgTimeOut() {
                     checkTimeOut();
                 }
-            }, DialogType.AbnormalBPM, 8);
+            }, DialogType.Collision, 10);
     }
 
-    public void onFloatingIconClicked(View view) {
+    public void showCustomDlg(View view) {
         if (view.getId() == R.id.csbubbleimg)
             DisplayDialog();
         else
             SetStateToSafeMode();
     }
-
     public void checkTimeOut() {
         if (customDialogBox != null) {
             customDialogBox.Remove();
             customDialogBox = null;
         }
     }
-
     public class LocalBinder extends Binder {
         public LocationTrackerService getServiceInstance() {
             return LocationTrackerService.this;
