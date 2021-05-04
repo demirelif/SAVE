@@ -167,8 +167,10 @@ public class LocationTrackerService extends Service implements ILocationTrackerC
             isInDanger = false;
             if (floatingIcon != null)
                 floatingIcon.Remove();
-            if (customDialogBox != null)
+            if (customDialogBox != null){
                 customDialogBox.Remove();
+                customDialogBox = null;
+            }
         }
     }
 
@@ -199,6 +201,14 @@ public class LocationTrackerService extends Service implements ILocationTrackerC
     public void showCustomDlg(View view) {
         if (view.getId() == R.id.csbubbleimg)
             DisplayDialog();
+        else if(view.getId()== R.id.btnYes){
+            SetStateToSafeMode();
+            Log.d(MainActivity.TAG, "evete tıkladı");
+        }
+        else if(view.getId() == R.id.btnNo){
+            SetStateToSafeMode();
+            Log.d(MainActivity.TAG, "hayıra tıkladı");
+        }
         else
             SetStateToSafeMode();
     }
