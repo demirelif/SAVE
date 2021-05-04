@@ -91,6 +91,7 @@ public class FatigueService extends Service {
     private final int BLINK_THRESHOLD = 3;
     private final int YAWN_THRESHOLD = 20;
     private CustomDialogBox customDialogBox = null;
+    private boolean isInFatigue = false;
 
     boolean enteredThePlace;
 
@@ -231,6 +232,12 @@ public class FatigueService extends Service {
                         MainActivity.getInstanceActivity().openGoogleMaps("station");
                         DisplayIcon();
                         DisplayDialog();
+                        if(!isInFatigue){
+                            isInFatigue = true;
+                            DisplayIcon();
+                            DisplayDialog();
+                        }
+
                         alarm_counter = 0;
                     }
                     Thread.sleep(500);
@@ -275,9 +282,29 @@ public class FatigueService extends Service {
             }, DialogType.Fatigue, 10);
     }
 
+    private void SetStateToSafeMode() {
+        if (isInFatigue) {
+            isInFatigue = false;
+            if (floatingIcon != null)
+                floatingIcon.Remove();
+            if (customDialogBox != null){
+                customDialogBox.Remove();
+                customDialogBox = null;
+            }
+        }
+    }
+
     public void showCustomDlg(View view) {
         if (view.getId() == R.id.csbubbleimg)
             DisplayDialog();
+        else if(view.getId()== R.id.btnYes){
+            SetStateToSafeMode();
+        }
+        else if(view.getId() == R.id.btnNo){
+            SetStateToSafeMode();
+        }
+        else
+            SetStateToSafeMode();
     }
     public void checkTimeOut() {
         if (customDialogBox != null) {
