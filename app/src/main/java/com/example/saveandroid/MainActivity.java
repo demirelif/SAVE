@@ -291,11 +291,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-
             int hiz = intent.getIntExtra("hiz", 0);
             hizView.setText("" + hiz);
-
-
             Log.d(TAG, "al:" + hiz);
         }
     };
@@ -489,7 +486,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                         // Something went wrong when attempting to connect! Handle errors here
                     }
                 });
-      //  makeCall("");
+        //  makeCall("");
         Log.i(TAG, " after make call");
 
     }
@@ -565,7 +562,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         if (requestCode == TTS_CHECK_CODE) {
             if (resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
                 // success, create the TTS instance
-
             } else {
                 // missing data, install it
                 Intent installIntent = new Intent();
@@ -620,20 +616,18 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Intent crashServiceIntent = new Intent(MainActivity.this, CrashService.class);
         bindService(crashServiceIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(crashServiceIntent);
-
          */
         startTracking(null);
         crashStarted = true;
 
         /**
-        Intent backCameraIntent = new Intent(MainActivity.this, BackCameraService.class);
-        bindService(backCameraIntent, serviceConnection, BIND_AUTO_CREATE);
-        MainActivity.this.startService(backCameraIntent);
-
-        Intent pedestrianIntent = new Intent(MainActivity.this, PedestrianService.class);
-        bindService(pedestrianIntent, serviceConnection, BIND_AUTO_CREATE);
-        MainActivity.this.startService(pedestrianIntent);
-        */
+         Intent backCameraIntent = new Intent(MainActivity.this, BackCameraService.class);
+         bindService(backCameraIntent, serviceConnection, BIND_AUTO_CREATE);
+         MainActivity.this.startService(backCameraIntent);
+         Intent pedestrianIntent = new Intent(MainActivity.this, PedestrianService.class);
+         bindService(pedestrianIntent, serviceConnection, BIND_AUTO_CREATE);
+         MainActivity.this.startService(pedestrianIntent);
+         */
         Speech.readText("Starting our road trip");
     }
 
@@ -710,7 +704,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                             MainActivity.this.startActivity(addPetIntent);
                         } else if (item.getItemId() == R.id.nav_gallery) {
                             //Toast.makeText(MainActivity.this,  "home", Toast.LENGTH_SHORT).show();
-                            Intent addPetIntent = new Intent(MainActivity.this, SettingsActivity.class);
+                            Intent addPetIntent = new Intent(MainActivity.this, PrefActivity.class);
                             MainActivity.this.startActivity(addPetIntent);
                         } else if ( item.getItemId() == R.id.nav_slideshow){
                             Intent addPetIntent = new Intent(MainActivity.this, UserData.class);
@@ -804,6 +798,3 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
     }
 }
-
-
-

@@ -1,6 +1,7 @@
 package com.example.saveandroid;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +14,11 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class UserData extends Activity {
@@ -20,6 +26,10 @@ public class UserData extends Activity {
     private static String TAG = "Data";
     private String[] dataPie = {"Fear", "Sadness", "Anger", "Fatigue"}; // iks
     private int[] values = {10,20,20,10}; // y
+
+    //
+
+    private int[] heartRates = {69,70,68,68,71};
 
     PieChart pieChart;
     LineChart lineChart;
@@ -36,6 +46,7 @@ public class UserData extends Activity {
         addDataSet();
         lineChart = (LineChart) findViewById(R.id.idLineChart);
     }
+
 
     private void addDataSet() {
         Log.d(TAG, "data set");
@@ -72,7 +83,10 @@ public class UserData extends Activity {
         pieChart.setData(pieData);
         pieChart.invalidate();
 
+    }
 
+    private void drawLine(){
+        Log.d(TAG, "line diagram");
 
     }
 
