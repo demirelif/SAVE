@@ -22,10 +22,12 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import lecho.lib.hellocharts.model.Axis;
 import lecho.lib.hellocharts.model.AxisValue;
 import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PointValue;
+import lecho.lib.hellocharts.model.Viewport;
 import lecho.lib.hellocharts.view.LineChartView;
 
 public class UserData extends Activity {
@@ -121,6 +123,26 @@ public class UserData extends Activity {
 
         LineChartData data = new LineChartData();
         data.setLines(lines);
+
+        Axis yAxis = new Axis();
+        data.setAxisYLeft(yAxis);
+        Axis axis = new Axis();
+        axis.setValues(axisValues);
+        data.setAxisXBottom(axis);
+        axis.setTextColor(Color.parseColor("#03A9F4"));
+        yAxis.setTextColor(Color.parseColor("#03A9F4"));
+        yAxis.setTextSize(12);
+        axis.setTextSize(12);
+        yAxis.setName("Heart Rate");
+        /*
+        Viewport viewport = new Viewport(lineChartView.getMaximumViewport());
+        viewport.top =110;
+        lineChartView.setMaximumViewport(viewport);
+        lineChartView.setCurrentViewport(viewport);
+
+         */
+
+
 
         lineChartView.setLineChartData(data);
 
