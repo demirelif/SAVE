@@ -45,6 +45,8 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.view.MenuItem;
@@ -73,6 +75,7 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
@@ -117,6 +120,11 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private static final int REQUEST_PERMISSION = 200;
     private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 200;
     private static final int CALL_PERMISSION = 200;
+    public static int totalFear;
+    public static int totalHappy;
+    public static int totalSad;
+    public static int totalAngry;
+    public static int totalFatigue;
     static boolean preferencesChanged=false;
     MediaPlayer player;
     public static WeakReference<MainActivity> weakMainActivity;
@@ -335,6 +343,18 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         emotionStarted = false;
         crashStarted = false;
         rPPGStarted = false;
+
+        try {
+            JSONObject obj = new JSONObject(loadJSONFromAsset(getApplicationContext()));
+            totalFear = obj.getInt("totalfear");
+            totalHappy = obj.getInt("totalhappy");
+            totalAngry = obj.getInt("totalangry");
+            totalSad = obj.getInt("totalsad");
+            totalFatigue = obj.getInt("totalfatigue");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
 
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
@@ -785,5 +805,21 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         catch(Exception e){
             Log.e(TAG, e.getMessage());
         }
+    }
+
+    public String loadJSONFromAsset(Context context) {
+        String json = null;
+        try {
+            InputStream is = context.getAssets().open("a.json");
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            json = new String(buffer, "UTF-8");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+        return json;
     }
 }

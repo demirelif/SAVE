@@ -33,18 +33,20 @@ import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PointValue;
 import lecho.lib.hellocharts.model.Viewport;
 import lecho.lib.hellocharts.view.LineChartView;
+import com.example.saveandroid.MainActivity;
 
 public class UserData extends Activity {
 
-    private static String TAG = "Data";
-    private String[] dataPie = {"Fear", "Sadness", "Anger", "Fatigue"}; // iks
-    private int[] values = {10,206,20,11}; // y
 
-    //
+    private static String TAG = "Data";
+    private String[] dataPie = {"Fear", "Sadness", "Anger", "Happiness", "Fatigue"}; // iks
+    private int[] values = new int[5];
 
     //private int[] heartRates = {69,70,68,68,71};
     private int[] axisData = {70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90};
     int[] yAxisData = {65, 60, 70, 69, 60, 60, 65, 61, 63, 65, 66, 67};
+
+
 
     PieChart pieChart;
     LineChart lineChart;
@@ -56,6 +58,11 @@ public class UserData extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_data);
         Log.d(TAG, "oncreate");
+        values[0] = MainActivity.totalFear;
+        values[1] = MainActivity.totalSad;
+        values[2] = MainActivity.totalAngry;
+        values[3] = MainActivity.totalHappy;
+        values[4] = MainActivity.totalFatigue;
 
         pieChart = (PieChart) findViewById(R.id.idPieChart);
         pieChart.setDescription("Moods and Fatigue");
