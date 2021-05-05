@@ -512,6 +512,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                     }
                 });
         //  makeCall("");
+        sendSMS("905300677780");
         Log.i(TAG, " after make call");
 
     }
@@ -828,6 +829,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     }
 
     public void sendSMS(String number){
+        android.telephony.SmsManager sms=android.telephony.SmsManager.getDefault();
+        sms.sendTextMessage(number, null,"Here Is Sms", null, null);
+        /*
         if ( getDefaultSmsAppPackageName(getApplicationContext()) != null ){
             Uri smsUri=  Uri.parse("smsto:" + number);
             Intent intent = new Intent(Intent.ACTION_VIEW, smsUri);
@@ -835,11 +839,18 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             intent.setType("vnd.android-dir/mms-sms");
             try {
                 startActivity(intent);
+                finish();
+                Log.i(TAG,"sms successful");
             }
             catch (android.content.ActivityNotFoundException ex) {
                 Log.e(TAG, "sms failed "  + ex);
             }
         }
+        else {
+            Log.e( TAG, "sms app package null");
+        }
+
+         */
     }
 
     public static String getDefaultSmsAppPackageName(@NonNull Context context) {
