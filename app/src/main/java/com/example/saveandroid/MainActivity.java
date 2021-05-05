@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.Manifest;
@@ -25,6 +26,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.provider.Telephony;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -83,6 +85,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import CameraApp.BackCameraService;
@@ -825,17 +828,33 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     }
 
     public void sendSMS(String number){
-        smsIntent = new Intent(Intent.ACTION_VIEW);
-        smsIntent.setData(Uri.parse("smsto:"));
-        smsIntent.setType("vnd.android-dir/mms-sms");
-        smsIntent.putExtra("address"  , new String(number));
-        smsIntent.putExtra("sms_body"  , "There might be an emergency. Please check on Elif");
-        try {
-            startActivity(smsIntent);
-            finish();
-            Log.i(TAG, "SMS successfull.");
-        } catch (android.content.ActivityNotFoundException ex) {
-            Log.e(TAG, "sms failed "  + ex);
+        if ( getDefaultSmsAppPackageName(getApplicationContext()) != null ){
+            Uri smsUri=  Uri.parse("smsto:" + number);
+            Intent intent = new Intent(Intent.ACTION_VIEW, smsUri);
+            intent.putExtra("sms_body", "sms text");
+            intent.setType("vnd.android-dir/mms-sms");
+            try {
+                startActivity(intent);
+            }
+            catch (android.content.ActivityNotFoundException ex) {
+                Log.e(TAG, "sms failed "  + ex);
+            }
         }
+    }
+
+    public static String getDefaultSmsAppPackageName(@NonNull Context context) {
+        String defaultSmsPackageName;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            defaultSmsPackageName = Telephony.Sms.getDefaultSmsPackage(context);
+            return defaultSmsPackageName;
+        } else {
+            Intent intent = new Intent(Intent.ACTION_VIEW)
+                    .addCategory(Intent.CATEGORY_DEFAULT).setType("vnd.android-dir/mms-sms");
+            final List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(intent, 0);
+            if (resolveInfos != null && !resolveInfos.isEmpty())
+                return resolveInfos.get(0).activityInfo.packageName;
+
+        }
+        return null;
     }
 }
