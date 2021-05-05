@@ -15,6 +15,7 @@
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.MANAGE_OWN_CALLS" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <queries>
@@ -57,7 +58,6 @@
             android:label="@string/title_activity_drawer"
             android:theme="@style/Theme.SAVEAndroid.NoActionBar" />
         <activity android:name="FaceDetector.FaceDetectionActivity" />
-        <activity android:name=".SendFaceData" />
         <activity
             android:name=".AuthenticationActivity"
             android:noHistory="true">

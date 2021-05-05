@@ -835,7 +835,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             finish();
             Log.i(TAG, "SMS successfull.");
         } catch (android.content.ActivityNotFoundException ex) {
-            Log.e(TAG, "sms failed");
+            Log.e(TAG, "sms failed "  + ex);
         }
     }
 }
