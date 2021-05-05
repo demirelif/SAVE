@@ -91,8 +91,11 @@ import java.util.Locale;
 import CameraApp.BackCameraService;
 import CameraApp.CameraService;
 import CameraApp.CrashService;
+import CameraApp.CustomDialogBox;
+
 import CameraApp.EmotionService;
 import CameraApp.FatigueService;
+import CameraApp.FloatingIcon;
 import CameraApp.FrontCameraService;
 import CameraApp.PedestrianService;
 import CameraApp.rPPGService;
@@ -186,6 +189,10 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public static boolean openMapFatigue;
     public static boolean openMapRPPG;
     public static String lastPlayedGenre;
+
+    private boolean isInHighPulse;
+    private CustomDialogBox customDialogBox = null;
+    private static FloatingIcon floatingIcon = null;
 
     Connection connect;
     String connectionResult = "";
@@ -512,7 +519,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                     }
                 });
         //  makeCall("");
-        sendSMS("905300677780");
         Log.i(TAG, " after make call");
 
     }
@@ -642,6 +648,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         startTracking(null);
         crashStarted = true;
         Speech.readText("Starting our road trip");
+        sendSMS("+905077907940", "Check Utku !! ");
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -828,29 +835,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         return json;
     }
 
-    public void sendSMS(String number){
+    public void sendSMS(String number, String message){
         android.telephony.SmsManager sms=android.telephony.SmsManager.getDefault();
-        sms.sendTextMessage(number, null,"Here Is Sms", null, null);
-        /*
-        if ( getDefaultSmsAppPackageName(getApplicationContext()) != null ){
-            Uri smsUri=  Uri.parse("smsto:" + number);
-            Intent intent = new Intent(Intent.ACTION_VIEW, smsUri);
-            intent.putExtra("sms_body", "sms text");
-            intent.setType("vnd.android-dir/mms-sms");
-            try {
-                startActivity(intent);
-                finish();
-                Log.i(TAG,"sms successful");
-            }
-            catch (android.content.ActivityNotFoundException ex) {
-                Log.e(TAG, "sms failed "  + ex);
-            }
-        }
-        else {
-            Log.e( TAG, "sms app package null");
-        }
-
-         */
+        sms.sendTextMessage(number, null, message, null, null);
     }
 
     public static String getDefaultSmsAppPackageName(@NonNull Context context) {
@@ -868,4 +855,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
         return null;
     }
+
+
+
 }

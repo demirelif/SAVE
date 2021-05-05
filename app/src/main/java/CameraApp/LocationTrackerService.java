@@ -126,7 +126,7 @@ public class LocationTrackerService extends Service implements ILocationTrackerC
     public void onCreate() {
         super.onCreate();
         mContext = getApplicationContext();
-        Toast.makeText(getApplicationContext(), MainActivity.TAG, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getApplicationContext(), MainActivity.TAG, Toast.LENGTH_SHORT).show();
     }
 
     @Override

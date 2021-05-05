@@ -39,7 +39,7 @@ public class rPPGService extends Service {
     long startTime,endTime,contentLength;
     long initialStart;
     int counter = 0;
-    private boolean isInHighPulse = false;
+    private boolean isInHighPulse;
     private CustomDialogBox customDialogBox = null;
     private static FloatingIcon floatingIcon = null;
 
@@ -55,10 +55,10 @@ public class rPPGService extends Service {
     }
     @Override
     public void onCreate() {
-        //Toast.makeText(getApplicationContext(),TAG + " onCreate", Toast.LENGTH_SHORT).show();
         Log.i(TAG, " ON CREATE");
         super.onCreate();
         cleanRPPGServer();
+        isInHighPulse = false;
     }
 
     @Override
@@ -132,7 +132,7 @@ public class rPPGService extends Service {
     }
 
 
-    void postRequest(String postUrl, RequestBody postBody) {
+    private void postRequest(String postUrl, RequestBody postBody) {
 
         OkHttpClient client = new OkHttpClient();
 
@@ -165,10 +165,8 @@ public class rPPGService extends Service {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        //TextView responseText = findViewById(R.id.responseText);
                         try {
                             responzee[0] = response.body().string();
-                            //Toast.makeText(getApplicationContext(), "Server's Response\n" + response.body().string(), Toast.LENGTH_LONG).show();
                             Log.i(TAG, "Server's Response ---> " + responzee[0]);
                             if (!(responzee[0].equals("Calculating...") || responzee[0].equals("cleaned successfully"))){
                                 Speech.readText(responzee[0]);
@@ -183,26 +181,21 @@ public class rPPGService extends Service {
                                         e.printStackTrace();
                                     }
                                 }
-                                if(pulse_rate > 800){
-                                    Thread.sleep(1600);
+                                if(pulse_rate > 700){
                                     Speech.readText("Your pulse rate seems above normal, consider having a stopover");
-                                    //MainActivity.getInstanceActivity().openGoogleMaps("hospital");
-                                    if(!isInHighPulse){
-                                        isInHighPulse = true;
-                                        DisplayIcon();
-                                        DisplayDialog();
-                                    }
+                                    Thread.sleep(1600);
+                                    String lat = "39.895166";
+                                    String lon = "32.806005";
+                                    MainActivity.getInstanceActivity().openGoogleMaps("hospital");
+                                    MainActivity.getInstanceActivity().sendSMS("+905077907940", "Check Utku from RPPG!! On coordinations lat: " + lat + ", lon: " + lon);
+                                    Log.i(TAG, "DISPLAY KISMINDAN CIKTIM");
                                 }
                             }
                             else{
-                               // Log.i(TAG, "rPPG RESPONSE ---> " + response.body().string());
                                 Log.i(TAG, "rPPG RESPONSE ---> " + responzee[0] );
                                 if ( counter >= 50  ) {
                                     endTime = System.currentTimeMillis();  //Hold EndTime
                                     Log.d(SpeedTAG, (endTime - startTime) + " ms");
-                                    //Speech.readText("Hospital");
-                                    // IF RPPG DETECS SOMETHING
-                                    //MainActivity.getInstanceActivity().openGoogleMaps("hospital");
                                     counter = 0;
                                 }
                             }
@@ -215,59 +208,4 @@ public class rPPGService extends Service {
         });
     }
 
-    private void DisplayIcon() {
-        floatingIcon = new FloatingIcon(this, new ICustomBubbleListener() {
-            @Override
-            public void onFloatingIconClicked(View v) {
-                showCustomDlg(v);
-            }
-        });
-    }
-
-    private void DisplayDialog() {
-        if (customDialogBox == null)
-            customDialogBox = new CustomDialogBox(this, new ICustomDialogListener() {
-                @Override
-                public void onClick(View view) {
-                    showCustomDlg(view);
-                }
-
-                @Override
-                public void dlgTimeOut() {
-                    checkTimeOut();
-                }
-            }, DialogType.Fatigue, 10);
-    }
-
-    private void SetStateToSafeMode() {
-        if (isInHighPulse) {
-            isInHighPulse = false;
-            if (floatingIcon != null)
-                floatingIcon.Remove();
-            if (customDialogBox != null){
-                customDialogBox.Remove();
-                customDialogBox = null;
-            }
-        }
-    }
-
-    public void showCustomDlg(View view) {
-        if (view.getId() == R.id.csbubbleimg)
-            DisplayDialog();
-        else if(view.getId()== R.id.btnYes){
-            SetStateToSafeMode();
-            MainActivity.getInstanceActivity().openGoogleMaps("hospital");
-        }
-        else if(view.getId() == R.id.btnNo){
-            SetStateToSafeMode();
-        }
-        else
-            SetStateToSafeMode();
-    }
-    public void checkTimeOut() {
-        if (customDialogBox != null) {
-            customDialogBox.Remove();
-            customDialogBox = null;
-        }
-    }
 }

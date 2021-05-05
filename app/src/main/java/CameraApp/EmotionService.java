@@ -211,7 +211,7 @@ public class EmotionService extends Service {
 
                         if (s.equals("Sad")){
                             sadCounter++;
-                            if(sadCounter > 40 && !lastPlayedObservedEmotion.equals("Sad")){
+                            if(sadCounter > 35 && !lastPlayedObservedEmotion.equals("Sad")){
                                 Speech.readText("You seem sad, Do you want to listen some music to cheer up?");
                                 try {
                                     Thread.sleep(500);
