@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.media.Image;
 import android.os.Binder;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Base64;
 import android.util.Log;
@@ -92,7 +93,7 @@ public class FatigueService extends Service {
     private final int YAWN_THRESHOLD = 20;
     private CustomDialogBox customDialogBox = null;
     private boolean isInFatigue = false;
-
+    Handler mainHandler;
     boolean enteredThePlace;
 
     @Nullable
@@ -121,6 +122,8 @@ public class FatigueService extends Service {
         yawn_frame_counter = 0;
         alarm_counter = 0;
         enteredThePlace = false;
+        initDetector();
+        mainHandler = new Handler();
     }
 
     @Override
@@ -161,15 +164,6 @@ public class FatigueService extends Service {
         }
     }
 
-    public void analyze(Bitmap fatigueBitmap) {
-        if (fatigueBitmap == null) {
-            return;
-        }
-        fbImage = FirebaseVisionImage.fromBitmap(fatigueBitmap);
-        initDetector();
-        detectFaces();
-    }
-
     private void initDetector() {
         FirebaseVisionFaceDetectorOptions detectorOptions = new FirebaseVisionFaceDetectorOptions
                 .Builder()
@@ -178,6 +172,14 @@ public class FatigueService extends Service {
         faceDetector = FirebaseVision
                 .getInstance()
                 .getVisionFaceDetector(detectorOptions);
+    }
+
+    public void analyze(Bitmap fatigueBitmap) {
+        if (fatigueBitmap == null) {
+            return;
+        }
+        fbImage = FirebaseVisionImage.fromBitmap(fatigueBitmap);
+        detectFaces();
     }
 
     private void detectFaces() {
@@ -232,7 +234,12 @@ public class FatigueService extends Service {
                         alarm_counter = 0;
                         Speech.readText("You show fatigue symptoms. Do you want us to SAVE the situation ?");
                         Log.i(TAG, "YOU SHOW FATIGUE SYMPTOMS. DO YOU WANT US TO SAVE THE SITUATION");
-                        MainActivity.getInstanceActivity().startSpeech("Fatigue");
+                        mainHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                MainActivity.getInstanceActivity().startSpeech("Fatigue");
+                            }
+                        });
                         /**
                         String userResponse = MainActivity.getInstanceActivity().getSpeechString();
                         Log.i(TAG, "USER RESPONSE IN FATIGUE " + userResponse);

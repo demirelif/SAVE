@@ -3,6 +3,7 @@ package CameraApp;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
@@ -36,13 +37,14 @@ public class rPPGService extends Service {
     private static final String TAG = "rPPG SERVICE";
     private static byte[] byteArray;
     private static final String SpeedTAG = "Speed rppg";
+    private static boolean callRPPGSpeech = false;
     long startTime,endTime,contentLength;
     long initialStart;
     int counter = 0;
     private boolean isInHighPulse;
     private CustomDialogBox customDialogBox = null;
     private static FloatingIcon floatingIcon = null;
-
+    Handler mainHandler;
 
     @Nullable
     @Override
@@ -59,6 +61,7 @@ public class rPPGService extends Service {
         super.onCreate();
         cleanRPPGServer();
         isInHighPulse = false;
+        mainHandler = new Handler();
     }
 
     @Override
@@ -97,9 +100,29 @@ public class rPPGService extends Service {
             if ( counter == 0 )
                 startTime = System.currentTimeMillis(); //Hold StartTime
             counter++;
+            bullShitPPG();
             postImageToServer(byteArray);
+            //bullShitPPG();
+        }
+    }
+
+    public void bullShitPPG() throws InterruptedException{
+        if(callRPPGSpeech){
+            Log.i(TAG, "CALL RPPG SPEECH TRUE");
+            mainHandler.post(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            MainActivity.getInstanceActivity().startSpeech("rPPG");
+                        }
+                    }
+            );
 
         }
+
+
+
+
     }
     private void cleanRPPGServer(){
         String postUrl2 = "http://" + "192.168.1.102" + ":" + 8000 + "/clean"; // UTKU IP
@@ -182,13 +205,19 @@ public class rPPGService extends Service {
                                         e.printStackTrace();
                                     }
                                 }
-                                if(pulse_rate > 750){
-                                    Speech.readText("Your pulse rate seems above normal, it is " + pulse_rate/10.0 + ", do you want to having a stopover");
+                                if(pulse_rate > 700){
+                                    Speech.readText("Your pulse rate seems above normal, it is " + pulse_rate/10.0 + ", what do you want to do?");
                                     Thread.sleep(1600);
                                     String lat = "39.895166";
                                     String lon = "32.806005";
-                                    MainActivity.getInstanceActivity().openGoogleMaps("hospital");
-                                    MainActivity.getInstanceActivity().sendSMS("+905077907940", "Check Utku from RPPG!! On coordinations lat: " + lat + ", lon: " + lon);
+                                    mainHandler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            MainActivity.getInstanceActivity().startSpeech("rPPG");
+                                        }
+                                    });
+                                    //MainActivity.getInstanceActivity().openGoogleMaps("hospital");
+                                    //MainActivity.getInstanceActivity().sendSMS("+905077907940", "Check Utku from RPPG!! On coordinations lat: " + lat + ", lon: " + lon);
                                     Log.i(TAG, "DISPLAY KISMINDAN CIKTIM");
                                 }
                             }

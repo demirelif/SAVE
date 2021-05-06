@@ -190,7 +190,12 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public static final Object fatigueSpeechLock = new Object();
     public String lastClientService = "";
     public static final String POSITIVE_RESPONSE = "yes";
+    public static final String POSITIVE_RESPONSE_2 = "okay";
+    public static final String POSITIVE_RESPONSE_3 = "go on";
     public static final String NEGATIVE_RESPONSE = "no";
+    public static final String PHONE_1 = "+905424140099";
+    public static final String PHONE_2 = "+905077907940";
+
 
     private boolean isInHighPulse;
     private CustomDialogBox customDialogBox = null;
@@ -402,7 +407,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private void setRecognizerIntent(){
         recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE,
-                "en");
+                "en-US");
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
@@ -577,7 +582,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             startTracking(null);
             crashStarted = true;
         }
-        Speech.readText("Starting our road trip");
+        //Speech.readText("Starting our road trip");
+        Speech.readText("Haydi bismillah");
         //sendSMS("+905077907940", "Check Utku !! ");
         //sendSMS("+905424140099", "Check Utku !! ");
         //makeCall("+905424140099", "UTKU");
@@ -795,26 +801,42 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     }
 
     public void processResults(String result){
+        result = result.toLowerCase();
+
         System.out.println("PROCEESS RESULTSSS  " + lastClientService + "   " + result + ".");
-        if(result.contains(POSITIVE_RESPONSE) && lastClientService.equals("Fatigue")){
+        // FATIGUE
+        if( ((result.contains(POSITIVE_RESPONSE) || result.contains(POSITIVE_RESPONSE_2) || result.contains(POSITIVE_RESPONSE_3)) && lastClientService.equals("Fatigue"))){
             Speech.readText("There you go");
             openGoogleMaps("station");
         }
-        else if(result.contains(POSITIVE_RESPONSE) && lastClientService.equals("rPPG")){
-            Speech.readText("There you go");
-            openGoogleMaps("hospital");
-        }
-        else if(result.contains(POSITIVE_RESPONSE) && lastClientService.equals("Emotion-Sad")){
+        /**
+        // EMOTION MUSIC
+        else if( (result.contains(POSITIVE_RESPONSE) || result.contains(POSITIVE_RESPONSE_2) || result.contains(POSITIVE_RESPONSE_3)) && lastClientService.equals("Emotion-Sad")){
             jukeBox("Energetic");
         }
-        else if(result.contains(POSITIVE_RESPONSE) && lastClientService.equals("Emotion-Angry")){
+        else if( (result.contains(POSITIVE_RESPONSE) || result.contains(POSITIVE_RESPONSE_2) || result.contains(POSITIVE_RESPONSE_3)) && lastClientService.equals("Emotion-Angry")){
             jukeBox("Calm");
         }
-        else if(result.contains(POSITIVE_RESPONSE) && lastClientService.equals("Emotion-Fear")){
+        else if( (result.contains(POSITIVE_RESPONSE) || result.contains(POSITIVE_RESPONSE_2) || result.contains(POSITIVE_RESPONSE_3)) && lastClientService.equals("Emotion-Fear")){
             jukeBox("Fear");
         }
-        else if(result.contains(POSITIVE_RESPONSE) && lastClientService.equals("Emotion-Happy")){
+        else if( (result.contains(POSITIVE_RESPONSE) || result.contains(POSITIVE_RESPONSE_2) || result.contains(POSITIVE_RESPONSE_3)) && lastClientService.equals("Emotion-Happy")){
             jukeBox("Happy");
+        }*/
+        // RPPG
+        else if(lastClientService.equals("rPPG")){
+            if(result.contains("make a call")){
+                Speech.readText("Making phone call");
+                makeCall(PHONE_1, "rPPG");
+            }
+            else if(result.contains("send message")){
+               Speech.readText("Sending message");
+               sendSMS(PHONE_1, "MESSAGE FROM RPPG");
+            }
+            else if(result.contains("hospital")){
+                Speech.readText("There you go");
+                openGoogleMaps("hospital");
+            }
         }
         else if(result.contains(NEGATIVE_RESPONSE)){
             Speech.readText("Ooh, okay then");
@@ -848,7 +870,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             speech.destroy();
         }
         speech.stopListening();
-        mSpotifyAppRemote.getPlayerApi().pause();
+        //mSpotifyAppRemote.getPlayerApi().pause();
         SpotifyAppRemote.disconnect(mSpotifyAppRemote);
     }
 
