@@ -9,6 +9,7 @@ import android.media.ExifInterface;
 import android.media.Image;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -79,25 +80,12 @@ public class EmotionService extends Service {
     private static int neutralCounter;
     private static int fearCounter;
     private static int disgustCounter;
-
     private static String lastPlayedObservedEmotion;
 
     public static boolean playHappyPlaylist;
     public static boolean playEnergeticPlaylist;
     public static boolean playCalmPlaylist;
-
-    // SPEECH TO TEXT VARIABLES
-    private static final int PERMISSIONS_REQUEST_RECORD_AUDIO = 1;
-    private TextView returnedText;
-    private TextView returnedError;
-    private ProgressBar progressBar;
-    private SpeechRecognizer speech = null;
-    private Intent recognizerIntent;
-    private String TAG_SPEECH = "VoiceRecognitionEmotionActivity";
-    public static final Object fatigueSpeechLock = new Object();
-    public String lastClientService = "";
-    public static final String POSITIVE_RESPONSE = "Evet";
-    public static final String NEGATIVE_RESPONSE = "Hayır";
+    Handler mainHandler;
 
     public class LocalBinder extends Binder {
         public EmotionService getServerInstance(){return EmotionService.this;}
@@ -118,7 +106,7 @@ public class EmotionService extends Service {
         playCalmPlaylist = false;
         playEnergeticPlaylist = false;
         lastPlayedObservedEmotion = "";
-
+        mainHandler = new Handler();
         //MainActivity.getInstanceActivity().makeCall("");
         //fillMap();
     }
@@ -234,7 +222,7 @@ public class EmotionService extends Service {
                                     e.printStackTrace();
                                 }
                                 MainActivity.getInstanceActivity().jukeBox("Energetic");
-                                //MainActivity.getInstanceActivity().startSpeech("Emotion-Sad");
+                                //mainHandler.post(() -> MainActivity.getInstanceActivity().startSpeech("Emotion-Sad"));
                                 sadCounter = 0;
                                 lastPlayedObservedEmotion = "Sad";
                                 setAllCounterZero();
@@ -250,7 +238,7 @@ public class EmotionService extends Service {
                                     e.printStackTrace();
                                 }
                                 MainActivity.getInstanceActivity().jukeBox("Calm");
-                                //MainActivity.getInstanceActivity().startSpeech("Emotion-Calm");
+                                //mainHandler.post(() -> MainActivity.getInstanceActivity().startSpeech("Emotion-Calm"));
                                 lastPlayedObservedEmotion = "Angry";
                                 setAllCounterZero();
                             }
@@ -265,7 +253,7 @@ public class EmotionService extends Service {
                                     e.printStackTrace();
                                 }
                                 MainActivity.getInstanceActivity().jukeBox("Fear");
-                                //MainActivity.getInstanceActivity().startSpeech("Emotion-Fear");
+                                //mainHandler.post(() -> MainActivity.getInstanceActivity().startSpeech("Emotion-Fear"));
                                 lastPlayedObservedEmotion = "Fear";
                                 setAllCounterZero();
                             }
@@ -280,7 +268,7 @@ public class EmotionService extends Service {
                                     e.printStackTrace();
                                 }
                                 MainActivity.getInstanceActivity().jukeBox("Happy");
-                                //MainActivity.getInstanceActivity().startSpeech("Emotion-Happy");
+                                //mainHandler.post(() -> MainActivity.getInstanceActivity().startSpeech("Emotion-Happy"));
                                 lastPlayedObservedEmotion = "Happy";
                                 setAllCounterZero();
                             }
