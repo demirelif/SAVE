@@ -183,7 +183,7 @@ public class rPPGService extends Service {
                                     }
                                 }
                                 if(pulse_rate > 750){
-                                    Speech.readText("Your pulse rate seems above normal, it is " + pulse_rate/10 + " consider having a stopover");
+                                    Speech.readText("Your pulse rate seems above normal, it is " + pulse_rate/10.0 + ", do you want to having a stopover");
                                     Thread.sleep(1600);
                                     String lat = "39.895166";
                                     String lon = "32.806005";

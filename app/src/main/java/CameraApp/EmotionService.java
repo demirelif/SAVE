@@ -8,19 +8,27 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.media.Image;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.util.Log;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.saveandroid.MainActivity;
+import com.spotify.android.appremote.api.SpotifyAppRemote;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -78,13 +86,18 @@ public class EmotionService extends Service {
     public static boolean playEnergeticPlaylist;
     public static boolean playCalmPlaylist;
 
-   // HashMap<String, Integer> moods = new HashMap<>();
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
-    }
+    // SPEECH TO TEXT VARIABLES
+    private static final int PERMISSIONS_REQUEST_RECORD_AUDIO = 1;
+    private TextView returnedText;
+    private TextView returnedError;
+    private ProgressBar progressBar;
+    private SpeechRecognizer speech = null;
+    private Intent recognizerIntent;
+    private String TAG_SPEECH = "VoiceRecognitionEmotionActivity";
+    public static final Object fatigueSpeechLock = new Object();
+    public String lastClientService = "";
+    public static final String POSITIVE_RESPONSE = "Evet";
+    public static final String NEGATIVE_RESPONSE = "Hayır";
 
     public class LocalBinder extends Binder {
         public EmotionService getServerInstance(){return EmotionService.this;}
@@ -105,6 +118,7 @@ public class EmotionService extends Service {
         playCalmPlaylist = false;
         playEnergeticPlaylist = false;
         lastPlayedObservedEmotion = "";
+
         //MainActivity.getInstanceActivity().makeCall("");
         //fillMap();
     }
@@ -212,13 +226,15 @@ public class EmotionService extends Service {
                         if (s.equals("Sad")){
                             sadCounter++;
                             if(sadCounter > 35 && !lastPlayedObservedEmotion.equals("Sad")){
-                                Speech.readText("You seem sad, Do you want to listen some music to cheer up?");
+                                //Speech.readText("You seem sad, Do you want to listen some music to cheer up?");
+                                Speech.readText("You seem sad, Lets listen some music to cheer up?");
                                 try {
                                     Thread.sleep(500);
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
                                 MainActivity.getInstanceActivity().jukeBox("Energetic");
+                                //MainActivity.getInstanceActivity().startSpeech("Emotion-Sad");
                                 sadCounter = 0;
                                 lastPlayedObservedEmotion = "Sad";
                                 setAllCounterZero();
@@ -226,19 +242,15 @@ public class EmotionService extends Service {
                         }else if(s.equals("Angry")){
                             angryCounter++;
                             if(angryCounter > 2 && !lastPlayedObservedEmotion.equals("Angry")){
-                                Speech.readText("You seem angry, Do you want some music to relax ?");
+                                //Speech.readText("You seem angry, Do you want some music to relax ?");
+                                Speech.readText("You seem angry, Lets listen some music to relax ?");
                                 try {
                                     Thread.sleep(500);
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
                                 MainActivity.getInstanceActivity().jukeBox("Calm");
-                                /**
-                                 MainActivity.getInstanceActivity().startSpeech();
-                                 String userResponse = MainActivity.speechString;
-                                 if ( userResponse.equals("yes")) {
-                                 MainActivity.getInstanceActivity().jukeBox("Calm");
-                                 }*/
+                                //MainActivity.getInstanceActivity().startSpeech("Emotion-Calm");
                                 lastPlayedObservedEmotion = "Angry";
                                 setAllCounterZero();
                             }
@@ -253,6 +265,7 @@ public class EmotionService extends Service {
                                     e.printStackTrace();
                                 }
                                 MainActivity.getInstanceActivity().jukeBox("Fear");
+                                //MainActivity.getInstanceActivity().startSpeech("Emotion-Fear");
                                 lastPlayedObservedEmotion = "Fear";
                                 setAllCounterZero();
                             }
@@ -267,6 +280,7 @@ public class EmotionService extends Service {
                                     e.printStackTrace();
                                 }
                                 MainActivity.getInstanceActivity().jukeBox("Happy");
+                                //MainActivity.getInstanceActivity().startSpeech("Emotion-Happy");
                                 lastPlayedObservedEmotion = "Happy";
                                 setAllCounterZero();
                             }
@@ -283,26 +297,10 @@ public class EmotionService extends Service {
         fearCounter = 0;
         angryCounter = 0;
     }
-    /*
-
-    private void resetMap(){
-        moods.clear();
-        fillMap();
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
     }
-
-    private void fillMap(){
-        moods.put("Sad",0);
-        moods.put("Angry",0);
-        moods.put("Neutral",0);
-        // moods.put()
-        // moods.put()
-    }
-
-    private void getMaxEmotion(){
-
-    }
-     */
-
-
 
 }
