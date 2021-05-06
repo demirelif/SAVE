@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public static boolean textToSpeechIsInitialized = false;
     public static SpeechRecognizer speechRecognizer;
     public static Intent intentRecognizer;
-    public static String speechString = "";
+    public static String speechString = "Cadillac";
     public Intent callIntent;
     public Intent smsIntent;
 
@@ -317,13 +317,16 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     };
 */
 
-    public static void startSpeech(){
+    public static String startSpeech(){
         try {
             speechRecognizer.startListening(intentRecognizer);
+            Log.i(TAG, "START SPEECH KISMINDAYIZ " + speechString);
+            return speechString;
         }
         catch(Exception e){
             Log.e(TAG, "Speech cannot be started " +e);
         }
+        return "Could not read";
     }
 
     public static void stopSpeech(){
@@ -607,6 +610,11 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void activateRoadTrip(View view) {
+        emotionStarted = false;
+        rPPGStarted = false;
+        fatigueStarted = true;
+        crashStarted = false;
+
         Log.i(TAG, " ACTIVATE ROAD");
         //Toast.makeText(getApplicationContext(), "activating road trip", Toast.LENGTH_LONG).show();
 
@@ -629,26 +637,30 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Intent frontCameraIntent = new Intent(MainActivity.this, FrontCameraService.class);
         bindService(frontCameraIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(frontCameraIntent);
-
-        Intent emotionIntent = new Intent(MainActivity.this, EmotionService.class);
-        bindService(emotionIntent, serviceConnection, BIND_AUTO_CREATE);
-        MainActivity.this.startService(emotionIntent);
-        emotionStarted = true;
-
-        Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
-        bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
-        MainActivity.this.startService(rPPGIntent);
-        rPPGStarted = true;
-
-        Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
-        bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
-        MainActivity.this.startService(fatigueIntent);
-        fatigueStarted = true;
-
-        startTracking(null);
-        crashStarted = true;
+        if(emotionStarted){
+            Intent emotionIntent = new Intent(MainActivity.this, EmotionService.class);
+            bindService(emotionIntent, serviceConnection, BIND_AUTO_CREATE);
+            MainActivity.this.startService(emotionIntent);
+            emotionStarted = true;
+        }
+        if(rPPGStarted){
+            Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
+            bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
+            MainActivity.this.startService(rPPGIntent);
+            rPPGStarted = true;
+        }
+        if(fatigueStarted){
+            Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
+            bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
+            MainActivity.this.startService(fatigueIntent);
+            fatigueStarted = true;
+        }
+        if(crashStarted){
+            startTracking(null);
+            crashStarted = true;
+        }
         Speech.readText("Starting our road trip");
-        sendSMS("+905077907940", "Check Utku !! ");
+        //sendSMS("+905077907940", "Check Utku !! ");
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)

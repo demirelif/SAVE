@@ -169,11 +169,12 @@ public class rPPGService extends Service {
                             responzee[0] = response.body().string();
                             Log.i(TAG, "Server's Response ---> " + responzee[0]);
                             if (!(responzee[0].equals("Calculating...") || responzee[0].equals("cleaned successfully"))){
-                                Speech.readText(responzee[0]);
+
                                 String str = responzee[0];
                                 String mid_str = str.replaceAll("[^0-9]", "");
                                 System.out.println("mid_str " + mid_str);
                                 int pulse_rate = 0;
+                                Speech.readText(responzee[0]);
                                 if(!mid_str.equals("")){
                                     try{
                                         pulse_rate = Integer.parseInt(mid_str);
@@ -181,8 +182,8 @@ public class rPPGService extends Service {
                                         e.printStackTrace();
                                     }
                                 }
-                                if(pulse_rate > 700){
-                                    Speech.readText("Your pulse rate seems above normal, consider having a stopover");
+                                if(pulse_rate > 750){
+                                    Speech.readText("Your pulse rate seems above normal, it is " + pulse_rate/10 + " consider having a stopover");
                                     Thread.sleep(1600);
                                     String lat = "39.895166";
                                     String lon = "32.806005";
