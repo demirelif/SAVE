@@ -4,6 +4,8 @@
 
         <SwitchPreferenceCompat
             app:key="drowsiness"
+            app:summaryOff="@string/attachment_summary_off"
+            app:summaryOn="@string/attachment_summary_on"
             app:title="Allow This Application To Warn You When Drowsiness Detected" />
 
     </PreferenceCategory>
@@ -12,7 +14,29 @@
 
         <SwitchPreferenceCompat
             app:key="rppg"
+            app:summaryOff="@string/attachment_summary_off"
+            app:summaryOn="@string/attachment_summary_on"
             app:title="Allow This Application To Check You When Emergency Health Condition Occurs" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Distraction Assistant">
+
+        <SwitchPreferenceCompat
+            app:key="distraction"
+            app:summaryOff="@string/attachment_summary_off"
+            app:summaryOn="@string/attachment_summary_on"
+            app:title="Allow This Aplication To Warn You When Distraction Happens" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Traffic Light Assistant">
+
+        <SwitchPreferenceCompat
+            app:key="traffic"
+            app:summaryOff="@string/attachment_summary_off"
+            app:summaryOn="@string/attachment_summary_on"
+            app:title="Activate Traffic Light Tracking And Give Warnings When Light Change Goes Unnoticed" />
 
     </PreferenceCategory>
 
@@ -20,6 +44,8 @@
 
         <SwitchPreferenceCompat
             app:key="gforce"
+            app:summaryOff="@string/attachment_summary_off"
+            app:summaryOn="@string/attachment_summary_on"
             app:title="In Case Of Sudden Change Of G Force, Inform Emergeny Contact" />
 
     </PreferenceCategory>
@@ -28,6 +54,8 @@
 
         <SwitchPreferenceCompat
             app:key="music"
+            app:summaryOff="@string/attachment_summary_off"
+            app:summaryOn="@string/attachment_summary_on"
             app:title="Will Play Music According To Your Mood" />
 
     </PreferenceCategory>

@@ -3,12 +3,12 @@
     <PreferenceCategory app:title="Warning Message">
 
         <SwitchPreferenceCompat
-            app:key="popup"
+            app:key="sync"
             app:title="Using Pop-up Text Message" />
 
         <SwitchPreferenceCompat
             app:key="audio"
-            app:title="Get Audio Message" />
+            app:title="Using Audio Message" />
 
 
 
@@ -34,10 +34,13 @@
 
 
     </PreferenceCategory>
+    <PreferenceCategory app:title="Dark Mode" app:key="sync">
+
+    </PreferenceCategory>
     <PreferenceCategory app:title="Voice Control">
         <SwitchPreferenceCompat
             app:dependency="sync"
-            app:key="voiceCommand"
+            app:key="attachment"
             app:summaryOff="@string/attachment_summary_off"
             app:summaryOn="@string/attachment_summary_on"
             app:title="@string/attachment_title" />

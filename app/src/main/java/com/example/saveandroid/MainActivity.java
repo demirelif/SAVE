@@ -558,7 +558,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Intent speechIntent = new Intent(MainActivity.this, Speech.class);
         bindService(speechIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(speechIntent);
-        /*
+
         SharedPreferences preferences = getSharedPreferences("root_settings", MODE_PRIVATE);
         //SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         Log.i(TAG, "bunlar var: " + preferences.getAll());
@@ -570,7 +570,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         boolean value2 = preferences.getBoolean("music", false);
         Log.i(TAG, "Music: " + value2);
 
-         */
+     
 
 
         Intent frontCameraIntent = new Intent(MainActivity.this, FrontCameraService.class);
