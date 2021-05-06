@@ -199,14 +199,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     Connection connect;
     String connectionResult = "";
 
-    boolean drowsinessVal;
-    boolean popupVal;
-    boolean rppgVal;
-    boolean crashVal;
-    boolean emotionVal;
-    boolean audioVal;
-    boolean sesliCevapVal;
-
     public static MainActivity getInstanceActivity() {
         return weakMainActivity.get();
     }
@@ -308,31 +300,20 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
     };
 
-    /*
+/*
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             int hiz = intent.getIntExtra("hiz", 0);
+            hizView.setText("" + hiz);
+            Log.d(TAG, "al:" + hiz);
         }
     };
-
-
-     */
+*/
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        /*
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this );
-        drowsinessVal = sharedPreferences.getBoolean("drowsiness", true);
-        popupVal = sharedPreferences.getBoolean("popup", true);
-        rppgVal = sharedPreferences.getBoolean("rppg", true);
-        crashVal = sharedPreferences.getBoolean("gforce", true);
-        emotionVal = sharedPreferences.getBoolean("music", true);
-        audioVal = sharedPreferences.getBoolean("audio", true);
-        sesliCevapVal = sharedPreferences.getBoolean("voiceCommand", true);
-        */
-
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate enter");
 
@@ -539,11 +520,11 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 });
     }
     /**
-    @Override
-    protected void onStop() {
-        super.onStop();
-        SpotifyAppRemote.disconnect(mSpotifyAppRemote);
-    }
+     @Override
+     protected void onStop() {
+     super.onStop();
+     SpotifyAppRemote.disconnect(mSpotifyAppRemote);
+     }
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void activateRoadTrip(View view) {
@@ -570,31 +551,29 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         boolean value2 = preferences.getBoolean("music", false);
         Log.i(TAG, "Music: " + value2);
 
-     
-
 
         Intent frontCameraIntent = new Intent(MainActivity.this, FrontCameraService.class);
         bindService(frontCameraIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(frontCameraIntent);
-        if(emotionStarted ){
+        if(emotionStarted){
             Intent emotionIntent = new Intent(MainActivity.this, EmotionService.class);
             bindService(emotionIntent, serviceConnection, BIND_AUTO_CREATE);
             MainActivity.this.startService(emotionIntent);
             emotionStarted = true;
         }
-        if(rPPGStarted ){
+        if(rPPGStarted){
             Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
             bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
             MainActivity.this.startService(rPPGIntent);
             rPPGStarted = true;
         }
-        if(fatigueStarted ){
+        if(fatigueStarted){
             Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
             bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
             MainActivity.this.startService(fatigueIntent);
             fatigueStarted = true;
         }
-        if(crashStarted ){
+        if(crashStarted){
             startTracking(null);
             crashStarted = true;
         }
@@ -907,12 +886,12 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         speechString = text;
         processResults(text);
         /**
-        synchronized (fatigueSpeechLock){
-            returnedText.setText(text);
-            progressBar.setIndeterminate(false);
-            speechString = text;
-            fatigueSpeechLock.notify();
-        }*/
+         synchronized (fatigueSpeechLock){
+         returnedText.setText(text);
+         progressBar.setIndeterminate(false);
+         speechString = text;
+         fatigueSpeechLock.notify();
+         }*/
     }
 
     @Override
