@@ -39,6 +39,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
@@ -118,8 +119,10 @@ import com.spotify.protocol.client.Subscription;
 import com.spotify.protocol.types.PlayerState;
 import com.spotify.protocol.types.Track;
 
+import static android.Manifest.permission.RECORD_AUDIO;
 
-public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback, SharedPreferences.OnSharedPreferenceChangeListener {
+
+public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback, SharedPreferences.OnSharedPreferenceChangeListener, RecognitionListener {
     public static final String TAG = "MAIN ACTIVITY";
     private static final int TTS_CHECK_CODE = 101;
     private static final int REQUEST_CAMERA_PERMISSION = 200;
@@ -138,7 +141,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public static TextToSpeech tts;
     private KenBurnsView kbv;
     private boolean moving = true;
-    static Bitmap data;
     boolean cameraBounded;
     boolean frontCameraBounded;
     boolean emotionBounded;
@@ -156,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public static boolean textToSpeechIsInitialized = false;
     public static SpeechRecognizer speechRecognizer;
     public static Intent intentRecognizer;
-    public static String speechString = "Cadillac";
+    public static String speechString = "";
     public Intent callIntent;
     public Intent smsIntent;
 
@@ -165,20 +167,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public static boolean rPPGStarted;
     public static boolean crashStarted;
 
-    public static double gazeAngle = 0;
-    public static double headPose = 0;
-    //String url = "http://" + "192.168.1.20" + "/" + "predict";
-    private java.net.URL URL;
-    // private String url = "http://" + "10.0.0.2" + "/" + "predict"; // try 10.0.0.2
-    // private String url = "http://" + "10.0.0.2" + "/" + "predict"; // try 10.0.0.2
-    private String postBodyString;
-    private MediaType mediaType;
-    private RequestBody requestBody;
-    private Response response;
-    File file;
-    MediaType JSON;
-    TextView hizView;
-
+    // SPOTIFY VARIABLES
     private static final String CLIENT_ID = "b35e3998a3fa4e3e88f85a78124e422a"; // SPOTIFY CLIENT ID
     private static final String REDIRECT_URI = "https://utkukalkanli319.github.io/SAVE/";
     private SpotifyAppRemote mSpotifyAppRemote;
@@ -189,6 +178,15 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public static boolean openMapFatigue;
     public static boolean openMapRPPG;
     public static String lastPlayedGenre;
+
+    // SPEECH TO TEXT VARIABLES
+    private static final int PERMISSIONS_REQUEST_RECORD_AUDIO = 1;
+    private TextView returnedText;
+    private TextView returnedError;
+    private ProgressBar progressBar;
+    private SpeechRecognizer speech = null;
+    private Intent recognizerIntent;
+    private String TAG_SPEECH = "VoiceRecognitionMainActivity";
 
     private boolean isInHighPulse;
     private CustomDialogBox customDialogBox = null;
@@ -317,7 +315,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     };
 */
 
-    public static String startSpeech(){
+    public static String startSpeechElif(){
         try {
             speechRecognizer.startListening(intentRecognizer);
             Log.i(TAG, "START SPEECH KISMINDAYIZ " + speechString);
@@ -345,7 +343,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
         startKenBurnsView(); // start special ken burns view
 
-        //hizView = findViewById(R.id.hizGoster);
         playHappyPlaylist = false;
         playCalmPlaylist = false;
         playEnergeticPlaylist = false;
@@ -396,13 +393,53 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             Log.e(TAG, "Activity mainde de calismadi");
         }
 
+        // SPEECH TO TEXT
+        resetSpeechRecognizer();
 
+        // check for permission
+        int permissionCheck = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.RECORD_AUDIO);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, PERMISSIONS_REQUEST_RECORD_AUDIO);
+            return;
+        }
+
+        setRecognizerIntent();
+        //speech.startListening(recognizerIntent);
+
+        checkPermissions();
+        // SETTINGS
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .registerOnSharedPreferenceChangeListener(this);
+    }
+    // utku
+    private void resetSpeechRecognizer(){
+        if(speech != null)
+            speech.destroy();
+        speech = SpeechRecognizer.createSpeechRecognizer(this);
+        Log.i(TAG_SPEECH, "isRecognitionAvailable: " + SpeechRecognizer.isRecognitionAvailable(this));
+        if(SpeechRecognizer.isRecognitionAvailable(this))
+            speech.setRecognitionListener(this);
+        else
+            finish();
+    }
+    // utku
+    private void setRecognizerIntent(){
+        recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE,
+                "en");
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
+    }
+
+    // ELIF
+    private void setSpeechRecognizerElif(){
         // SPEECH TO TEXT
 
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         intentRecognizer = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intentRecognizer.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-      //  intentRecognizer.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
+        //  intentRecognizer.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
         speechRecognizer.setRecognitionListener(new RecognitionListener() {
             @Override
             public void onReadyForSpeech(Bundle params) {
@@ -437,6 +474,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             @Override
             public void onResults(Bundle results) {
                 ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                Log.i(TAG, "ON RESULTS SIZE " + matches.size());
                 String s = "";
                 if (matches != null) {
                     for (int i = 0; i < matches.size(); i++) {
@@ -463,11 +501,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
             }
         });
-        checkPermissions();
-        // SETTINGS
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .registerOnSharedPreferenceChangeListener(this);
     }
+
+
 
     public void checkPermissions(){
         // PERMISSION CHECK FOR CAMERA
@@ -480,14 +516,16 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             return;
         }
         // PERMISSION CHECK FOR MIC
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_PERMISSION);
+        if (ActivityCompat.checkSelfPermission(this, RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{RECORD_AUDIO}, REQUEST_PERMISSION);
             return;
         }
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, REQUEST_PERMISSION);
             return;
         }
+        ActivityCompat.requestPermissions(this, new String[]{RECORD_AUDIO}, PackageManager.PERMISSION_GRANTED);
+
     }
 
     @Override
@@ -582,12 +620,13 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                     }
                 });
     }
-
+    /**
     @Override
     protected void onStop() {
         super.onStop();
         SpotifyAppRemote.disconnect(mSpotifyAppRemote);
     }
+     */
 
 
     /*
@@ -707,6 +746,15 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         setContentView(R.layout.nav_activity_main);
 
         kbv = findViewById(R.id.kbv);
+
+        // UI initialisation
+        returnedText = findViewById(R.id.textView1);
+        //returnedError = findViewById(R.id.errorView1);
+        progressBar =  findViewById(R.id.progressBar1);
+        progressBar.setVisibility(View.INVISIBLE);
+
+        progressBar.setVisibility(View.VISIBLE);
+        progressBar.setIndeterminate(false);
 
         AccelerateDecelerateInterpolator adi = new AccelerateDecelerateInterpolator();
         RandomTransitionGenerator generator = new RandomTransitionGenerator(4000, adi);
@@ -868,6 +916,139 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         return null;
     }
 
+    // UTKU
+    public void startSpeech(){
+        speech.startListening(recognizerIntent);
+    }
+
+    public String getSpeechString(){
+        return speechString;
+    }
+
+    @Override
+    public void onResume() {
+        Log.i(TAG_SPEECH, "resume");
+        super.onResume();
+        resetSpeechRecognizer();
+    }
+
+    @Override
+    protected void onPause() {
+        Log.i(TAG_SPEECH, "pause");
+        super.onPause();
+        speech.stopListening();
+    }
+
+    @Override
+    protected void onStop() {
+        Log.i(TAG_SPEECH, "stop");
+        super.onStop();
+        if (speech != null) {
+            speech.destroy();
+        }
+        speech.stopListening();
+        SpotifyAppRemote.disconnect(mSpotifyAppRemote);
+    }
 
 
+    @Override
+    public void onBeginningOfSpeech() {
+        Log.i(TAG_SPEECH, "onBeginningOfSpeech");
+        progressBar.setIndeterminate(false);
+        progressBar.setMax(10);
+    }
+
+    @Override
+    public void onBufferReceived(byte[] buffer) {
+        Log.i(TAG_SPEECH, "onBufferReceived: " + buffer);
+    }
+
+    @Override
+    public void onEndOfSpeech() {
+        Log.i(TAG_SPEECH, "onEndOfSpeech");
+        progressBar.setIndeterminate(true);
+        speech.stopListening();
+    }
+
+    @Override
+    public void onResults(Bundle results) {
+        Log.i(TAG_SPEECH, "onResults");
+        ArrayList<String> matches = results
+                .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+        String text = "";
+        for (String result : matches)
+            text += result + "\n";
+
+        returnedText.setText(text);
+        progressBar.setIndeterminate(false);
+        speechString = text;
+    }
+
+    @Override
+    public void onError(int errorCode) {
+        String errorMessage = getErrorText(errorCode);
+        Log.i(TAG_SPEECH, "FAILED " + errorMessage);
+        //returnedError.setText(errorMessage);
+        // rest voice recogniser
+        resetSpeechRecognizer();
+        speech.startListening(recognizerIntent);
+    }
+
+    @Override
+    public void onEvent(int arg0, Bundle arg1) {
+        Log.i(TAG_SPEECH, "onEvent");
+    }
+
+    @Override
+    public void onPartialResults(Bundle arg0) {
+        Log.i(TAG_SPEECH, "onPartialResults");
+    }
+
+    @Override
+    public void onReadyForSpeech(Bundle arg0) {
+        Log.i(TAG_SPEECH, "onReadyForSpeech");
+    }
+
+    @Override
+    public void onRmsChanged(float rmsdB) {
+        //Log.i(LOG_TAG, "onRmsChanged: " + rmsdB);
+        progressBar.setProgress((int) rmsdB);
+    }
+
+    public String getErrorText(int errorCode) {
+        String message;
+        switch (errorCode) {
+            case SpeechRecognizer.ERROR_AUDIO:
+                message = "Audio recording error";
+                break;
+            case SpeechRecognizer.ERROR_CLIENT:
+                message = "Client side error";
+                break;
+            case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
+                message = "Insufficient permissions";
+                break;
+            case SpeechRecognizer.ERROR_NETWORK:
+                message = "Network error";
+                break;
+            case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
+                message = "Network timeout";
+                break;
+            case SpeechRecognizer.ERROR_NO_MATCH:
+                message = "No match";
+                break;
+            case SpeechRecognizer.ERROR_RECOGNIZER_BUSY:
+                message = "RecognitionService busy";
+                break;
+            case SpeechRecognizer.ERROR_SERVER:
+                message = "error from server";
+                break;
+            case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
+                message = "No speech input";
+                break;
+            default:
+                message = "Didn't understand, please try again.";
+                break;
+        }
+        return message;
+    }
 }

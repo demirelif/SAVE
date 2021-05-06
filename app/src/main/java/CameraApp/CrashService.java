@@ -37,6 +37,8 @@ import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import SpeechRecognition.Speech;
+
 public class CrashService extends Service {
     private static final String TAG = "CS_Test";
     private static final String CHANNEL_1_ID = "channel1";
@@ -170,6 +172,7 @@ public class CrashService extends Service {
                 .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                 .build();
         notificationManager.notify(1, notification);
+        Speech.readText("");
     }
     private int prevSpeed = -1;
     public void hizGoster() {

@@ -228,13 +228,22 @@ public class FatigueService extends Service {
                     MainActivity.getInstanceActivity().playAlarm();
                     alarm_counter++;
                     if(alarm_counter > 3){
-                        Speech.readText("You show fatigue symptoms. Do you want us to SAVE the situation");
+                        fatigue_frame_counter = 0;
+                        alarm_counter = 0;
+
+                        Speech.readText("You show fatigue symptoms. Consider having a stopover ?");
                         Log.i(TAG, "YOU SHOW FATIGUE SYMPTOMS. DO YOU WANT US TO SAVE THE SITUATION");
 
-                        String response = MainActivity.getInstanceActivity().startSpeech();
-                        //Thread.sleep(500);
-                        String userResponse = MainActivity.speechString;
-                        if ( response.equals("YES")){
+                        MainActivity.getInstanceActivity().startSpeech();
+
+                        Thread.sleep(2000);
+                        // semaphore falan lazım ?
+
+                        String userResponse = MainActivity.getInstanceActivity().getSpeechString();
+                        Log.i(TAG, "USER RESPONSE IN FATIGUE " + userResponse);
+
+                        if (userResponse.equals("Evet")){
+                            Log.i(TAG, "IF ICINDE");
                             Speech.readText("YEEEEEEEEEEEEE");
                             if(!isInFatigue){
                                 isInFatigue = true;
@@ -247,8 +256,6 @@ public class FatigueService extends Service {
 
 
                         Log.i(TAG, "DISPLAY KISMINDAN CIKTIM");
-                        fatigue_frame_counter = 0;
-                        alarm_counter = 0;
                     }
                     Thread.sleep(500);
                     enteredThePlace = false;
