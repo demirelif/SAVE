@@ -322,7 +322,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this /* Activity context */);
+        /*
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this );
         drowsinessVal = sharedPreferences.getBoolean("drowsiness", true);
         popupVal = sharedPreferences.getBoolean("popup", true);
         rppgVal = sharedPreferences.getBoolean("rppg", true);
@@ -330,6 +331,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         emotionVal = sharedPreferences.getBoolean("music", true);
         audioVal = sharedPreferences.getBoolean("audio", true);
         sesliCevapVal = sharedPreferences.getBoolean("voiceCommand", true);
+        */
 
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate enter");
@@ -574,25 +576,25 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Intent frontCameraIntent = new Intent(MainActivity.this, FrontCameraService.class);
         bindService(frontCameraIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(frontCameraIntent);
-        if(emotionStarted && emotionVal){
+        if(emotionStarted ){
             Intent emotionIntent = new Intent(MainActivity.this, EmotionService.class);
             bindService(emotionIntent, serviceConnection, BIND_AUTO_CREATE);
             MainActivity.this.startService(emotionIntent);
             emotionStarted = true;
         }
-        if(rPPGStarted && rppgVal){
+        if(rPPGStarted ){
             Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
             bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
             MainActivity.this.startService(rPPGIntent);
             rPPGStarted = true;
         }
-        if(fatigueStarted && drowsinessVal){
+        if(fatigueStarted ){
             Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
             bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
             MainActivity.this.startService(fatigueIntent);
             fatigueStarted = true;
         }
-        if(crashStarted && crashVal){
+        if(crashStarted ){
             startTracking(null);
             crashStarted = true;
         }
