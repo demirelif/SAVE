@@ -53,6 +53,7 @@ import okhttp3.Response;
 
 import static CameraApp.FrontCameraService.imageBitmapFatigue;
 import static com.example.saveandroid.MainActivity.openMapFatigue;
+import static com.example.saveandroid.MainActivity.fatigueSpeechLock;
 
 public class FatigueService extends Service {
     public IBinder mBinder = new LocalBinder();
@@ -64,7 +65,6 @@ public class FatigueService extends Service {
     public static double headPose = 0;
     private static double gaze_offset;
     private static double pose_offset;
-
     private java.net.URL URL;
     private String postBodyString;
     private MediaType mediaType;
@@ -230,19 +230,13 @@ public class FatigueService extends Service {
                     if(alarm_counter > 3){
                         fatigue_frame_counter = 0;
                         alarm_counter = 0;
-
-                        Speech.readText("You show fatigue symptoms. Consider having a stopover ?");
+                        Speech.readText("You show fatigue symptoms. Do you want us to SAVE the situation ?");
                         Log.i(TAG, "YOU SHOW FATIGUE SYMPTOMS. DO YOU WANT US TO SAVE THE SITUATION");
-
-                        MainActivity.getInstanceActivity().startSpeech();
-
-                        Thread.sleep(2000);
-                        // semaphore falan lazım ?
-
+                        MainActivity.getInstanceActivity().startSpeech("Fatigue");
+                        /**
                         String userResponse = MainActivity.getInstanceActivity().getSpeechString();
                         Log.i(TAG, "USER RESPONSE IN FATIGUE " + userResponse);
-
-                        if (userResponse.equals("Evet")){
+                        if (userResponse.contains("Evet")){
                             Log.i(TAG, "IF ICINDE");
                             Speech.readText("YEEEEEEEEEEEEE");
                             if(!isInFatigue){
@@ -251,11 +245,8 @@ public class FatigueService extends Service {
                                 DisplayDialog();
                             }
                         }
-                        //DisplayIcon();
-                        //DisplayDialog();
-
-
                         Log.i(TAG, "DISPLAY KISMINDAN CIKTIM");
+                         */
                     }
                     Thread.sleep(500);
                     enteredThePlace = false;

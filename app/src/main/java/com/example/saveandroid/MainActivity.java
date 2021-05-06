@@ -187,6 +187,10 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private SpeechRecognizer speech = null;
     private Intent recognizerIntent;
     private String TAG_SPEECH = "VoiceRecognitionMainActivity";
+    public static final Object fatigueSpeechLock = new Object();
+    public String lastClientService = "";
+    public static final String POSITIVE_RESPONSE = "yes";
+    public static final String NEGATIVE_RESPONSE = "no";
 
     private boolean isInHighPulse;
     private CustomDialogBox customDialogBox = null;
@@ -197,14 +201,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     public static MainActivity getInstanceActivity() {
         return weakMainActivity.get();
-
-        /*        try {
-            return weakMainActivity.get();
-        }
-        catch (Exception exception){
-            Log.e(TAG,"Week reference null pointer exception");
-        }
-        return null ;*/
     }
 
     ServiceConnection serviceConnection = new ServiceConnection() {
@@ -315,26 +311,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     };
 */
 
-    public static String startSpeechElif(){
-        try {
-            speechRecognizer.startListening(intentRecognizer);
-            Log.i(TAG, "START SPEECH KISMINDAYIZ " + speechString);
-            return speechString;
-        }
-        catch(Exception e){
-            Log.e(TAG, "Speech cannot be started " +e);
-        }
-        return "Could not read";
-    }
-
-    public static void stopSpeech(){
-        speechRecognizer.stopListening();
-    }
-
-    public static String getSpeech(){
-        return speechString;
-    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -432,79 +408,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
     }
 
-    // ELIF
-    private void setSpeechRecognizerElif(){
-        // SPEECH TO TEXT
-
-        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
-        intentRecognizer = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intentRecognizer.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        //  intentRecognizer.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
-        speechRecognizer.setRecognitionListener(new RecognitionListener() {
-            @Override
-            public void onReadyForSpeech(Bundle params) {
-
-            }
-
-            @Override
-            public void onBeginningOfSpeech() {
-
-            }
-
-            @Override
-            public void onRmsChanged(float rmsdB) {
-
-            }
-
-            @Override
-            public void onBufferReceived(byte[] buffer) {
-
-            }
-
-            @Override
-            public void onEndOfSpeech() {
-
-            }
-
-            @Override
-            public void onError(int error) {
-
-            }
-
-            @Override
-            public void onResults(Bundle results) {
-                ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-                Log.i(TAG, "ON RESULTS SIZE " + matches.size());
-                String s = "";
-                if (matches != null) {
-                    for (int i = 0; i < matches.size(); i++) {
-                        s += matches.get(i);
-                    }
-                }
-                speechString = s;
-            }
-
-            @Override
-            public void onPartialResults(Bundle partialResults) {
-                ArrayList<String> matches = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-                String s = "";
-                if (matches != null) {
-                    for (int i = 0; i < matches.size(); i++) {
-                        s += matches.get(i);
-                    }
-                }
-                speechString = s;
-            }
-
-            @Override
-            public void onEvent(int eventType, Bundle params) {
-
-            }
-        });
-    }
-
-
-
     public void checkPermissions(){
         // PERMISSION CHECK FOR CAMERA
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -532,8 +435,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     protected void onStart() {
         super.onStart();
         //LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(broadcastReceiver, new IntentFilter("cs_Message"));
-
-
         // Set the connection parameters
         ConnectionParams connectionParams =
                 new ConnectionParams.Builder(CLIENT_ID)
@@ -561,9 +462,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 });
         //  makeCall("");
         Log.i(TAG, " after make call");
-
     }
-
 
     public void jukeBox(String playlistType){
         if(!playlistType.equals(lastPlayedGenre) || !isPlayingMusic){
@@ -627,30 +526,10 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         SpotifyAppRemote.disconnect(mSpotifyAppRemote);
     }
      */
-
-
-    /*
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == TTS_CHECK_CODE) {
-            if (resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
-                // success, create the TTS instance
-
-            } else {
-                // missing data, install it
-                Intent installIntent = new Intent();
-                installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
-                startActivity(installIntent);
-            }
-        }
-    }
-     */
-
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void activateRoadTrip(View view) {
-        emotionStarted = false;
-        rPPGStarted = false;
+        emotionStarted = true;
+        rPPGStarted = true;
         fatigueStarted = true;
         crashStarted = false;
 
@@ -700,6 +579,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
         Speech.readText("Starting our road trip");
         //sendSMS("+905077907940", "Check Utku !! ");
+        //sendSMS("+905424140099", "Check Utku !! ");
+        //makeCall("+905424140099", "UTKU");
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -900,25 +781,45 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         sms.sendTextMessage(number, null, message, null, null);
     }
 
-    public static String getDefaultSmsAppPackageName(@NonNull Context context) {
-        String defaultSmsPackageName;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            defaultSmsPackageName = Telephony.Sms.getDefaultSmsPackage(context);
-            return defaultSmsPackageName;
-        } else {
-            Intent intent = new Intent(Intent.ACTION_VIEW)
-                    .addCategory(Intent.CATEGORY_DEFAULT).setType("vnd.android-dir/mms-sms");
-            final List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(intent, 0);
-            if (resolveInfos != null && !resolveInfos.isEmpty())
-                return resolveInfos.get(0).activityInfo.packageName;
-
-        }
-        return null;
+    // UTKU
+    public void startSpeech(String serviceType){
+        pauseSpotify();
+        speech.startListening(recognizerIntent);
+        lastClientService = serviceType;
+    }
+    public void pauseSpotify(){
+        mSpotifyAppRemote.getPlayerApi().pause();
+    }
+    public void resumeSpotify(){
+        mSpotifyAppRemote.getPlayerApi().resume();
     }
 
-    // UTKU
-    public void startSpeech(){
-        speech.startListening(recognizerIntent);
+    public void processResults(String result){
+        System.out.println("PROCEESS RESULTSSS  " + lastClientService + "   " + result + ".");
+        if(result.contains(POSITIVE_RESPONSE) && lastClientService.equals("Fatigue")){
+            Speech.readText("There you go");
+            openGoogleMaps("station");
+        }
+        else if(result.contains(POSITIVE_RESPONSE) && lastClientService.equals("rPPG")){
+            Speech.readText("There you go");
+            openGoogleMaps("hospital");
+        }
+        else if(result.contains(POSITIVE_RESPONSE) && lastClientService.equals("Emotion-Sad")){
+            jukeBox("Energetic");
+        }
+        else if(result.contains(POSITIVE_RESPONSE) && lastClientService.equals("Emotion-Angry")){
+            jukeBox("Calm");
+        }
+        else if(result.contains(POSITIVE_RESPONSE) && lastClientService.equals("Emotion-Fear")){
+            jukeBox("Fear");
+        }
+        else if(result.contains(POSITIVE_RESPONSE) && lastClientService.equals("Emotion-Happy")){
+            jukeBox("Happy");
+        }
+        else if(result.contains(NEGATIVE_RESPONSE)){
+            Speech.readText("Ooh, okay then");
+        }
+        resumeSpotify();
     }
 
     public String getSpeechString(){
@@ -947,6 +848,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             speech.destroy();
         }
         speech.stopListening();
+        mSpotifyAppRemote.getPlayerApi().pause();
         SpotifyAppRemote.disconnect(mSpotifyAppRemote);
     }
 
@@ -973,15 +875,23 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     @Override
     public void onResults(Bundle results) {
         Log.i(TAG_SPEECH, "onResults");
+
         ArrayList<String> matches = results
                 .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
         String text = "";
         for (String result : matches)
             text += result + "\n";
-
         returnedText.setText(text);
         progressBar.setIndeterminate(false);
         speechString = text;
+        processResults(text);
+        /**
+        synchronized (fatigueSpeechLock){
+            returnedText.setText(text);
+            progressBar.setIndeterminate(false);
+            speechString = text;
+            fatigueSpeechLock.notify();
+        }*/
     }
 
     @Override
