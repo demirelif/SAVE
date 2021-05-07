@@ -375,7 +375,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
 
         // SPEECH TO TEXT
-        resetSpeechRecognizer();
+        //resetSpeechRecognizer();
 
         // check for permission
         int permissionCheck = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.RECORD_AUDIO);
@@ -393,6 +393,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 .registerOnSharedPreferenceChangeListener(this);
     }
     // utku
+    /*
     private void resetSpeechRecognizer(){
         if(speech != null)
             speech.destroy();
@@ -403,6 +404,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         else
             finish();
     }
+
+     */
     // utku
     private void setRecognizerIntent(){
         recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -852,14 +855,17 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public void onResume() {
         Log.i(TAG_SPEECH, "resume");
         super.onResume();
-        resetSpeechRecognizer();
+        //resetSpeechRecognizer();
     }
 
     @Override
     protected void onPause() {
         Log.i(TAG_SPEECH, "pause");
         super.onPause();
+        /*
         speech.stopListening();
+
+         */
     }
 
     @Override
@@ -869,7 +875,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         if (speech != null) {
             speech.destroy();
         }
-        speech.stopListening();
+        //speech.stopListening();
         //mSpotifyAppRemote.getPlayerApi().pause();
         SpotifyAppRemote.disconnect(mSpotifyAppRemote);
     }
@@ -891,7 +897,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public void onEndOfSpeech() {
         Log.i(TAG_SPEECH, "onEndOfSpeech");
         progressBar.setIndeterminate(true);
-        speech.stopListening();
+        //speech.stopListening();
     }
 
     @Override
@@ -922,7 +928,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Log.i(TAG_SPEECH, "FAILED " + errorMessage);
         //returnedError.setText(errorMessage);
         // rest voice recogniser
-        resetSpeechRecognizer();
+        //resetSpeechRecognizer();
         speech.startListening(recognizerIntent);
     }
 

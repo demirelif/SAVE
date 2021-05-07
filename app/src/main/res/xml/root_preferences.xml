@@ -20,26 +20,6 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="Distraction Assistant">
-
-        <SwitchPreferenceCompat
-            app:key="distraction"
-            app:summaryOff="@string/attachment_summary_off"
-            app:summaryOn="@string/attachment_summary_on"
-            app:title="Allow This Aplication To Warn You When Distraction Happens" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory app:title="Traffic Light Assistant">
-
-        <SwitchPreferenceCompat
-            app:key="traffic"
-            app:summaryOff="@string/attachment_summary_off"
-            app:summaryOn="@string/attachment_summary_on"
-            app:title="Activate Traffic Light Tracking And Give Warnings When Light Change Goes Unnoticed" />
-
-    </PreferenceCategory>
-
     <PreferenceCategory app:title="emergency Collusion Message">
 
         <SwitchPreferenceCompat
