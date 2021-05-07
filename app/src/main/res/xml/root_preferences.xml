@@ -4,9 +4,9 @@
 
         <SwitchPreferenceCompat
             app:key="drowsiness"
-            app:summaryOff="@string/attachment_summary_off"
-            app:summaryOn="@string/attachment_summary_on"
-            app:title="Allow This Application To Warn You When Drowsiness Detected" />
+            app:title="Allow This Application To Warn You When Drowsiness Detected"
+            app:defaultValue="true" />
+
 
     </PreferenceCategory>
 
@@ -14,9 +14,8 @@
 
         <SwitchPreferenceCompat
             app:key="rppg"
-            app:summaryOff="@string/attachment_summary_off"
-            app:summaryOn="@string/attachment_summary_on"
-            app:title="Allow This Application To Check You When Emergency Health Condition Occurs" />
+            app:title="Allow This Application To Check You When Emergency Health Condition Occurs"
+            app:defaultValue="true" />
 
     </PreferenceCategory>
 
@@ -24,9 +23,8 @@
 
         <SwitchPreferenceCompat
             app:key="gforce"
-            app:summaryOff="@string/attachment_summary_off"
-            app:summaryOn="@string/attachment_summary_on"
-            app:title="In Case Of Sudden Change Of G Force, Inform Emergeny Contact" />
+            app:title="In Case Of Sudden Change Of G Force, Inform Emergeny Contact"
+            app:defaultValue="true" />
 
     </PreferenceCategory>
 
@@ -34,9 +32,8 @@
 
         <SwitchPreferenceCompat
             app:key="music"
-            app:summaryOff="@string/attachment_summary_off"
-            app:summaryOn="@string/attachment_summary_on"
-            app:title="Will Play Music According To Your Mood" />
+            app:title="Will Play Music According To Your Mood"
+            app:defaultValue="true" />
 
     </PreferenceCategory>
 

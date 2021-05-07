@@ -204,6 +204,14 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     Connection connect;
     String connectionResult = "";
 
+    boolean fatigueVal;
+    boolean emotionVal;
+    boolean crashVal;
+    boolean rppgVal;
+    boolean voiceCommandVal;
+    boolean audioMessageVal;
+    boolean popupVal;
+
     public static MainActivity getInstanceActivity() {
         return weakMainActivity.get();
     }
@@ -389,8 +397,15 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
         checkPermissions();
         // SETTINGS
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .registerOnSharedPreferenceChangeListener(this);
+        //PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+        crashVal = prefs.getBoolean("gforce", true);
+        emotionVal = prefs.getBoolean("music", true);
+        rppgVal = prefs.getBoolean("rppg", true);
+        fatigueVal = prefs.getBoolean("drowsiness", true);
+
+
     }
     // utku
     /*
@@ -547,7 +562,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Intent speechIntent = new Intent(MainActivity.this, Speech.class);
         bindService(speechIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(speechIntent);
-
+        /*
         SharedPreferences preferences = getSharedPreferences("root_settings", MODE_PRIVATE);
         //SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         Log.i(TAG, "bunlar var: " + preferences.getAll());
@@ -559,29 +574,31 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         boolean value2 = preferences.getBoolean("music", false);
         Log.i(TAG, "Music: " + value2);
 
+         */
+
 
         Intent frontCameraIntent = new Intent(MainActivity.this, FrontCameraService.class);
         bindService(frontCameraIntent, serviceConnection, BIND_AUTO_CREATE);
         MainActivity.this.startService(frontCameraIntent);
-        if(emotionStarted){
+        if(emotionStarted && emotionVal){
             Intent emotionIntent = new Intent(MainActivity.this, EmotionService.class);
             bindService(emotionIntent, serviceConnection, BIND_AUTO_CREATE);
             MainActivity.this.startService(emotionIntent);
             emotionStarted = true;
         }
-        if(rPPGStarted){
+        if(rPPGStarted && rppgVal){
             Intent rPPGIntent = new Intent(MainActivity.this, rPPGService.class);
             bindService(rPPGIntent, serviceConnection, BIND_AUTO_CREATE);
             MainActivity.this.startService(rPPGIntent);
             rPPGStarted = true;
         }
-        if(fatigueStarted){
+        if(fatigueStarted && fatigueVal){
             Intent fatigueIntent = new Intent(MainActivity.this, FatigueService.class);
             bindService(fatigueIntent, serviceConnection, BIND_AUTO_CREATE);
             MainActivity.this.startService(fatigueIntent);
             fatigueStarted = true;
         }
-        if(crashStarted){
+        if(crashVal){
             startTracking(null);
             crashStarted = true;
         }

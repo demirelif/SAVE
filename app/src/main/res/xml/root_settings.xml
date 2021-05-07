@@ -31,7 +31,7 @@
             app:title="Contact Form"
             app:useSimpleSummaryProvider="true"
             />
-        
+
     </PreferenceCategory>
 
     <PreferenceCategory app:title="Voice Control">
